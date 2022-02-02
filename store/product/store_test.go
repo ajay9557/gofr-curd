@@ -2,7 +2,7 @@ package product
 
 import (
 	"context"
-	"gofrPractice/models"
+	"gofr-curd/models"
 	"log"
 	"reflect"
 	"testing"

@@ -2,8 +2,8 @@ package product
 
 import (
 	"database/sql"
-	"gofrPractice/models"
-	"gofrPractice/store"
+	"gofr-curd/models"
+	"gofr-curd/store"
 	"strconv"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"

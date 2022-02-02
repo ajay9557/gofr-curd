@@ -4,8 +4,8 @@ import (
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 	"github.com/golang/mock/gomock"
-	"gofrPractice/models"
-	"gofrPractice/store"
+	"gofr-curd/models"
+	"gofr-curd/store"
 	"reflect"
 	"testing"
 )

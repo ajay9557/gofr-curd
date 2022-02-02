@@ -1,7 +1,7 @@
 package product
 
 import (
-	"gofrPractice/service"
+	"gofr-curd/service"
 	"strconv"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"

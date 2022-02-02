@@ -1,8 +1,9 @@
 package service
 
 import (
+	"gofr-curd/models"
+
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
-	"gofrPractice/models"
 )
 
 type Services interface {

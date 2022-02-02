@@ -1,8 +1,8 @@
 package product
 
 import (
-	"gofrPractice/models"
-	"gofrPractice/service"
+	"gofr-curd/models"
+	"gofr-curd/service"
 	"net/http"
 	"net/http/httptest"
 	"reflect"

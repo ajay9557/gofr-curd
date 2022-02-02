@@ -5,7 +5,7 @@
 package store
 
 import (
-	models "gofrPractice/models"
+	models "gofr-curd/models"
 	reflect "reflect"
 
 	gofr "developer.zopsmart.com/go/gofr/pkg/gofr"

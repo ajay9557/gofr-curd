@@ -1,9 +1,9 @@
 package main
 
 import (
-	productHandler "gofrPractice/delivery/product"
-	productService "gofrPractice/service/product"
-	productStore "gofrPractice/store/product"
+	productHandler "gofr-curd/delivery/product"
+	productService "gofr-curd/service/product"
+	productStore "gofr-curd/store/product"
 
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )

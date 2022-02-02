@@ -1,9 +1,9 @@
 package product
 
 import (
-	"gofrPractice/models"
-	"gofrPractice/service"
-	"gofrPractice/store"
+	"gofr-curd/models"
+	"gofr-curd/service"
+	"gofr-curd/store"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
@@ -21,7 +21,7 @@ func New(s store.Store) service.Services {
 
 func (s *services) GetById(ctx *gofr.Context, id int) (*models.Product, error) {
 	if !validateId(id) {
-		return &models.Product{}, errors.InvalidParam{
+		return nil, errors.InvalidParam{
 			Param: []string{"id"},
 		}
 	}

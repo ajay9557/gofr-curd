@@ -1,7 +1,7 @@
 package store
 
 import (
-	"gofrPractice/models"
+	"gofr-curd/models"
 
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
