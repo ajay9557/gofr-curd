@@ -2,11 +2,12 @@ package product
 
 import (
 	"database/sql"
-	"developer.zopsmart.com/go/gofr/pkg/errors"
-	"developer.zopsmart.com/go/gofr/pkg/gofr"
 	"gofrPractice/models"
 	"gofrPractice/store"
 	"strconv"
+
+	"developer.zopsmart.com/go/gofr/pkg/errors"
+	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
 type product struct{}

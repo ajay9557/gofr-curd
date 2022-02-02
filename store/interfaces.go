@@ -1,8 +1,9 @@
 package store
 
 import (
-	"developer.zopsmart.com/go/gofr/pkg/gofr"
 	"gofrPractice/models"
+
+	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
 type Store interface {
