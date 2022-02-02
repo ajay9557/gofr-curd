@@ -2,8 +2,11 @@ package products
 
 import (
 	"context"
+	"log"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
@@ -12,17 +15,41 @@ import (
 
 func TestCoreLayer(t *testing.T) {
 	app := gofr.New()
-	testGetProductByID(t, app)
+
+	db, mock, _ := sqlmock.New()
+
+	database, err := gorm.Open("mysql", db)
+	if err != nil {
+		log.Println("Error opening gorm conn", db)
+	}
+
+	app.ORM = database
+
+	testGetProductByID(t, app, mock)
 }
 
-func testGetProductByID(t *testing.T, app *gofr.Gofr) {
+func testGetProductByID(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
+
+	rows := mock.NewRows([]string{"id", "name", "category"}).AddRow(1, "mouse", "electronics")
+
 	tests := []struct {
-		desc string
-		id   int
-		err  error
+		desc     string
+		id       int
+		err      error
+		mockCall *sqlmock.ExpectedQuery
 	}{
-		{"Get existent id", 1, nil},
-		{"Get non existent id", 100, errors.EntityNotFound{Entity: "products", ID: "100"}},
+		{
+			desc:     "Get existent id",
+			id:       1,
+			err:      nil,
+			mockCall: mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(1).WillReturnRows(rows),
+		},
+		{
+			desc:     "Get non existent id",
+			id:       100,
+			err:      errors.EntityNotFound{Entity: "products", ID: "100"},
+			mockCall: mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(100).WillReturnRows(mock.NewRows([]string{"id", "name", "category"})),
+		},
 	}
 
 	for i, tc := range tests {
