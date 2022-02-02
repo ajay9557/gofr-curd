@@ -21,8 +21,6 @@ func New(s store.Product) service.Product {
 }
 
 func (srv *Service) GetById(ctx *gofr.Context, id string) (*models.Product, error) {
-	// TODO: Validate Id here
-
 	convId, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, errors.EntityNotFound{Entity: "products", ID: id}

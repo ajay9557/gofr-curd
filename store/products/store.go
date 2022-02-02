@@ -17,7 +17,6 @@ func New() store.Product {
 }
 
 func (p product) GetById(ctx *gofr.Context, id int) (*models.Product, error) {
-	// TODO: Get product by id
 	var product models.Product
 
 	err := ctx.DB().QueryRow("SELECT * FROM products WHERE id = ?", id).Scan(&product.Id, &product.Name, &product.Category)

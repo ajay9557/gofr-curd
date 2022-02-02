@@ -24,7 +24,7 @@ func (h handler) GetByIdHandler(ctx *gofr.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	resData := struct {
+	resData := &struct {
 		Product *models.Product `json:"product"`
 	}{
 		Product: p,
