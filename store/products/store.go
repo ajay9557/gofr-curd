@@ -19,10 +19,29 @@ func New() store.Product {
 func (p product) GetById(ctx *gofr.Context, id int) (*models.Product, error) {
 	var product models.Product
 
-	err := ctx.DB().QueryRow("SELECT * FROM products WHERE id = ?", id).Scan(&product.Id, &product.Name, &product.Category)
+	err := ctx.DB().QueryRowContext(ctx, "SELECT * FROM products WHERE id = ?", id).Scan(&product.Id, &product.Name, &product.Category)
 	if err == sql.ErrNoRows {
 		return nil, errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(id)}
 	}
 
 	return &product, nil
+}
+
+func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
+
+	var products []*models.Product
+
+	rows, _ := ctx.DB().QueryContext(ctx, "SELECT * FROM products")
+
+	for rows.Next() {
+		var pr models.Product
+		err := rows.Scan(&pr.Id, &pr.Name, &pr.Category)
+		if err != nil {
+			return nil, errors.EntityNotFound{Entity: "product"}
+		}
+
+		products = append(products, &pr)
+	}
+
+	return products, nil
 }

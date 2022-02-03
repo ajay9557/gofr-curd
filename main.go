@@ -17,6 +17,7 @@ func main() {
 	h := productHandler.New(srv)
 
 	app.GET("/products/{id}", h.GetByIdHandler)
+	app.GET("/products", h.GetHandler)
 
 	app.Server.HTTP.Port = 5000
 	app.Server.ValidateHeaders = false

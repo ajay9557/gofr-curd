@@ -32,3 +32,18 @@ func (h handler) GetByIdHandler(ctx *gofr.Context) (interface{}, error) {
 
 	return resData, nil
 }
+
+func (h handler) GetHandler(ctx *gofr.Context) (interface{}, error) {
+	products, err := h.srv.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resData := &struct {
+		Products []*models.Product `json:"products"`
+	}{
+		Products: products,
+	}
+
+	return resData, nil
+}

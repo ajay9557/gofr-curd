@@ -34,6 +34,21 @@ func (m *MockProduct) EXPECT() *MockProductMockRecorder {
 	return m.recorder
 }
 
+// Get mocks base method
+func (m *MockProduct) Get(arg0 *gofr.Context) ([]*models.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", arg0)
+	ret0, _ := ret[0].([]*models.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get
+func (mr *MockProductMockRecorder) Get(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockProduct)(nil).Get), arg0)
+}
+
 // GetById mocks base method
 func (m *MockProduct) GetById(arg0 *gofr.Context, arg1 int) (*models.Product, error) {
 	m.ctrl.T.Helper()

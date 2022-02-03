@@ -7,4 +7,5 @@ import (
 
 type Product interface {
 	GetById(ctx *gofr.Context, id int) (*models.Product, error)
+	Get(ctx *gofr.Context) ([]*models.Product, error)
 }
