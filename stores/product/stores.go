@@ -29,3 +29,23 @@ func (p product) UserById(ctx *gofr.Context, id int) (*models.Product, error) {
 	}
 	return &prd, nil
 }
+
+func (p product) GetAllUsers(ctx *gofr.Context) ([]*models.Product, error) {
+	var prds []*models.Product
+	rows, _ := ctx.DB().Query("select * from Product")
+	// if err != nil {
+	// 	return []*models.Product{}, errors.DB{Err: err}
+	// }
+	for rows.Next() {
+		var prd models.Product
+		err := rows.Scan(&prd.Id, &prd.Name, &prd.Type)
+		if err != nil {
+			return prds, errors.EntityNotFound{Entity: "Product"}
+		}
+
+		prds = append(prds, &prd)
+	}
+
+	return prds, nil
+
+}

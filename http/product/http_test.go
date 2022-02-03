@@ -98,3 +98,64 @@ func TestGetProductById(t *testing.T) {
 		})
 	}
 }
+
+func TestGetAllUsers(t *testing.T) {
+
+	app := gofr.New()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUserService := services.NewMockIservice(ctrl)
+	testhndlr := Handler{mockUserService}
+
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+
+	tests := []struct {
+		desc string
+		// id          string
+		expected    []*models.Product
+		expectedErr error
+		mockCall    *gomock.Call
+	}{
+		{
+			desc: "Case1",
+
+			expected: []*models.Product{&models.Product{Id: 1, Name: "daikin", Type: "AC"},
+				&models.Product{Id: 2, Name: "milton", Type: "Water Bottle"}},
+			expectedErr: nil,
+			mockCall: mockUserService.EXPECT().GetAllUsers(gomock.Any()).Return([]*models.Product{&models.Product{Id: 1, Name: "daikin", Type: "AC"},
+				&models.Product{Id: 2, Name: "milton", Type: "Water Bottle"}}, nil),
+		},
+		{
+			desc: "Case2",
+
+			expected:    []*models.Product{},
+			expectedErr: errors.EntityNotFound{Entity: "products"},
+			mockCall:    mockUserService.EXPECT().GetAllUsers(gomock.Any()).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.desc, func(t *testing.T) {
+			r := httptest.NewRequest( /*http.MethodGet*/ "GET", "/products", nil)
+			w := httptest.NewRecorder()
+
+			req := request.NewHTTPRequest(r)
+			res := responder.NewContextualResponder(w, r)
+
+			ctx := gofr.NewContext(res, req, app)
+
+			// p, err := testhndlr.GetByIdHandler(ctx)
+			_, err := testhndlr.GetAllUsers(ctx)
+			// p, err := testUserService.GetProductById(ctx, test.id)
+			if !reflect.DeepEqual(err, test.expectedErr) {
+				t.Error("expected: ", test.expectedErr, "obtained: ", err)
+			}
+			// if err == nil && !reflect.DeepEqual(test.expected, p) {
+			// 	t.Errorf("Expected: %v, Got: %v", test.expected, p)
+			// }
+
+		})
+	}
+
+}

@@ -35,6 +35,21 @@ func (m *MockIstore) EXPECT() *MockIstoreMockRecorder {
 	return m.recorder
 }
 
+// GetAllUsers mocks base method.
+func (m *MockIstore) GetAllUsers(arg0 *gofr.Context) ([]*models.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllUsers", arg0)
+	ret0, _ := ret[0].([]*models.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllUsers indicates an expected call of GetAllUsers.
+func (mr *MockIstoreMockRecorder) GetAllUsers(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllUsers", reflect.TypeOf((*MockIstore)(nil).GetAllUsers), arg0)
+}
+
 // UserById mocks base method.
 func (m *MockIstore) UserById(arg0 *gofr.Context, arg1 int) (*models.Product, error) {
 	m.ctrl.T.Helper()

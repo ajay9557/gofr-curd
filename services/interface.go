@@ -8,4 +8,5 @@ import (
 
 type Iservice interface {
 	GetProductById(ctx *gofr.Context, id string) (*models.Product, error)
+	GetAllUsers(ctx *gofr.Context) ([]*models.Product, error)
 }

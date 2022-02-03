@@ -16,6 +16,7 @@ func main() {
 	hndlr := httpProd.Handler{Service: serv}
 
 	application.GET("/products/{id}", hndlr.GetByIdHandler)
+	application.GET("/products", hndlr.GetAllUsers)
 	application.Server.HTTP.Port = 5000
 	application.Server.ValidateHeaders = false
 	fmt.Println("Listening to Port 5000")

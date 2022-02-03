@@ -37,3 +37,13 @@ func (srv *ProductService) GetProductById(ctx *gofr.Context, id string) (*models
 	return prd, nil
 
 }
+
+func (srv *ProductService) GetAllUsers(ctx *gofr.Context) ([]*models.Product, error) {
+	var prd []*models.Product
+	res, err := srv.storeInterface.GetAllUsers(ctx)
+	if err != nil {
+		return prd, err
+	}
+	prd = res
+	return prd, nil
+}

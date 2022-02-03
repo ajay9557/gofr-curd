@@ -8,4 +8,5 @@ import (
 
 type Istore interface {
 	UserById(ctx *gofr.Context, id int) (*models.Product, error)
+	GetAllUsers(ctx *gofr.Context) ([]*models.Product, error)
 }
