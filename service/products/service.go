@@ -37,3 +37,12 @@ func (srv *Service) GetById(ctx *gofr.Context, id string) (*models.Product, erro
 
 	return product, nil
 }
+
+func (srv *Service) Get(ctx *gofr.Context) ([]*models.Product, error) {
+	products, err := srv.store.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}
