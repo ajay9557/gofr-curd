@@ -17,9 +17,11 @@ func main() {
 
 	application.GET("/products/{id}", hndlr.GetByIdHandler)
 	application.GET("/products", hndlr.GetAllUsers)
+	application.POST("/products", hndlr.CreateProduct)
+	application.DELETE("/products/{id}", hndlr.DeleteById)
+	application.PUT("/products/{id}", hndlr.UpdateById)
 	application.Server.HTTP.Port = 5000
 	application.Server.ValidateHeaders = false
 	fmt.Println("Listening to Port 5000")
 	application.Start()
-
 }

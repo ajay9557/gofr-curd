@@ -49,3 +49,36 @@ func (p product) GetAllUsers(ctx *gofr.Context) ([]*models.Product, error) {
 	return prds, nil
 
 }
+
+func (p product) CreateProduct(ctx *gofr.Context, prd models.Product) (int, error) {
+	result, err := ctx.DB().Exec("insert into Product(name,type) values (?,?)", prd.Name, prd.Type)
+	if err != nil {
+		return 0, errors.DB{Err: err}
+	}
+
+	newId, _ := result.LastInsertId()
+
+	return int(newId), nil
+
+}
+
+func (p product) DeleteById(ctx *gofr.Context, id int) error {
+	// var prd models.Product
+	_, err := ctx.DB().Exec("delete from Product where id = ?", id)
+	if err != nil {
+		return errors.DB{Err: err}
+	}
+	return nil
+}
+
+func (p product) UpdateById(ctx *gofr.Context, id int, prd models.Product) (int, error) {
+	var i int
+
+	_, err := ctx.DB().Exec("update Product set name = ?,type = ? where id = ?", prd.Name, prd.Type, id)
+	if err != nil {
+		return i, errors.DB{Err: err}
+	}
+	i = id
+
+	return i, nil
+}
