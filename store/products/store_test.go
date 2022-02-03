@@ -10,12 +10,19 @@ import (
 	"github.com/ridhdhish-desai-zs/product-gofr/models"
 	"github.com/stretchr/testify/assert"
 
+	"developer.zopsmart.com/go/gofr/pkg/datastore"
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
 func TestCoreLayer(t *testing.T) {
 	app := gofr.New()
+
+	// Seeder will populate actual database with default data defined in .csv file.
+	seeder := datastore.NewSeeder(&app.DataStore, "../../db")
+	// seeder.ResetCounter = true
+
+	seeder.RefreshTables(t, "products")
 
 	db, mock, _ := sqlmock.New()
 
@@ -27,6 +34,9 @@ func TestCoreLayer(t *testing.T) {
 	app.ORM = database
 	testGetProductByID(t, app, mock)
 	testGetProducts(t, app, mock)
+	testCreate(t, app, mock)
+	seeder.RefreshTables(t, "products")
+
 }
 
 func testGetProductByID(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
@@ -96,13 +106,6 @@ func testGetProducts(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 			err:      nil,
 			mockCall: mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(1).WillReturnRows(rows),
 		},
-		// {
-		// 	desc:            "Connection error/ Context cancelled",
-		// 	expectedProduct: nil,
-		// 	err:             errors.EntityNotFound{Entity: "products"},
-		// 	isCtxDone:       true,
-		// 	mockCall:        mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(100).WillReturnRows(mock.NewRows([]string{"id", "name", "category"})),
-		// },
 	}
 
 	for i, tc := range tests {
@@ -115,6 +118,36 @@ func testGetProducts(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 			p, err := store.Get(ctx)
 			assert.Equal(t, tc.err, err, "TEST[%d], failed.\n%s", i, tc.desc)
 			assert.Equal(t, tc.expectedProduct, p, "TEST[%d], failed.\n%s", i, tc.desc)
+		})
+	}
+}
+
+func testCreate(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
+	tests := []struct {
+		desc          string
+		expectedId    int
+		expectedError error
+		// mockCall      sqlmock.ExpectedExec
+	}{
+		{
+			desc:          "Success Case",
+			expectedId:    14,
+			expectedError: nil,
+			// mockCall: ,
+		},
+	}
+
+	store := New()
+
+	for i, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			ctx := gofr.NewContext(nil, nil, app)
+			ctx.Context = context.Background()
+
+			productId, err := store.Create(ctx, models.Product{Name: "volleyball", Category: "sports"})
+
+			assert.Equal(t, tc.expectedError, err, "TEST[%d], failed.\n%s", i, tc.desc)
+			assert.Equal(t, tc.expectedId, productId, "TEST[%d], failed.\n%s", i, tc.desc)
 		})
 	}
 }

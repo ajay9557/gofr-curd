@@ -45,3 +45,14 @@ func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 
 	return products, nil
 }
+
+func (p product) Create(ctx *gofr.Context, pr models.Product) (int, error) {
+	result, err := ctx.DB().Exec("INSERT INTO products(name, category) values(?, ?)", pr.Name, pr.Category)
+	if err != nil {
+		return 0, errors.InvalidParam{}
+	}
+
+	id, _ := result.LastInsertId()
+
+	return int(id), nil
+}
