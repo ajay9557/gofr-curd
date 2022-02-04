@@ -16,6 +16,7 @@ import (
 func TestCoreLayer(t *testing.T) {
 	app := gofr.New()
 	testProductsGetById(t, app)
+	//TestProductDeleteById(t, app)
 }
 
 func testProductsGetById(t *testing.T, app *gofr.Gofr) {
@@ -40,12 +41,12 @@ func testProductsGetById(t *testing.T, app *gofr.Gofr) {
 	}{
 		{
 			desc: "Success",
-			Id:   1,
+			Id:   3,
 			err:  nil,
 			expectedOutput: models.Product{
-				Id:   1,
+				Id:   3,
 				Name: "Shirts",
-				Type: "US POLO",
+				Type: "Twills",
 			},
 			Mock: []interface{}{mock.ExpectQuery(query).WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"}).AddRow(1, "Shirtspio", "US POLO"))},
 		},
@@ -72,3 +73,35 @@ func testProductsGetById(t *testing.T, app *gofr.Gofr) {
 		})
 	}
 }
+
+// func TestProductDeleteById(t *testing.T) {
+// 	app := gofr.New()
+// 	tcs := []struct {
+// 		desc string
+// 		Id   int
+// 		err  error
+// 	}{
+// 		{
+// 			desc: "Success",
+// 			Id:   1,
+// 			err:  nil,
+// 		},
+// 		{
+// 			desc: "Failure",
+// 			Id:   4,
+// 			err: errors.Error("Internal DB error"),
+// 		},
+// 	}
+
+// 	for _, tc := range tcs {
+// 		ctx := gofr.NewContext(nil, nil, app)
+// 		ctx.Context = context.Background()
+// 		store := New()
+// 		t.Run(tc.desc, func(t *testing.T) {
+// 			err := store.DeleteId(ctx, tc.Id)
+// 			if !reflect.DeepEqual(err, tc.err) {
+// 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
+// 			}
+// 		})
+// 	}
+// }

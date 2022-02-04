@@ -17,6 +17,10 @@ func main() {
 	ht := httplayer.Handler{service}
 
 	app.GET("/product/{id}", ht.GetById)
+	app.GET("/product", ht.GetAllProducts)
+	app.POST("/product", ht.Insert)
+	app.PUT("/product", ht.Update)
+	app.DELETE("/product/{id}", ht.DeleteById)
 	app.Server.HTTP.Port = 9092
 	app.Start()
 
