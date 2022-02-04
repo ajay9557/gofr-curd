@@ -2,47 +2,29 @@ package product
 
 import (
 	"context"
-	"fmt"
 	"gofr-curd/models"
 	"reflect"
 	"testing"
 
+	"developer.zopsmart.com/go/gofr/pkg/datastore"
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/jinzhu/gorm"
 )
 
 func TestGetById(t *testing.T) {
-
 	app := gofr.New()
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	defer db.Close()
-
-	database, err := gorm.Open("mysql", db)
-	if err != nil {
-		fmt.Println("Error opening gorm conn", db)
-	}
-	app.ORM = database
+	seeder := datastore.NewSeeder(&app.DataStore, "../db")
+	seeder.ResetCounter = true
 
 	testCases := []struct {
 		desc        string
 		id          int
 		expectedErr error
-		Mock        []interface{}
 		expectedRes models.Product
 	}{
 		{
-			desc: "Success case",
-			id:   1,
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(1).
-					WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"}).
-						AddRow(1, "jeans", "clothes")),
-			},
+			desc:        "Success case",
+			id:          1,
 			expectedErr: nil,
 			expectedRes: models.Product{
 				Id:   1,
@@ -51,13 +33,9 @@ func TestGetById(t *testing.T) {
 			},
 		},
 		{
-			desc: "Failure case",
-			id:   0,
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(1).
-					WillReturnError(errors.EntityNotFound{Entity: "product", ID: "0"}),
-			},
-			expectedErr: errors.EntityNotFound{Entity: "product", ID: "0"},
+			desc:        "Failure case",
+			id:          1234,
+			expectedErr: errors.EntityNotFound{Entity: "product", ID: "1234"},
 			expectedRes: models.Product{},
 		},
 	}
@@ -69,12 +47,136 @@ func TestGetById(t *testing.T) {
 			store := New()
 			res, err := store.GetById(ts.id, ctx)
 			if err != nil && !reflect.DeepEqual(ts.expectedErr, err) {
-				fmt.Print("expected ", ts.expectedErr, "obtained", err)
+				t.Error("expected ", ts.expectedErr, "obtained", err)
 			}
 			if !reflect.DeepEqual(ts.expectedRes, res) {
-				fmt.Print("expected ", ts.expectedRes, "obtained", res)
+				t.Error("expected ", ts.expectedRes, "obtained", res)
 			}
 		})
 	}
+}
 
+func TestGetAllProducts(t *testing.T) {
+	app := gofr.New()
+	seeder := datastore.NewSeeder(&app.DataStore, "../db")
+	seeder.ResetCounter = true
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	store := New()
+	_, err := store.GetAllProducts(ctx)
+	if err != nil {
+		t.Errorf("Failed, Expected %v Obtained %v", nil, err)
+	}
+}
+
+func TestInsertProduct(t *testing.T) {
+	app := gofr.New()
+	seeder := datastore.NewSeeder(&app.DataStore, "../db")
+	seeder.ResetCounter = true
+	testCases := []struct {
+		desc        string
+		product     models.Product
+		expectedErr error
+	}{
+		{
+			desc: "Success case",
+			product: models.Product{
+				Id:   7,
+				Name: "biryani",
+				Type: "food",
+			},
+			expectedErr: nil,
+		},
+		{
+			desc: "Failure case",
+			product: models.Product{
+				Id:   2,
+				Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkj",
+				Type: "food",
+			},
+			expectedErr: errors.Error("Error in executing query"),
+		},
+	}
+
+	for _, ts := range testCases {
+		t.Run(ts.desc, func(t *testing.T) {
+			ctx := gofr.NewContext(nil, nil, app)
+			ctx.Context = context.Background()
+			store := New()
+			err := store.InsertProduct(ts.product, ctx)
+			if err != nil && !reflect.DeepEqual(ts.expectedErr, err) {
+				t.Error("expected ", ts.expectedErr, "obtained", err)
+			}
+		})
+	}
+}
+
+func TestUpdateProduct(t *testing.T) {
+	app := gofr.New()
+	seeder := datastore.NewSeeder(&app.DataStore, "../db")
+	seeder.ResetCounter = true
+	testCases := []struct {
+		desc        string
+		product     models.Product
+		expectedErr error
+	}{
+		{
+			desc: "Success case",
+			product: models.Product{
+				Id:   7,
+				Name: "apple",
+				Type: "food",
+			},
+			expectedErr: nil,
+		},
+		{
+			desc: "Failure case",
+			product: models.Product{
+				Id:   2,
+				Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkj",
+				Type: "food",
+			},
+			expectedErr: errors.Error("Error in executing query"),
+		},
+	}
+
+	for _, ts := range testCases {
+		t.Run(ts.desc, func(t *testing.T) {
+			ctx := gofr.NewContext(nil, nil, app)
+			ctx.Context = context.Background()
+			store := New()
+			err := store.UpdateProduct(ts.product, ctx)
+			if err != nil && !reflect.DeepEqual(ts.expectedErr, err) {
+				t.Error("expected ", ts.expectedErr, "obtained", err)
+			}
+		})
+	}
+}
+
+func TestDeleteById(t *testing.T) {
+	app := gofr.New()
+	seeder := datastore.NewSeeder(&app.DataStore, "../db")
+	seeder.ResetCounter = true
+	testCases := []struct {
+		desc        string
+		id          int
+		expectedErr error
+	}{
+		{
+			desc:        "Success case",
+			id:          7,
+			expectedErr: nil,
+		},
+	}
+	for _, ts := range testCases {
+		t.Run(ts.desc, func(t *testing.T) {
+			ctx := gofr.NewContext(nil, nil, app)
+			ctx.Context = context.Background()
+			store := New()
+			err := store.DeleteById(ts.id, ctx)
+			if err != nil && !reflect.DeepEqual(ts.expectedErr, err) {
+				t.Error("expected ", ts.expectedErr, "obtained", err)
+			}
+		})
+	}
 }
