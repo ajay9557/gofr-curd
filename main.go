@@ -15,6 +15,10 @@ func main() {
 	prodHandler := productHandler.New(prodService)
 
 	app.GET("/product/{id}", prodHandler.GetProductById)
+	app.GET("/products", prodHandler.GetAllProducts)
+	app.PUT("/product/{id}", prodHandler.UpdateProduct)
+	app.DELETE("/product/{id}", prodHandler.DeleteProduct)
+	app.POST("/product", prodHandler.CreateProduct)
 
 	app.Server.ValidateHeaders = false
 
