@@ -18,9 +18,12 @@ func main() {
 	handler := productHandler.New(service)
 
 	app.GET("/product/{id}", handler.GetById)
+	app.GET("/products",handler.GetProducts)
+	app.POST("/products",handler.AddProduct)
+	app.DELETE("/products/{id}",handler.DeleteById)
+	app.PUT("/products/{id}",handler.UpdateById)
 
 	app.Server.HTTP.Port = 8000
-	//app.Server.MetricsPort = 2325
 	app.Start()
 
 }
