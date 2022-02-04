@@ -1,4 +1,4 @@
-module productGofr
+module gofr-curd
 
 go 1.17
 

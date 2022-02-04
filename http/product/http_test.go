@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"reflect"
 
-	"productGofr/models"
-	"productGofr/services"
+	"gofr-curd/models"
+	"gofr-curd/services"
 	"testing"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
@@ -16,7 +16,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestGetProductById(t *testing.T) {
+func TestGetProductByIdHandler(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -39,7 +39,7 @@ func TestGetProductById(t *testing.T) {
 			id:          "1",
 			expected:    &models.Product{Id: 1, Name: "daikinn", Type: "AC"},
 			expectedErr: nil,
-			// mockCall:    mockUserStore.EXPECT().UserById(ctx, 1).Return(&models.Product{Id: 1, Name: "daikinn", Type: "AC"}, nil),
+			// mockCall:    mockUserStore.EXPECT().GetProductById(ctx, 1).Return(&models.Product{Id: 1, Name: "daikinn", Type: "AC"}, nil),
 			mockCall: mockUserService.EXPECT().GetProductById(gomock.Any(), "1").Return(&models.Product{Id: 1, Name: "daikinn", Type: "AC"}, nil),
 		},
 		{
@@ -47,7 +47,7 @@ func TestGetProductById(t *testing.T) {
 			id:          "100",
 			expected:    &models.Product{},
 			expectedErr: errors.EntityNotFound{Entity: "products", ID: "100"},
-			// mockCall:    mockUserStore.EXPECT().UserById(ctx, 100).Return(&models.Product{}, errors.EntityNotFound{Entity: "products", ID: "100"}),
+			// mockCall:    mockUserStore.EXPECT().GetProductById(ctx, 100).Return(&models.Product{}, errors.EntityNotFound{Entity: "products", ID: "100"}),
 			mockCall: mockUserService.EXPECT().GetProductById(gomock.Any(), "100").Return(&models.Product{}, errors.EntityNotFound{Entity: "products", ID: "100"}),
 		},
 		{
@@ -85,8 +85,8 @@ func TestGetProductById(t *testing.T) {
 				"id": test.id,
 			})
 
-			// p, err := testhndlr.GetByIdHandler(ctx)
-			_, err := testhndlr.GetByIdHandler(ctx)
+			// p, err := testhndlr.GetProductByIdHandler(ctx)
+			_, err := testhndlr.GetProductByIdHandler(ctx)
 			// p, err := testUserService.GetProductById(ctx, test.id)
 			if !reflect.DeepEqual(err, test.expectedErr) {
 				t.Error("expected: ", test.expectedErr, "obtained: ", err)
@@ -99,7 +99,7 @@ func TestGetProductById(t *testing.T) {
 	}
 }
 
-func TestGetAllUsers(t *testing.T) {
+func TestGetAllProductsHandler(t *testing.T) {
 
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
@@ -124,7 +124,7 @@ func TestGetAllUsers(t *testing.T) {
 			expected: []*models.Product{&models.Product{Id: 1, Name: "daikin", Type: "AC"},
 				&models.Product{Id: 2, Name: "milton", Type: "Water Bottle"}},
 			expectedErr: nil,
-			mockCall: mockUserService.EXPECT().GetAllUsers(gomock.Any()).Return([]*models.Product{&models.Product{Id: 1, Name: "daikin", Type: "AC"},
+			mockCall: mockUserService.EXPECT().GetAllProducts(gomock.Any()).Return([]*models.Product{&models.Product{Id: 1, Name: "daikin", Type: "AC"},
 				&models.Product{Id: 2, Name: "milton", Type: "Water Bottle"}}, nil),
 		},
 		{
@@ -132,7 +132,7 @@ func TestGetAllUsers(t *testing.T) {
 
 			expected:    []*models.Product{},
 			expectedErr: errors.EntityNotFound{Entity: "products"},
-			mockCall:    mockUserService.EXPECT().GetAllUsers(gomock.Any()).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
+			mockCall:    mockUserService.EXPECT().GetAllProducts(gomock.Any()).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
 		},
 	}
 	for _, test := range tests {
@@ -145,8 +145,8 @@ func TestGetAllUsers(t *testing.T) {
 
 			ctx := gofr.NewContext(res, req, app)
 
-			// p, err := testhndlr.GetByIdHandler(ctx)
-			_, err := testhndlr.GetAllUsers(ctx)
+			// p, err := testhndlr.GetProductByIdHandler(ctx)
+			_, err := testhndlr.GetAllProductsHandler(ctx)
 			// p, err := testUserService.GetProductById(ctx, test.id)
 			if !reflect.DeepEqual(err, test.expectedErr) {
 				t.Error("expected: ", test.expectedErr, "obtained: ", err)

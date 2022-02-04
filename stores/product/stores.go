@@ -2,8 +2,8 @@ package product
 
 import (
 	"database/sql"
-	"productGofr/models"
-	"productGofr/stores"
+	"gofr-curd/models"
+	"gofr-curd/stores"
 	"strconv"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
@@ -17,7 +17,7 @@ func New() stores.Istore {
 	return product{}
 }
 
-func (p product) UserById(ctx *gofr.Context, id int) (*models.Product, error) {
+func (p product) GetProductById(ctx *gofr.Context, id int) (*models.Product, error) {
 	var prd models.Product
 	rows := ctx.DB().QueryRow("select * from Product where id = ?", id)
 	// if rows.Err() != nil {
@@ -30,7 +30,7 @@ func (p product) UserById(ctx *gofr.Context, id int) (*models.Product, error) {
 	return &prd, nil
 }
 
-func (p product) GetAllUsers(ctx *gofr.Context) ([]*models.Product, error) {
+func (p product) GetAllProducts(ctx *gofr.Context) ([]*models.Product, error) {
 	var prds []*models.Product
 	rows, _ := ctx.DB().Query("select * from Product")
 	// if err != nil {

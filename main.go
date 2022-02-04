@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	httpProd "productGofr/http/product"
-	servProd "productGofr/services/product"
-	storeProd "productGofr/stores/product"
+	httpProd "gofr-curd/http/product"
+	servProd "gofr-curd/services/product"
+	storeProd "gofr-curd/stores/product"
 
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
@@ -15,11 +15,11 @@ func main() {
 	serv := servProd.New(store)
 	hndlr := httpProd.Handler{Service: serv}
 
-	application.GET("/products/{id}", hndlr.GetByIdHandler)
-	application.GET("/products", hndlr.GetAllUsers)
-	application.POST("/products", hndlr.CreateProduct)
-	application.DELETE("/products/{id}", hndlr.DeleteById)
-	application.PUT("/products/{id}", hndlr.UpdateById)
+	application.GET("/products/{id}", hndlr.GetProductByIdHandler)
+	application.GET("/products", hndlr.GetAllProductsHandler)
+	application.POST("/products", hndlr.CreateProductHandler)
+	application.DELETE("/products/{id}", hndlr.DeleteByIdHandler)
+	application.PUT("/products/{id}", hndlr.UpdateByIdHandler)
 	application.Server.HTTP.Port = 5000
 	application.Server.ValidateHeaders = false
 	fmt.Println("Listening to Port 5000")

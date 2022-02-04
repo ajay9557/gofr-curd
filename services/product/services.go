@@ -1,9 +1,9 @@
 package product
 
 import (
-	"productGofr/models"
-	"productGofr/services"
-	"productGofr/stores"
+	"gofr-curd/models"
+	"gofr-curd/services"
+	"gofr-curd/stores"
 	"strconv"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
@@ -29,7 +29,7 @@ func (srv *ProductService) GetProductById(ctx *gofr.Context, id string) (*models
 
 		// return &prd, errors.EntityNotFound{Entity: "products", ID: "id"}
 	}
-	product, err := srv.storeInterface.UserById(ctx, convId)
+	product, err := srv.storeInterface.GetProductById(ctx, convId)
 	if err != nil {
 		return prd, err
 	}
@@ -37,9 +37,9 @@ func (srv *ProductService) GetProductById(ctx *gofr.Context, id string) (*models
 	return prd, nil
 }
 
-func (srv *ProductService) GetAllUsers(ctx *gofr.Context) ([]*models.Product, error) {
+func (srv *ProductService) GetAllProducts(ctx *gofr.Context) ([]*models.Product, error) {
 	var prd []*models.Product
-	res, err := srv.storeInterface.GetAllUsers(ctx)
+	res, err := srv.storeInterface.GetAllProducts(ctx)
 	if err != nil {
 		return prd, err
 	}
@@ -53,7 +53,7 @@ func (srv *ProductService) CreateProduct(ctx *gofr.Context, prd models.Product) 
 	if err != nil {
 		return prd1, err
 	}
-	updatedUser, _ := srv.storeInterface.UserById(ctx, id)
+	updatedUser, _ := srv.storeInterface.GetProductById(ctx, id)
 	prd1 = updatedUser
 	return prd1, nil
 
@@ -94,7 +94,7 @@ func (srv *ProductService) UpdateById(ctx *gofr.Context, id string, prd models.P
 	if err != nil {
 		return prd1, err
 	}
-	updatedUser, _ := srv.storeInterface.UserById(ctx, convId)
+	updatedUser, _ := srv.storeInterface.GetProductById(ctx, convId)
 	prd1 = updatedUser
 	return prd1, nil
 

@@ -3,9 +3,9 @@ package product
 import (
 	// "encoding/json"
 	"fmt"
+	"gofr-curd/models"
+	"gofr-curd/services"
 	"net/http"
-	"productGofr/models"
-	"productGofr/services"
 
 	// "reflect"
 
@@ -17,7 +17,7 @@ type Handler struct {
 	Service services.Iservice
 }
 
-func (h Handler) GetByIdHandler(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) GetProductByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	param := ctx.PathParam("id")
 	// if param == ""{
 	// 	return nil, errors.MissingParam{Param: []string{"id"}}
@@ -46,9 +46,9 @@ func (h Handler) GetByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	return responseObj, nil
 }
 
-func (h Handler) GetAllUsers(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) GetAllProductsHandler(ctx *gofr.Context) (interface{}, error) {
 	var prds []*models.Product
-	products, err := h.Service.GetAllUsers(ctx)
+	products, err := h.Service.GetAllProducts(ctx)
 	if err != nil {
 		return prds, err
 	}
@@ -61,7 +61,7 @@ func (h Handler) GetAllUsers(ctx *gofr.Context) (interface{}, error) {
 	return responseObj, nil
 }
 
-func (h Handler) CreateProduct(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
 	var prd models.Product
 
 	// err := json.NewDecoder(ctx.Request().Body).Decode(&prd)
@@ -91,7 +91,7 @@ func (h Handler) CreateProduct(ctx *gofr.Context) (interface{}, error) {
 
 }
 
-func (h Handler) DeleteById(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) DeleteByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	param := ctx.PathParam("id")
 	err := h.Service.DeleteById(ctx, param)
 	if err != nil {
@@ -107,7 +107,7 @@ func (h Handler) DeleteById(ctx *gofr.Context) (interface{}, error) {
 	return responseObj, nil
 }
 
-func (h Handler) UpdateById(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) UpdateByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	param := ctx.PathParam("id")
 
 	var prd models.Product

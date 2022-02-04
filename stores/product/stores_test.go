@@ -2,7 +2,7 @@ package product
 
 import (
 	"context"
-	"productGofr/models"
+	"gofr-curd/models"
 	"reflect"
 	"testing"
 
@@ -40,7 +40,7 @@ import (
 // 			ctx := gofr.NewContext(nil, nil, app)
 // 			ctx.Context = context.Background()
 // 			istore := New()
-// 			res, err := istore.UserById(ctx, test.id)
+// 			res, err := istore.GetProductById(ctx, test.id)
 // 			if !reflect.DeepEqual(err, test.expectedErr) {
 // 				t.Error("expected: ", test.expectedErr, "obtained: ", err)
 // 			}
@@ -56,12 +56,12 @@ func TestStoreLayer(t *testing.T) {
 	app := gofr.New()
 	seeder := datastore.NewSeeder(&app.DataStore, "../db")
 	seeder.ResetCounter = true
-	testUserById(t, app)
-	testGetAllUsers(t, app)
+	testGetProductById(t, app)
+	testGetAllProducts(t, app)
 
 }
 
-func testUserById(t *testing.T, app *gofr.Gofr) {
+func testGetProductById(t *testing.T, app *gofr.Gofr) {
 	tests := []struct {
 		desc        string
 		id          int
@@ -78,7 +78,7 @@ func testUserById(t *testing.T, app *gofr.Gofr) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
 			istore := New()
-			res, err := istore.UserById(ctx, test.id)
+			res, err := istore.GetProductById(ctx, test.id)
 			if !reflect.DeepEqual(err, test.expectedErr) {
 				t.Error("expected: ", test.expectedErr, "obtained: ", err)
 			}
@@ -90,7 +90,7 @@ func testUserById(t *testing.T, app *gofr.Gofr) {
 
 }
 
-func testGetAllUsers(t *testing.T, app *gofr.Gofr) {
+func testGetAllProducts(t *testing.T, app *gofr.Gofr) {
 	tests := []struct {
 		desc string
 		// id          int
@@ -101,10 +101,11 @@ func testGetAllUsers(t *testing.T, app *gofr.Gofr) {
 		{desc: "Case1", expectedErr: nil,
 			expected: []*models.Product{&models.Product{Id: 1, Name: "daikin", Type: "AC"},
 				&models.Product{Id: 2, Name: "milton", Type: "Water Bottle"},
-				&models.Product{Id: 3, Name: "kenstar", Type: "Microwave"},
+				&models.Product{Id: 3, Name: "Kenstar", Type: "Microwave"},
 				&models.Product{Id: 4, Name: "Ultra", Type: "RedGrinder"},
 				&models.Product{Id: 5, Name: "Crompton", Type: "Fan"},
 				&models.Product{Id: 6, Name: "Prestige", Type: "RiceCooker"},
+				&models.Product{Id: 13, Name: "Nivvea", Type: "Moisturizzer"},
 			},
 		},
 		// {desc: "Case2", expectedErr: errors.EntityNotFound{Entity: "Product"}, expected: []*models.Product{}},
@@ -115,7 +116,7 @@ func testGetAllUsers(t *testing.T, app *gofr.Gofr) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
 			istore := New()
-			res, err := istore.GetAllUsers(ctx)
+			res, err := istore.GetAllProducts(ctx)
 			if !reflect.DeepEqual(err, test.expectedErr) {
 				t.Error("expected: ", test.expectedErr, "obtained: ", err)
 			}
