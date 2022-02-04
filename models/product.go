@@ -1,9 +1,9 @@
 package models
 
 type Product struct {
-	Id   int
-	Name string
-	Type string
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 type Response struct {

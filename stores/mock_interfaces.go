@@ -35,6 +35,50 @@ func (m *MockProduct) EXPECT() *MockProductMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method.
+func (m *MockProduct) Create(ctx *gofr.Context, value *models.Product) (*models.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", ctx, value)
+	ret0, _ := ret[0].(*models.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockProductMockRecorder) Create(ctx, value interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProduct)(nil).Create), ctx, value)
+}
+
+// Delete mocks base method.
+func (m *MockProduct) Delete(ctx *gofr.Context, id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockProductMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockProduct)(nil).Delete), ctx, id)
+}
+
+// Read mocks base method.
+func (m *MockProduct) Read(ctx *gofr.Context) ([]models.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Read", ctx)
+	ret0, _ := ret[0].([]models.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Read indicates an expected call of Read.
+func (mr *MockProductMockRecorder) Read(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockProduct)(nil).Read), ctx)
+}
+
 // ReadByID mocks base method.
 func (m *MockProduct) ReadByID(ctx *gofr.Context, id int) (*models.Product, error) {
 	m.ctrl.T.Helper()
@@ -48,4 +92,19 @@ func (m *MockProduct) ReadByID(ctx *gofr.Context, id int) (*models.Product, erro
 func (mr *MockProductMockRecorder) ReadByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadByID", reflect.TypeOf((*MockProduct)(nil).ReadByID), ctx, id)
+}
+
+// Update mocks base method.
+func (m *MockProduct) Update(ctx *gofr.Context, value *models.Product, id int) (*models.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", ctx, value, id)
+	ret0, _ := ret[0].(*models.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockProductMockRecorder) Update(ctx, value, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockProduct)(nil).Update), ctx, value, id)
 }

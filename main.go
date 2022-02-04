@@ -18,6 +18,10 @@ func main() {
 	// specifying the different routes supported by this service
 	//app.GET("/product", h.Get)
 	app.GET("/product/{id}", handler.ReadByIdHandler)
+	app.GET("/product", handler.ReadHandler)
+	app.POST("/product", handler.CreateHandler)
+	app.PUT("/product/{id}", handler.UpdateHandler)
+	app.DELETE("/product/{id}", handler.DeleteHandler)
 
 	// starting the server on a custom port
 	app.Server.HTTP.Port = 8080

@@ -79,3 +79,99 @@ func Test_ReadByID(t *testing.T) {
 
 	}
 }
+
+func Test_Read(t *testing.T) {
+	app := gofr.New()
+	ctrl := gomock.NewController(t)
+	mock := stores.NewMockProduct(ctrl)
+
+	s := New(mock)
+
+	testCases := []struct {
+		desc     string
+		mockCall []*gomock.Call
+		expOut   []models.Product
+		expErr   error
+	}{
+		{
+			desc: "Case:1",
+			expOut: []models.Product{{
+				Id:   1,
+				Name: "Biscuit",
+				Type: "Grocery"},
+			},
+			expErr: nil,
+			mockCall: []*gomock.Call{
+				mock.EXPECT().Read(gomock.Any()).Return([]models.Product{{
+					Id:   1,
+					Name: "Biscuit",
+					Type: "Grocery"},
+				}, nil),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		ctx := gofr.NewContext(nil, nil, app)
+
+		resp, err := s.Read(ctx)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
+		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expOut) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
+		}
+
+	}
+}
+
+func Test_Create(t *testing.T) {
+	app := gofr.New()
+	ctrl := gomock.NewController(t)
+	mock := stores.NewMockProduct(ctrl)
+
+	s := New(mock)
+
+	testCases := []struct {
+		desc     string
+		input    *models.Product
+		mockCall []*gomock.Call
+		expOut   *models.Product
+		expErr   error
+	}{
+
+		{desc: "Case:1",
+			input: &models.Product{
+				Id:   1,
+				Name: "Biscuit",
+				Type: "Grocery",
+			},
+			expOut: &models.Product{
+				Id:   1,
+				Name: "Biscuit",
+				Type: "Grocery",
+			},
+			expErr: nil,
+			mockCall: []*gomock.Call{
+				mock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(&models.Product{
+					Id:   1,
+					Name: "Biscuit",
+					Type: "Grocery",
+				}, nil),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		ctx := gofr.NewContext(nil, nil, app)
+
+		resp, err := s.Create(ctx, tc.input)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
+		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expOut) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
+		}
+
+	}
+}
