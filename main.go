@@ -12,12 +12,16 @@ func main() {
 	application := gofr.New()
 
 	store := storeProd.New()
-	serv := servProd.New(store)
+	serv := servProd.New(&store)
 	handler := httpProd.HttpService{Service: serv}
 
 	application.Server.ValidateHeaders = false
 
 	application.GET("/product/{id}", handler.GetByIdHandler)
+	application.GET("/product/", handler.GetAllProductHandler)
+	application.POST("/product/add", handler.AddProductHandler)
+	application.PUT("/product/update", handler.UpdateProductHandler)
+	application.DELETE("/product/delete/{id}", handler.DeleteProductHandler)
 
 	application.Start()
 }
