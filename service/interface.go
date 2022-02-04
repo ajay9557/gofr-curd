@@ -8,4 +8,7 @@ import (
 type Product interface {
 	GetById(ctx *gofr.Context, id string) (*models.Product, error)
 	Get(ctx *gofr.Context) ([]*models.Product, error)
+	Create(ctx *gofr.Context, pr models.Product) (*models.Product, error)
+	UpdateById(ctx *gofr.Context, id string, pr models.Product) (*models.Product, error)
+	DeleteById(ctx *gofr.Context, id string) error
 }

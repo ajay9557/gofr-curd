@@ -34,6 +34,35 @@ func (m *MockProduct) EXPECT() *MockProductMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method
+func (m *MockProduct) Create(arg0 *gofr.Context, arg1 models.Product) (*models.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
+	ret0, _ := ret[0].(*models.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create
+func (mr *MockProductMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProduct)(nil).Create), arg0, arg1)
+}
+
+// DeleteById mocks base method
+func (m *MockProduct) DeleteById(arg0 *gofr.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteById", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteById indicates an expected call of DeleteById
+func (mr *MockProductMockRecorder) DeleteById(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockProduct)(nil).DeleteById), arg0, arg1)
+}
+
 // Get mocks base method
 func (m *MockProduct) Get(arg0 *gofr.Context) ([]*models.Product, error) {
 	m.ctrl.T.Helper()
@@ -62,4 +91,19 @@ func (m *MockProduct) GetById(arg0 *gofr.Context, arg1 string) (*models.Product,
 func (mr *MockProductMockRecorder) GetById(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockProduct)(nil).GetById), arg0, arg1)
+}
+
+// UpdateById mocks base method
+func (m *MockProduct) UpdateById(arg0 *gofr.Context, arg1 string, arg2 models.Product) (*models.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateById", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*models.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateById indicates an expected call of UpdateById
+func (mr *MockProductMockRecorder) UpdateById(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateById", reflect.TypeOf((*MockProduct)(nil).UpdateById), arg0, arg1, arg2)
 }

@@ -47,12 +47,39 @@ func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 }
 
 func (p product) Create(ctx *gofr.Context, pr models.Product) (int, error) {
-	result, err := ctx.DB().Exec("INSERT INTO products(name, category) values(?, ?)", pr.Name, pr.Category)
-	if err != nil {
-		return 0, errors.InvalidParam{}
-	}
+	result, _ := ctx.DB().ExecContext(ctx, "INSERT INTO products(name, category) values(?, ?)", pr.Name, pr.Category)
 
 	id, _ := result.LastInsertId()
 
 	return int(id), nil
+}
+
+func (p product) UpdateById(ctx *gofr.Context, id int, pr models.Product) error {
+
+	query := "UPDATE products SET"
+
+	fields, args := formUpdateQuery(pr)
+	args = append(args, id)
+
+	subQuery := fields[:len(fields)-1]
+	query += subQuery + "WHERE id = ?"
+
+	_, err := ctx.DB().ExecContext(ctx, query, args...)
+	if err != nil {
+		return errors.Error("Connection lost")
+	}
+
+	return nil
+}
+
+func (p product) DeleteById(ctx *gofr.Context, id int) error {
+
+	result, _ := ctx.DB().ExecContext(ctx, "DELETE FROM products WHERE id = ?", id)
+
+	r, _ := result.RowsAffected()
+	if r == 0 {
+		return errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(id)}
+	}
+
+	return nil
 }
