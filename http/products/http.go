@@ -1,6 +1,10 @@
 package products
 
 import (
+	"encoding/json"
+	"reflect"
+
+	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 	"github.com/ridhdhish-desai-zs/product-gofr/models"
 	"github.com/ridhdhish-desai-zs/product-gofr/service"
@@ -43,6 +47,30 @@ func (h handler) GetHandler(ctx *gofr.Context) (interface{}, error) {
 		Products []*models.Product `json:"products"`
 	}{
 		Products: products,
+	}
+
+	return resData, nil
+}
+
+func (h handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
+	var product models.Product
+
+	reqBody := ctx.Request().Body
+
+	err := json.NewDecoder(reqBody).Decode(&product)
+	if err != nil || reflect.DeepEqual(product, models.Product{}) {
+		return nil, errors.MissingParam{Param: []string{"name", "category"}}
+	}
+
+	pr, err := h.srv.Create(ctx, product)
+	if err != nil {
+		return nil, err
+	}
+
+	resData := &struct {
+		Product *models.Product `json:"product"`
+	}{
+		Product: pr,
 	}
 
 	return resData, nil

@@ -18,6 +18,7 @@ func main() {
 
 	app.GET("/products/{id}", h.GetByIdHandler)
 	app.GET("/products", h.GetHandler)
+	app.POST("/products", h.CreateProductHandler)
 
 	app.Server.HTTP.Port = 5000
 	app.Server.ValidateHeaders = false

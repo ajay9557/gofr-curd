@@ -1,9 +1,14 @@
 package products
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	gofrError "developer.zopsmart.com/go/gofr/pkg/errors"
@@ -120,7 +125,78 @@ func TestGetHandler(t *testing.T) {
 			ctx.Context = context.Background()
 			_, err := handler.GetHandler(ctx)
 
+			fmt.Println(!errors.Is(err, tc.expectedError))
+
 			if !errors.Is(err, tc.expectedError) {
+				t.Errorf("Expected: %v, Got: %v", tc.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestCreateHandler(t *testing.T) {
+	app := gofr.New()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockService := service.NewMockProduct(ctrl)
+	productHandler := New(mockService)
+
+	p := models.Product{
+		Id:       1,
+		Name:     "mouse",
+		Category: "electronics",
+	}
+
+	tests := []struct {
+		desc          string
+		expectedError error
+		body          models.Product
+		mockCall      *gomock.Call
+	}{
+		{
+			desc:          "Success case",
+			expectedError: nil,
+			body: models.Product{
+				Name:     "mouse",
+				Category: "electronics",
+			},
+			mockCall: mockService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(&p, nil),
+		},
+		{
+			desc:          "Empty body",
+			expectedError: gofrError.MissingParam{Param: []string{"name", "category"}},
+			body:          models.Product{},
+			mockCall:      nil,
+		},
+		{
+			desc:          "Error while creating",
+			expectedError: errors.New("Something went wrong"),
+			body: models.Product{
+				Name:     "mouse",
+				Category: "electronics",
+			},
+			mockCall: mockService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("Something went wrong")),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			pr, _ := json.Marshal(tc.body)
+			req := httptest.NewRequest(http.MethodPost, "/products", bytes.NewBuffer(pr))
+			res := httptest.NewRecorder()
+
+			r := request.NewHTTPRequest(req)
+			w := responder.NewContextualResponder(res, req)
+
+			ctx := gofr.NewContext(w, r, app)
+
+			_, err := productHandler.CreateProductHandler(ctx)
+
+			fmt.Println(!errors.Is(err, tc.expectedError))
+
+			if !reflect.DeepEqual(err, tc.expectedError) {
 				t.Errorf("Expected: %v, Got: %v", tc.expectedError, err)
 			}
 		})
