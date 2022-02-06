@@ -38,8 +38,9 @@ func (p Product) ReadByID(ctx *gofr.Context, id int) (*mProduct.Product, error) 
 //Fetching all the products
 func (p Product) Read(ctx *gofr.Context) ([]models.Product, error) {
 	rows, err := ctx.DB().QueryContext(ctx, "SELECT Id, Name, Type FROM Product")
+
 	if rows == nil || err != nil {
-		return nil, perror.DB{Err: err}
+		return nil, perror.DB{Err: errors.New("Internal Server error: Empty Database")}
 	}
 
 	defer func() {

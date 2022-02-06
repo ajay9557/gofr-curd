@@ -25,15 +25,15 @@ func (se *Product) ReadByID(ctx *gofr.Context, id int) (*models.Product, error) 
 
 	if id < 1 {
 
-		return nil, errors.New("Error in the given query")
+		return nil, errors.New("Invalid Id")
 	}
 
 	product, err := se.p.ReadByID(ctx, id)
-	ctx.Log("INFO", *product)
+	//ctx.Log("INFO", *product)
 
 	if err != nil {
 
-		ctx.Log("ERRO", err)
+		//ctx.Log("ERRO", err)
 
 		return nil, err
 	}
@@ -56,20 +56,14 @@ func (se *Product) Create(ctx *gofr.Context, value *models.Product) (*models.Pro
 
 	if value == nil {
 
-		return nil, errors.New("Error in the given query")
+		return nil, errors.New("Invalid Entity")
 	}
 
-	ctx.Log("INFO", value)
-	// product, err := se.p.ReadByID(ctx, value.Id)
-
-	// if err != nil || product.Name != "" {
-
-	// 	return nil, errors.New("Error in the given query")
-	// }
+	//ctx.Log("INFO", value)
 
 	if value.Name == "" || value.Type == "" {
 
-		return nil, errors.New("Error in the given query")
+		return nil, errors.New("Invalid name or Type")
 	}
 
 	product, err := se.p.Create(ctx, value)
@@ -86,33 +80,25 @@ func (se *Product) Update(ctx *gofr.Context, value *models.Product, id int) (*mo
 
 	if value == nil {
 
-		return nil, errors.New("Error in the given query")
+		return nil, errors.New("Invalid Entity")
 	}
 
 	if id < 1 {
 
-		return nil, errors.New("Error in the given query")
+		return nil, errors.New("Invalid Id")
 	}
 
-	ctx.Log("INFO", value)
 	product, err := se.ReadByID(ctx, id)
-	ctx.Log("INFO", product)
 
 	if err != nil || product.Name == "" {
 
-		return nil, errors.New("Error in the given query")
+		return nil, errors.New("Invalid Id")
 	}
 
 	product, err = se.p.Update(ctx, value, id)
 
 	if err != nil {
 
-		return nil, err
-	}
-
-	product, err = se.p.ReadByID(ctx, id)
-
-	if err != nil {
 		return nil, err
 	}
 
@@ -124,13 +110,13 @@ func (se *Product) Delete(ctx *gofr.Context, id int) error {
 
 	if id < 1 {
 
-		return errors.New("Error in the given query")
+		return errors.New("Invalid Id")
 	}
 
 	product, err := se.p.ReadByID(ctx, id)
 
 	if err != nil || product.Name == "" {
-		return errors.New("Error in the given query")
+		return errors.New("Invalid Id")
 	}
 
 	err = se.p.Delete(ctx, id)

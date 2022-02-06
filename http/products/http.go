@@ -67,9 +67,6 @@ func (h Handler) CreateHandler(ctx *gofr.Context) (interface{}, error) {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
 
-	// if p.ID != 0 {
-	// 	return nil, errors.InvalidParam{Param: []string{"id"}}
-	// }
 	ctx.Log("INFO", p)
 	resp, err := h.S.Create(ctx, &p)
 	if err != nil {
