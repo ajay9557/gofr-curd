@@ -19,16 +19,11 @@ type Handler struct {
 
 func (h Handler) GetProductByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	param := ctx.PathParam("id")
-	// if param == ""{
-	// 	return nil, errors.MissingParam{Param: []string{"id"}}
-	// }
-	// id,err := strconv.Atoi(param)
-	// if err != nil{
-	// 	return nil,errors.InvalidParam{Param: []string{"id"}}
-	// }
+
 	p, err := h.Service.GetProductById(ctx, param)
 	if err != nil {
 		return models.Response{}, err
+		// return models.Response{},errors.Error("Couldn't Retrive the Product")
 	}
 	// resData := struct {
 	// 	Product *models.Product `json : "product"`

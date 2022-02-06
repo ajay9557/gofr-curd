@@ -4,6 +4,7 @@ import (
 	"gofr-curd/models"
 	"gofr-curd/services"
 	"gofr-curd/stores"
+	"reflect"
 	"strconv"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
@@ -49,10 +50,22 @@ func (srv *ProductService) GetAllProducts(ctx *gofr.Context) ([]*models.Product,
 
 func (srv *ProductService) CreateProduct(ctx *gofr.Context, prd models.Product) (*models.Product, error) {
 	var prd1 *models.Product
+
+	if reflect.DeepEqual(models.Product{}, prd) {
+		return prd1, errors.Error("Given Empty data")
+	}
+	if prd.Name == "" {
+		return prd1, errors.Error("Please provide Data for Name")
+	}
+
+	if prd.Type == "" {
+		return prd1, errors.Error("Please provide Data for Type")
+	}
 	id, err := srv.storeInterface.CreateProduct(ctx, prd)
 	if err != nil {
 		return prd1, err
 	}
+	// Fetchinf the created product
 	updatedUser, _ := srv.storeInterface.GetProductById(ctx, id)
 	prd1 = updatedUser
 	return prd1, nil
@@ -90,6 +103,19 @@ func (srv *ProductService) UpdateById(ctx *gofr.Context, id string, prd models.P
 		// return &prd, errors.EntityNotFound{Entity: "products", ID: "id"}
 	}
 
+	// var prd1 *models.Product
+
+	if reflect.DeepEqual(models.Product{}, prd) {
+		return prd1, errors.Error("Given Empty data")
+	}
+	if prd.Name == "" {
+		return prd1, errors.Error("Please provide Data for Name")
+	}
+
+	if prd.Type == "" {
+		return prd1, errors.Error("Please provide Data for Type")
+	}
+
 	_, err = srv.storeInterface.UpdateById(ctx, convId, prd)
 	if err != nil {
 		return prd1, err
@@ -99,3 +125,6 @@ func (srv *ProductService) UpdateById(ctx *gofr.Context, id string, prd models.P
 	return prd1, nil
 
 }
+
+// Not checking whether the an entity exists for a given Id
+// It will be directly taken care in store layer
