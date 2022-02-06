@@ -20,6 +20,7 @@ func main() {
 	app.GET("/products", h.GetHandler)
 	app.POST("/products", h.CreateProductHandler)
 	app.PUT("/products/{id}", h.UpdateProductHandler)
+	app.DELETE("products/{id}", h.DeleteProductHandler)
 
 	app.Server.HTTP.Port = 5000
 	app.Server.ValidateHeaders = false

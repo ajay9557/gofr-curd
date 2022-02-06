@@ -101,3 +101,20 @@ func (h handler) UpdateProductHandler(ctx *gofr.Context) (interface{}, error) {
 
 	return resData, nil
 }
+
+func (h handler) DeleteProductHandler(ctx *gofr.Context) (interface{}, error) {
+	id := ctx.PathParam("id")
+
+	err := h.srv.DeleteById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	resData := &struct {
+		Message string `json:"message"`
+	}{
+		Message: "Product deleted successfully",
+	}
+
+	return resData, nil
+}

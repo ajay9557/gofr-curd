@@ -285,3 +285,62 @@ func TestUpdateHandler(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteHandler(t *testing.T) {
+	app := gofr.New()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockService := service.NewMockProduct(ctrl)
+	productHandler := New(mockService)
+
+	tests := []struct {
+		desc          string
+		expectedError error
+		id            string
+		mockCall      *gomock.Call
+	}{
+		{
+			desc:          "Success case",
+			expectedError: nil,
+			id:            "1",
+			mockCall:      mockService.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(nil),
+		},
+		{
+			desc:          "Id must be number",
+			expectedError: gofrError.InvalidParam{Param: []string{"id"}},
+			id:            "abc",
+			mockCall:      mockService.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(gofrError.InvalidParam{Param: []string{"id"}}),
+		},
+		{
+			desc:          "Id must be greater than 0",
+			expectedError: gofrError.InvalidParam{Param: []string{"id"}},
+			id:            "-1",
+			mockCall:      mockService.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(gofrError.InvalidParam{Param: []string{"id"}}),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodDelete, "/products/{id}", nil)
+			res := httptest.NewRecorder()
+
+			r := request.NewHTTPRequest(req)
+			w := responder.NewContextualResponder(res, req)
+
+			ctx := gofr.NewContext(w, r, app)
+			ctx.SetPathParams(map[string]string{
+				"id": tc.id,
+			})
+
+			_, err := productHandler.DeleteProductHandler(ctx)
+
+			fmt.Println(!errors.Is(err, tc.expectedError))
+
+			if !reflect.DeepEqual(err, tc.expectedError) {
+				t.Errorf("Expected: %v, Got: %v", tc.expectedError, err)
+			}
+		})
+	}
+}
