@@ -63,7 +63,7 @@ func TestGetByIdHandler(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/products/{id}", nil)
+			req := httptest.NewRequest(http.MethodGet, "/products/{id}", nil)
 			res := httptest.NewRecorder()
 
 			r := request.NewHTTPRequest(req)
@@ -193,6 +193,89 @@ func TestCreateHandler(t *testing.T) {
 			ctx := gofr.NewContext(w, r, app)
 
 			_, err := productHandler.CreateProductHandler(ctx)
+
+			fmt.Println(!errors.Is(err, tc.expectedError))
+
+			if !reflect.DeepEqual(err, tc.expectedError) {
+				t.Errorf("Expected: %v, Got: %v", tc.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestUpdateHandler(t *testing.T) {
+	app := gofr.New()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockService := service.NewMockProduct(ctrl)
+	productHandler := New(mockService)
+
+	p := models.Product{
+		Id:       1,
+		Name:     "mouse",
+		Category: "electronics",
+	}
+
+	tests := []struct {
+		desc          string
+		expectedError error
+		id            string
+		body          models.Product
+		mockCall      *gomock.Call
+	}{
+		{
+			desc:          "Success case",
+			expectedError: nil,
+			id:            "1",
+			body: models.Product{
+				Category: "electronics",
+			},
+			mockCall: mockService.EXPECT().UpdateById(gomock.Any(), gomock.Any(), gomock.Any()).Return(&p, nil),
+		},
+		{
+			desc:          "Empty body",
+			id:            "1",
+			expectedError: gofrError.MissingParam{Param: []string{"name", "category"}},
+			body:          models.Product{},
+			mockCall:      nil,
+		},
+		{
+			desc:          "Id must be number",
+			expectedError: gofrError.InvalidParam{Param: []string{"id"}},
+			id:            "abc",
+			body: models.Product{
+				Category: "electronics",
+			},
+			mockCall: mockService.EXPECT().UpdateById(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gofrError.InvalidParam{Param: []string{"id"}}),
+		},
+		{
+			desc:          "Id must be greater than 0",
+			expectedError: gofrError.InvalidParam{Param: []string{"id"}},
+			id:            "-1",
+			body: models.Product{
+				Category: "electronics",
+			},
+			mockCall: mockService.EXPECT().UpdateById(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gofrError.InvalidParam{Param: []string{"id"}}),
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			pr, _ := json.Marshal(tc.body)
+			req := httptest.NewRequest(http.MethodPut, "/products/{id}", bytes.NewBuffer(pr))
+			res := httptest.NewRecorder()
+
+			r := request.NewHTTPRequest(req)
+			w := responder.NewContextualResponder(res, req)
+
+			ctx := gofr.NewContext(w, r, app)
+			ctx.SetPathParams(map[string]string{
+				"id": tc.id,
+			})
+
+			_, err := productHandler.UpdateProductHandler(ctx)
 
 			fmt.Println(!errors.Is(err, tc.expectedError))
 
