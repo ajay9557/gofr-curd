@@ -2,14 +2,12 @@ package product
 
 import (
 	"context"
-	"developer.zopsmart.com/go/gofr/pkg/datastore"
 	goError "errors"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/jinzhu/gorm"
-	"log"
 	"product/models"
 	"reflect"
 	"testing"
+
+	"developer.zopsmart.com/go/gofr/pkg/datastore"
 
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
@@ -19,14 +17,6 @@ func TestStoreLayer(t *testing.T) {
 	seeder := datastore.NewSeeder(&application.DataStore, "../../db")
 	seeder.RefreshTables(t, "product")
 
-	db, _, _ := sqlmock.New()
-
-	database, err := gorm.Open("mysql", db)
-	if err != nil {
-		log.Println("Error opening gorm conn", db)
-	}
-
-	application.ORM = database
 	testGetProductById(t, application)
 	testGetAllProduct(t, application)
 	testAddProduct(t, application)
@@ -45,7 +35,7 @@ func testGetProductById(t *testing.T, app *gofr.Gofr) {
 			desc: "Get existent id",
 			id:   1,
 			expectedProduct: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "mouse",
 				Type: "electronics",
 			},
@@ -98,12 +88,12 @@ func testAddProduct(t *testing.T, application *gofr.Gofr) {
 	}{
 		{
 			desc:          "Test Case 1",
-			input:         models.Product{Id: 1, Name: "novo", Type: "Trimmer"},
+			input:         models.Product{ID: 1, Name: "novo", Type: "Trimmer"},
 			expectedError: nil,
 		},
 		{
 			desc:          "Test Case 2",
-			input:         models.Product{Id: 1, Name: "", Type: ""},
+			input:         models.Product{ID: 1, Name: "", Type: ""},
 			expectedError: goError.New("FAILED TO ADD PRODUCT"),
 		},
 	}
@@ -127,7 +117,7 @@ func testUpdateProduct(t *testing.T, application *gofr.Gofr) {
 	}{
 		{
 			desc:          "Test Case 1",
-			input:         models.Product{Id: 9, Name: "novo", Type: "trimmer"},
+			input:         models.Product{ID: 9, Name: "novo", Type: "trimmer"},
 			expectedError: nil,
 		},
 		{

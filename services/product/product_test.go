@@ -27,10 +27,10 @@ func Test_GetProductById(t *testing.T) {
 		{
 			desc:           "Test Case 1",
 			input:          1,
-			expectedOutput: models.Product{Id: 1, Name: "lg", Type: "machine"},
+			expectedOutput: models.Product{ID: 1, Name: "lg", Type: "machine"},
 			expectedError:  nil,
 			mock: []*gomock.Call{
-				mock.EXPECT().GetProductById(gomock.Any(), 1).Return(models.Product{Id: 1, Name: "lg", Type: "machine"}, nil),
+				mock.EXPECT().GetProductById(gomock.Any(), 1).Return(models.Product{ID: 1, Name: "lg", Type: "machine"}, nil),
 			},
 		},
 		{
@@ -68,10 +68,10 @@ func Test_GetAllProduct(t *testing.T) {
 	}{
 		{
 			desc:           "Test Case 1",
-			expectedOutput: []models.Product{{Id: 1, Name: "lg", Type: "machine"}},
+			expectedOutput: []models.Product{{ID: 1, Name: "lg", Type: "machine"}},
 			expectedError:  nil,
 			mock: []*gomock.Call{
-				mock.EXPECT().GetAllProduct(gomock.Any()).Return([]models.Product{{Id: 1, Name: "lg", Type: "machine"}}, nil),
+				mock.EXPECT().GetAllProduct(gomock.Any()).Return([]models.Product{{ID: 1, Name: "lg", Type: "machine"}}, nil),
 			},
 		},
 	}
@@ -102,18 +102,18 @@ func Test_AddProduct(t *testing.T) {
 	}{
 		{
 			desc:          "Test Case 1",
-			input:         models.Product{Id: 1, Name: "lg", Type: "machine"},
+			input:         models.Product{ID: 1, Name: "lg", Type: "machine"},
 			expectedError: nil,
 			mock: []*gomock.Call{
-				mock.EXPECT().AddProduct(gomock.Any(), models.Product{Id: 1, Name: "lg", Type: "machine"}).Return(nil),
+				mock.EXPECT().AddProduct(gomock.Any(), models.Product{ID: 1, Name: "lg", Type: "machine"}).Return(nil),
 			},
 		},
 		{
 			desc:          "Test Case 2",
-			input:         models.Product{Id: -1, Name: "", Type: "machine"},
+			input:         models.Product{ID: -1, Name: "", Type: "machine"},
 			expectedError: errors.New("FAILED TO ADD THE PRODUCT"),
 			mock: []*gomock.Call{
-				mock.EXPECT().AddProduct(gomock.Any(), models.Product{Id: -1, Name: "", Type: "machine"}).Return(errors.New("FAILED TO ADD PRODUCT")),
+				mock.EXPECT().AddProduct(gomock.Any(), models.Product{ID: -1, Name: "", Type: "machine"}).Return(errors.New("FAILED TO ADD PRODUCT")),
 			},
 		},
 	}
@@ -141,18 +141,18 @@ func Test_UpdateProduct(t *testing.T) {
 	}{
 		{
 			desc:          "Test Case 1",
-			input:         models.Product{Id: 1, Name: "lg", Type: "machine"},
+			input:         models.Product{ID: 1, Name: "lg", Type: "machine"},
 			expectedError: nil,
 			mock: []*gomock.Call{
-				mock.EXPECT().UpdateProduct(gomock.Any(), models.Product{Id: 1, Name: "lg", Type: "machine"}).Return(nil),
+				mock.EXPECT().UpdateProduct(gomock.Any(), models.Product{ID: 1, Name: "lg", Type: "machine"}).Return(nil),
 			},
 		},
 		{
 			desc:          "Test Case 2",
-			input:         models.Product{Id: -1, Name: "", Type: "machine"},
+			input:         models.Product{ID: -1, Name: "", Type: "machine"},
 			expectedError: errors.New("FAILED TO UPDATE THE PRODUCT"),
 			mock: []*gomock.Call{
-				mock.EXPECT().UpdateProduct(gomock.Any(), models.Product{Id: -1, Name: "", Type: "machine"}).Return(errors.New("FAILED TO UPDATE THE PRODUCT")),
+				mock.EXPECT().UpdateProduct(gomock.Any(), models.Product{ID: -1, Name: "", Type: "machine"}).Return(errors.New("FAILED TO UPDATE THE PRODUCT")),
 			},
 		},
 	}

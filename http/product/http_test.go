@@ -36,10 +36,10 @@ func Test_GetByIdHandler(t *testing.T) {
 			desc:  "Test Case 1",
 			input: "1",
 			mock: []*gomock.Call{
-				mockService.EXPECT().GetProductById(gomock.Any(), gomock.Any()).Return(models.Product{Id: 1, Name: "lg", Type: "machine"}, nil),
+				mockService.EXPECT().GetProductById(gomock.Any(), gomock.Any()).Return(models.Product{ID: 1, Name: "lg", Type: "machine"}, nil),
 			},
 			expectedError:    nil,
-			expectedResponse: models.Response{Data: models.Product{Id: 1, Name: "lg", Type: "machine"}, Message: "Product Found", StatusCode: 200},
+			expectedResponse: models.Response{Data: models.Product{ID: 1, Name: "lg", Type: "machine"}, Message: "Product Found", StatusCode: 200},
 		},
 		{
 			desc:  "Test Case 2",
@@ -95,10 +95,10 @@ func Test_GetAllProductHandler(t *testing.T) {
 		{
 			desc: "Test Case 1",
 			mock: []*gomock.Call{
-				mockService.EXPECT().GetAllProduct(gomock.Any()).Return([]models.Product{{Id: 1, Name: "lg", Type: "machine"}}, nil),
+				mockService.EXPECT().GetAllProduct(gomock.Any()).Return([]models.Product{{ID: 1, Name: "lg", Type: "machine"}}, nil),
 			},
 			expectedError:    nil,
-			expectedResponse: models.Response{Data: []models.Product{{Id: 1, Name: "lg", Type: "machine"}}, Message: "Products Found", StatusCode: 200},
+			expectedResponse: models.Response{Data: []models.Product{{ID: 1, Name: "lg", Type: "machine"}}, Message: "Products Found", StatusCode: 200},
 		},
 	}
 
@@ -143,7 +143,7 @@ func Test_AddProductHandler(t *testing.T) {
 			desc:  "Test Case 1",
 			input: []byte(`{"id": 1, "name": "lg", "type": "machine"}`),
 			mock: []*gomock.Call{
-				mockService.EXPECT().AddProduct(gomock.Any(), models.Product{Id: 1, Name: "lg", Type: "machine"}).Return(nil),
+				mockService.EXPECT().AddProduct(gomock.Any(), models.Product{ID: 1, Name: "lg", Type: "machine"}).Return(nil),
 			},
 			expectedError:    nil,
 			expectedResponse: models.Response{Data: "Product Added", Message: "Saved", StatusCode: 200},
@@ -152,7 +152,7 @@ func Test_AddProductHandler(t *testing.T) {
 			desc:  "Test Case 2",
 			input: []byte(`{"id": -1, "name": "lg", "type": "machine"}`),
 			mock: []*gomock.Call{
-				mockService.EXPECT().AddProduct(gomock.Any(), models.Product{Id: -1, Name: "lg", Type: "machine"}).Return(goError.New("FAILED TO ADD PRODUCT")),
+				mockService.EXPECT().AddProduct(gomock.Any(), models.Product{ID: -1, Name: "lg", Type: "machine"}).Return(goError.New("FAILED TO ADD PRODUCT")),
 			},
 			expectedError:    errors.EntityNotFound{Entity: "FAILED TO ADD PRODUCT", ID: ""},
 			expectedResponse: nil,
@@ -200,7 +200,7 @@ func Test_UpdateProductHandler(t *testing.T) {
 			desc:  "Test Case 1",
 			input: []byte(`{"id": 1, "name": "lg", "type": "machine"}`),
 			mock: []*gomock.Call{
-				mockService.EXPECT().UpdateProduct(gomock.Any(), models.Product{Id: 1, Name: "lg", Type: "machine"}).Return(nil),
+				mockService.EXPECT().UpdateProduct(gomock.Any(), models.Product{ID: 1, Name: "lg", Type: "machine"}).Return(nil),
 			},
 			expectedError:    nil,
 			expectedResponse: models.Response{Data: "Product Updated", Message: "Successfull", StatusCode: http.StatusOK},
@@ -209,7 +209,7 @@ func Test_UpdateProductHandler(t *testing.T) {
 			desc:  "Test Case 2",
 			input: []byte(`{"id": -1, "name": "lg", "type": "machine"}`),
 			mock: []*gomock.Call{
-				mockService.EXPECT().UpdateProduct(gomock.Any(), models.Product{Id: -1, Name: "lg", Type: "machine"}).Return(goError.New("FAILED TO ADD PRODUCT")),
+				mockService.EXPECT().UpdateProduct(gomock.Any(), models.Product{ID: -1, Name: "lg", Type: "machine"}).Return(goError.New("FAILED TO ADD PRODUCT")),
 			},
 			expectedError:    errors.EntityNotFound{Entity: "FAILED TO UPDATE PRODUCT", ID: ""},
 			expectedResponse: nil,
