@@ -14,6 +14,11 @@ func main() {
 	se := service.New(st)
 	handler := http.New(se)
 	app.GET("/dev/{id}", handler.GetByID)
+	app.POST("/dev", handler.Create)
+	app.DELETE("/dev/{id}", handler.Delete)
+	app.PUT("/dev/{id}", handler.Update)
+	app.GET("/dev", handler.GetAll)
+
 	app.Server.ValidateHeaders = false
 
 	app.Server.HTTP.Port = 9092

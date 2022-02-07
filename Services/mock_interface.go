@@ -35,6 +35,35 @@ func (m *MockServiceint) EXPECT() *MockServiceintMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method.
+func (m *MockServiceint) Create(ctx *gofr.Context, prod model.Product) (*model.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", ctx, prod)
+	ret0, _ := ret[0].(*model.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockServiceintMockRecorder) Create(ctx, prod interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockServiceint)(nil).Create), ctx, prod)
+}
+
+// Delete mocks base method.
+func (m *MockServiceint) Delete(Id int, ctx *gofr.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", Id, ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockServiceintMockRecorder) Delete(Id, ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockServiceint)(nil).Delete), Id, ctx)
+}
+
 // GetId mocks base method.
 func (m *MockServiceint) GetId(ctx *gofr.Context, Id int) (*model.Product, error) {
 	m.ctrl.T.Helper()
@@ -48,4 +77,33 @@ func (m *MockServiceint) GetId(ctx *gofr.Context, Id int) (*model.Product, error
 func (mr *MockServiceintMockRecorder) GetId(ctx, Id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetId", reflect.TypeOf((*MockServiceint)(nil).GetId), ctx, Id)
+}
+
+// GetUser mocks base method.
+func (m *MockServiceint) GetUser(ctx *gofr.Context) ([]*model.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUser", ctx)
+	ret0, _ := ret[0].([]*model.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockServiceintMockRecorder) GetUser(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockServiceint)(nil).GetUser), ctx)
+}
+
+// Update mocks base method.
+func (m *MockServiceint) Update(prod model.Product, ctx *gofr.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", prod, ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockServiceintMockRecorder) Update(prod, ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockServiceint)(nil).Update), prod, ctx)
 }
