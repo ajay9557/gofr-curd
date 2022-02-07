@@ -96,12 +96,12 @@ func Test_DeleteById(t *testing.T) {
 			Id:   0,
 			err:  errors.InvalidParam{Param: []string{"id"}},
 		},
-		/* {
+		{
 			desc: "Failure-1",
 			Id:   412345,
-			err:  errors.Error("Internal DB error"),
-			mock: []*gomock.Call{mockStore.EXPECT().DeleteProductId(gomock.Any(), gomock.Any()).Return(errors.Error("Internal DB error"))},
-		}, */
+			err:  errors.Error("Internal Database Error"),
+			mock: []*gomock.Call{mockStore.EXPECT().DeleteProductId(gomock.Any(), gomock.Any()).Return(errors.Error("Internal Database Error"))},
+		},
 	}
 	for _, tc := range tcs {
 		ctx := gofr.NewContext(nil, nil, app)
@@ -146,8 +146,8 @@ func Test_UpdateProduct(t *testing.T) {
 			Id:   0,
 			input: model.ProductDetails{
 				Id:    0,
-				Name:  "Shirts",
-				Types: "Lenin",
+				Name:  "vivo",
+				Types: "smartphone",
 			},
 			err: errors.InvalidParam{Param: []string{"id"}},
 		},
@@ -156,8 +156,8 @@ func Test_UpdateProduct(t *testing.T) {
 			Id:   412345,
 			input: model.ProductDetails{
 				Id:    1,
-				Name:  "Shirts",
-				Types: "Lenin",
+				Name:  "samsung",
+				Types: "smartphone",
 			},
 			err:  errors.Error("Internal DB error"),
 			mock: []*gomock.Call{mockStore.EXPECT().UpdateProductById(gomock.Any(), gomock.Any()).Return(errors.Error("Internal DB error"))},
@@ -194,8 +194,8 @@ func Test_InsertProduct(t *testing.T) {
 			Id:   0,
 			input: model.ProductDetails{
 				Id:    0,
-				Name:  "Shirts",
-				Types: "Lenin",
+				Name:  "vivo",
+				Types: "smartphone",
 			},
 			err: errors.InvalidParam{Param: []string{"id"}},
 		},
@@ -204,14 +204,14 @@ func Test_InsertProduct(t *testing.T) {
 			Id:   1,
 			input: model.ProductDetails{
 				Id:    1,
-				Name:  "Shirts",
-				Types: "Lenin",
+				Name:  "vivo",
+				Types: "smartphone",
 			},
 			err: errors.Error("Internal DB error"),
 			mock: []*gomock.Call{mockStore.EXPECT().CreateProducts(gomock.Any(), gomock.Any()).Return(model.ProductDetails{
 				Id:    1,
-				Name:  "Shirts",
-				Types: "Lenin",
+				Name:  "vivo",
+				Types: "smartphone",
 			}, errors.Error("Internal DB error"))},
 		},
 	}
@@ -250,16 +250,16 @@ func Test_GetProducts(t *testing.T) {
 			Id:   1,
 			input: []model.ProductDetails{{
 				Id:    1,
-				Name:  "Shirts",
-				Types: "Lenin",
+				Name:  "vivo",
+				Types: "smartphone",
 			},
 			},
 			err: nil,
 			mock: []*gomock.Call{mockStore.EXPECT().GetAll(gomock.Any()).Return([]model.ProductDetails{
 				{
 					Id:    1,
-					Name:  "Shirts",
-					Types: "Lenin",
+					Name:  "vivo",
+					Types: "smartphone",
 				},
 			}, nil)},
 		},
