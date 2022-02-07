@@ -21,16 +21,10 @@ func New(service services.Service) HttpService {
 func (service *HttpService) GetByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	productId := ctx.PathParam("id")
 	var product models.Product
-	if productId == "" {
-		return nil, errors.MissingParam{Param: []string{"productID"}}
-	}
 
-	id, err := strconv.Atoi(productId)
-	if err != nil {
-		return nil, errors.EntityNotFound{Entity: "product", ID: productId}
-	}
+	id, _ := strconv.Atoi(productId)
 
-	product, err = service.Service.GetProductById(ctx, id)
+	product, err := service.Service.GetProductById(ctx, id)
 
 	if err != nil {
 		return nil, errors.EntityNotFound{

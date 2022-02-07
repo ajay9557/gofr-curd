@@ -1,13 +1,9 @@
 package product
 
 import (
-	"database/sql"
+	"developer.zopsmart.com/go/gofr/pkg/gofr"
 	goError "errors"
 	"product/models"
-	"strconv"
-
-	"developer.zopsmart.com/go/gofr/pkg/errors"
-	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
 type Store struct {
@@ -19,11 +15,7 @@ func New() Store {
 
 func (store *Store) GetProductById(ctx *gofr.Context, id int) (models.Product, error) {
 	product := models.Product{}
-	err := ctx.DB().QueryRow("select * from product where id=?", id).Scan(&product.Id, &product.Name, &product.Type)
-	if err == sql.ErrNoRows {
-		return models.Product{}, errors.EntityNotFound{Entity: "product", ID: strconv.Itoa(id)}
-	}
-
+	_ = ctx.DB().QueryRow("select * from product where id=?", id).Scan(&product.Id, &product.Name, &product.Type)
 	return product, nil
 }
 
