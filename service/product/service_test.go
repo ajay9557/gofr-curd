@@ -2,6 +2,7 @@ package product
 
 import (
 	"gofr-curd/models"
+	"gofr-curd/service"
 	"gofr-curd/store"
 	"reflect"
 	"testing"
@@ -11,12 +12,17 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestServices_GetById(t *testing.T) {
+func setMock(t *testing.T) (*gofr.Gofr, service.Services, *store.MockStore) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
 	mock := store.NewMockStore(ctrl)
 	s := New(mock)
 
+	return app, s, mock
+}
+
+func TestServices_GetByID(t *testing.T) {
+	app, s, mock := setMock(t)
 	testCases := []struct {
 		desc     string
 		input    int
@@ -28,14 +34,14 @@ func TestServices_GetById(t *testing.T) {
 			desc:  "valid id",
 			input: 1,
 			expOut: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Part1",
 				Type: "hardware",
 			},
 			expErr: nil,
 			mockCall: []*gomock.Call{
-				mock.EXPECT().GetById(gomock.Any(), 1).Return(&models.Product{
-					Id:   1,
+				mock.EXPECT().GetByID(gomock.Any(), 1).Return(&models.Product{
+					ID:   1,
 					Name: "Part1",
 					Type: "hardware",
 				}, nil),
@@ -56,7 +62,7 @@ func TestServices_GetById(t *testing.T) {
 				ID:     "1002",
 			},
 			mockCall: []*gomock.Call{
-				mock.EXPECT().GetById(gomock.Any(), 1002).Return(nil,
+				mock.EXPECT().GetByID(gomock.Any(), 1002).Return(nil,
 					errors.EntityNotFound{
 						Entity: "product",
 						ID:     "1002",
@@ -68,22 +74,19 @@ func TestServices_GetById(t *testing.T) {
 	for _, tc := range testCases {
 		ctx := gofr.NewContext(nil, nil, app)
 
-		resp, err := s.GetById(ctx, tc.input)
+		resp, err := s.GetByID(ctx, tc.input)
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
+
 		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expOut) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
 		}
-
 	}
 }
 
 func TestServices_Get(t *testing.T) {
-	app := gofr.New()
-	ctrl := gomock.NewController(t)
-	mock := store.NewMockStore(ctrl)
-	s := New(mock)
+	app, s, mock := setMock(t)
 
 	testCases := []struct {
 		desc     string
@@ -94,13 +97,13 @@ func TestServices_Get(t *testing.T) {
 		{
 			desc: "success case",
 			expOut: []*models.Product{
-				&models.Product{
-					Id:   1,
+				{
+					ID:   1,
 					Name: "test",
 					Type: "example",
 				},
-				&models.Product{
-					Id:   2,
+				{
+					ID:   2,
 					Name: "this",
 					Type: "that",
 				},
@@ -109,13 +112,13 @@ func TestServices_Get(t *testing.T) {
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Get(gomock.Any()).
 					Return([]*models.Product{
-						&models.Product{
-							Id:   1,
+						{
+							ID:   1,
 							Name: "test",
 							Type: "example",
 						},
-						&models.Product{
-							Id:   2,
+						{
+							ID:   2,
 							Name: "this",
 							Type: "that",
 						},
@@ -131,6 +134,7 @@ func TestServices_Get(t *testing.T) {
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
+
 		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expOut) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
 		}
@@ -138,11 +142,7 @@ func TestServices_Get(t *testing.T) {
 }
 
 func TestServices_Create(t *testing.T) {
-	app := gofr.New()
-	ctrl := gomock.NewController(t)
-	mock := store.NewMockStore(ctrl)
-	s := New(mock)
-
+	app, s, mock := setMock(t)
 	testCases := []struct {
 		desc     string
 		input    models.Product
@@ -152,19 +152,19 @@ func TestServices_Create(t *testing.T) {
 		{
 			desc: "success",
 			input: models.Product{
-				Id:   3,
+				ID:   3,
 				Name: "mouse",
 				Type: "electronics",
 			},
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Create(gomock.Any(), models.Product{
-					Id:   3,
+					ID:   3,
 					Name: "mouse",
 					Type: "electronics",
 				}).Return(nil),
-				mock.EXPECT().GetById(gomock.Any(), 3).Return(&models.Product{
-					Id:   3,
+				mock.EXPECT().GetByID(gomock.Any(), 3).Return(&models.Product{
+					ID:   3,
 					Name: "mouse",
 					Type: "electronics",
 				}, nil),
@@ -173,7 +173,7 @@ func TestServices_Create(t *testing.T) {
 		{
 			desc: "invalid param id",
 			input: models.Product{
-				Id: -1,
+				ID: -1,
 			},
 			expErr:   errors.InvalidParam{Param: []string{"id"}},
 			mockCall: nil,
@@ -181,14 +181,14 @@ func TestServices_Create(t *testing.T) {
 		{
 			desc: "error entity already exists",
 			input: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "mouse",
 				Type: "electronics",
 			},
 			expErr: errors.EntityAlreadyExists{},
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Create(gomock.Any(), models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "mouse",
 					Type: "electronics",
 				}).Return(errors.EntityAlreadyExists{}),
@@ -197,18 +197,18 @@ func TestServices_Create(t *testing.T) {
 		{
 			desc: "error creating product",
 			input: models.Product{
-				Id:   3,
+				ID:   3,
 				Name: "mouse",
 				Type: "electronics",
 			},
 			expErr: errors.EntityNotFound{Entity: "product", ID: "3"},
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Create(gomock.Any(), models.Product{
-					Id:   3,
+					ID:   3,
 					Name: "mouse",
 					Type: "electronics",
 				}).Return(nil),
-				mock.EXPECT().GetById(gomock.Any(), 3).Return(nil, errors.EntityNotFound{Entity: "product", ID: "3"}),
+				mock.EXPECT().GetByID(gomock.Any(), 3).Return(nil, errors.EntityNotFound{Entity: "product", ID: "3"}),
 			},
 		},
 	}
@@ -220,6 +220,7 @@ func TestServices_Create(t *testing.T) {
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
+
 		if tc.expErr == nil && !reflect.DeepEqual(resp, &tc.input) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, &tc.input, resp)
 		}
@@ -227,10 +228,7 @@ func TestServices_Create(t *testing.T) {
 }
 
 func TestServices_Update(t *testing.T) {
-	app := gofr.New()
-	ctrl := gomock.NewController(t)
-	mock := store.NewMockStore(ctrl)
-	s := New(mock)
+	app, s, mock := setMock(t)
 
 	testCases := []struct {
 		desc     string
@@ -241,19 +239,19 @@ func TestServices_Update(t *testing.T) {
 		{
 			desc: "success",
 			input: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "mouse",
 				Type: "electronics",
 			},
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Update(gomock.Any(), models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "mouse",
 					Type: "electronics",
 				}).Return(nil),
-				mock.EXPECT().GetById(gomock.Any(), 1).Return(&models.Product{
-					Id:   1,
+				mock.EXPECT().GetByID(gomock.Any(), 1).Return(&models.Product{
+					ID:   1,
 					Name: "mouse",
 					Type: "electronics",
 				}, nil),
@@ -262,7 +260,7 @@ func TestServices_Update(t *testing.T) {
 		{
 			desc: "invalid param id",
 			input: models.Product{
-				Id: -1,
+				ID: -1,
 			},
 			expErr:   errors.InvalidParam{Param: []string{"id"}},
 			mockCall: nil,
@@ -270,14 +268,14 @@ func TestServices_Update(t *testing.T) {
 		{
 			desc: "error updating record",
 			input: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "test",
 				Type: "example",
 			},
 			expErr: errors.Error("error updating record"),
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Update(gomock.Any(), models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "test",
 					Type: "example",
 				}).Return(errors.Error("error updating record")),
@@ -286,18 +284,18 @@ func TestServices_Update(t *testing.T) {
 		{
 			desc: "entity not found",
 			input: models.Product{
-				Id:   100,
+				ID:   100,
 				Name: "this",
 				Type: "that",
 			},
 			expErr: errors.EntityNotFound{Entity: "product", ID: "100"},
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Update(gomock.Any(), models.Product{
-					Id:   100,
+					ID:   100,
 					Name: "this",
 					Type: "that",
 				}).Return(nil),
-				mock.EXPECT().GetById(gomock.Any(), 100).Return(nil, errors.EntityNotFound{Entity: "product", ID: "100"}),
+				mock.EXPECT().GetByID(gomock.Any(), 100).Return(nil, errors.EntityNotFound{Entity: "product", ID: "100"}),
 			},
 		},
 	}
@@ -309,6 +307,7 @@ func TestServices_Update(t *testing.T) {
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
+
 		if tc.expErr == nil && !reflect.DeepEqual(resp, &tc.input) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, &tc.input, resp)
 		}
@@ -316,10 +315,7 @@ func TestServices_Update(t *testing.T) {
 }
 
 func TestServices_Delete(t *testing.T) {
-	app := gofr.New()
-	ctrl := gomock.NewController(t)
-	mock := store.NewMockStore(ctrl)
-	s := New(mock)
+	app, s, mock := setMock(t)
 
 	testCases := []struct {
 		desc     string
@@ -332,8 +328,8 @@ func TestServices_Delete(t *testing.T) {
 			id:     1,
 			expErr: nil,
 			mockCall: []*gomock.Call{
-				mock.EXPECT().GetById(gomock.Any(), 1).Return(&models.Product{
-					Id:   1,
+				mock.EXPECT().GetByID(gomock.Any(), 1).Return(&models.Product{
+					ID:   1,
 					Name: "test",
 					Type: "example",
 				}, nil),
@@ -345,7 +341,7 @@ func TestServices_Delete(t *testing.T) {
 			id:     3,
 			expErr: errors.EntityNotFound{Entity: "product", ID: "3"},
 			mockCall: []*gomock.Call{
-				mock.EXPECT().GetById(gomock.Any(), 3).Return(nil, errors.EntityNotFound{Entity: "product", ID: "3"}),
+				mock.EXPECT().GetByID(gomock.Any(), 3).Return(nil, errors.EntityNotFound{Entity: "product", ID: "3"}),
 			},
 		},
 		{
@@ -359,8 +355,8 @@ func TestServices_Delete(t *testing.T) {
 			id:     1,
 			expErr: errors.Error("error deleting record"),
 			mockCall: []*gomock.Call{
-				mock.EXPECT().GetById(gomock.Any(), 1).Return(&models.Product{
-					Id:   1,
+				mock.EXPECT().GetByID(gomock.Any(), 1).Return(&models.Product{
+					ID:   1,
 					Name: "test",
 					Type: "example",
 				}, nil),

@@ -1,7 +1,6 @@
 package product
 
 import (
-	"bytes"
 	"gofr-curd/models"
 	"gofr-curd/service"
 	"net/http"
@@ -16,12 +15,29 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestGetById(t *testing.T) {
+func setMock(t *testing.T) (*gofr.Gofr, Handler, *service.MockServices) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
 	mock := service.NewMockServices(ctrl)
 	h := New(mock)
 
+	return app, h, mock
+}
+
+func setMockHTTP(app *gofr.Gofr) *gofr.Context {
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
+
+	req := request.NewHTTPRequest(r)
+	res := responder.NewContextualResponder(w, r)
+
+	ctx := gofr.NewContext(res, req, app)
+
+	return ctx
+}
+
+func TestGetByID(t *testing.T) {
+	app, h, mock := setMock(t)
 	testCases := []struct {
 		desc   string
 		input  string
@@ -34,7 +50,7 @@ func TestGetById(t *testing.T) {
 			input: "1",
 			resp: &models.Response{
 				Data: models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "test",
 					Type: "example",
 				},
@@ -42,8 +58,8 @@ func TestGetById(t *testing.T) {
 				StatusCode: http.StatusOK,
 			},
 			calls: []*gomock.Call{
-				mock.EXPECT().GetById(gomock.Any(), 1).Return(&models.Product{
-					Id:   1,
+				mock.EXPECT().GetByID(gomock.Any(), 1).Return(&models.Product{
+					ID:   1,
 					Name: "test",
 					Type: "example",
 				}, nil),
@@ -59,7 +75,7 @@ func TestGetById(t *testing.T) {
 				ID:     "102",
 			},
 			calls: []*gomock.Call{
-				mock.EXPECT().GetById(gomock.Any(), 102).Return(nil, errors.EntityNotFound{
+				mock.EXPECT().GetByID(gomock.Any(), 102).Return(nil, errors.EntityNotFound{
 					Entity: "product",
 					ID:     "102",
 				}),
@@ -73,7 +89,7 @@ func TestGetById(t *testing.T) {
 				Param: []string{"id"},
 			},
 			calls: []*gomock.Call{
-				mock.EXPECT().GetById(gomock.Any(), -1).Return(nil, errors.InvalidParam{
+				mock.EXPECT().GetByID(gomock.Any(), -1).Return(nil, errors.InvalidParam{
 					Param: []string{"id"},
 				}),
 			},
@@ -96,24 +112,19 @@ func TestGetById(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, test := range testCases {
+		tc := test
 		t.Run(tc.desc, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
-
-			req := request.NewHTTPRequest(r)
-			res := responder.NewContextualResponder(w, r)
-
-			ctx := gofr.NewContext(res, req, app)
-
+			ctx := setMockHTTP(app)
 			ctx.SetPathParams(map[string]string{
 				"id": tc.input,
 			})
 
-			resp, err := h.GetById(ctx)
+			resp, err := h.GetByID(ctx)
 			if !reflect.DeepEqual(err, tc.expErr) {
 				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 			}
+
 			if tc.expErr == nil && !reflect.DeepEqual(resp, tc.resp) {
 				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.resp, resp)
 			}
@@ -122,11 +133,7 @@ func TestGetById(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	app := gofr.New()
-	ctrl := gomock.NewController(t)
-	mock := service.NewMockServices(ctrl)
-	h := New(mock)
-
+	app, h, mock := setMock(t)
 	testCases := []struct {
 		desc     string
 		mockCall []*gomock.Call
@@ -138,26 +145,26 @@ func TestGet(t *testing.T) {
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Get(gomock.Any()).
 					Return([]*models.Product{
-						&models.Product{
-							Id:   1,
+						{
+							ID:   1,
 							Name: "test",
 							Type: "example",
 						},
-						&models.Product{
-							Id:   2,
+						{
+							ID:   2,
 							Name: "this",
 							Type: "that",
 						},
 					}, nil),
 			},
 			expResp: []*models.Product{
-				&models.Product{
-					Id:   1,
+				{
+					ID:   1,
 					Name: "test",
 					Type: "example",
 				},
-				&models.Product{
-					Id:   2,
+				{
+					ID:   2,
 					Name: "this",
 					Type: "that",
 				},
@@ -174,18 +181,15 @@ func TestGet(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
-
-		req := request.NewHTTPRequest(r)
-		res := responder.NewContextualResponder(w, r)
-
-		ctx := gofr.NewContext(res, req, app)
+	for _, test := range testCases {
+		tc := test
+		ctx := setMockHTTP(app)
 		resp, err := h.Get(ctx)
+
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
+
 		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expResp) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expResp, resp)
 		}
@@ -193,11 +197,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	app := gofr.New()
-	ctrl := gomock.NewController(t)
-	mock := service.NewMockServices(ctrl)
-	h := New(mock)
-
+	app, h, mock := setMock(t)
 	testCases := []struct {
 		desc     string
 		input    []byte
@@ -206,14 +206,15 @@ func TestCreate(t *testing.T) {
 	}{
 		{
 			desc:   "success",
-			input:  []byte(`{"name": "test","type": "example"}`),
+			input:  []byte(`{"id":3,"name": "test","type": "example"}`),
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Create(gomock.Any(), models.Product{
+					ID:   3,
 					Name: "test",
 					Type: "example",
 				}).Return(&models.Product{
-					Id:   3,
+					ID:   3,
 					Name: "test",
 					Type: "example",
 				}, nil),
@@ -226,14 +227,8 @@ func TestCreate(t *testing.T) {
 			expErr:   errors.InvalidParam{Param: []string{"body"}},
 		},
 		{
-			desc:     "error invalid id",
-			input:    []byte(`{"id":1}`),
-			mockCall: nil,
-			expErr:   errors.InvalidParam{Param: []string{"id"}},
-		},
-		{
 			desc:  "error from service",
-			input: []byte(`{"name": "test","type": "example"}`),
+			input: []byte(`{"id":3,"name": "test","type": "example"}`),
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Create(gomock.Any(), gomock.Any()).
 					Return(nil, errors.EntityAlreadyExists{}),
@@ -243,13 +238,8 @@ func TestCreate(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, "http://dummy", bytes.NewReader(tc.input))
+		ctx := setMockHTTP(app)
 
-		req := request.NewHTTPRequest(r)
-		res := responder.NewContextualResponder(w, r)
-
-		ctx := gofr.NewContext(res, req, app)
 		_, err := h.Create(ctx)
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
@@ -258,11 +248,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	app := gofr.New()
-	ctrl := gomock.NewController(t)
-	mock := service.NewMockServices(ctrl)
-	h := New(mock)
-
+	app, h, mock := setMock(t)
 	testCases := []struct {
 		desc     string
 		id       string
@@ -276,18 +262,18 @@ func TestUpdate(t *testing.T) {
 			id:    "1",
 			input: []byte(`{"name":"hello","type":"world"}`),
 			expResp: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "hello",
 				Type: "world",
 			},
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Update(gomock.Any(), models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "hello",
 					Type: "world",
 				}).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "hello",
 					Type: "world",
 				}, nil),
@@ -316,7 +302,7 @@ func TestUpdate(t *testing.T) {
 			expErr: errors.Error("error updating record"),
 			mockCall: []*gomock.Call{
 				mock.EXPECT().Update(gomock.Any(), models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "hello",
 					Type: "world",
 				}).Return(nil, errors.Error("error updating record")),
@@ -325,16 +311,11 @@ func TestUpdate(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, "http://dummy", bytes.NewReader(tc.input))
-
-		req := request.NewHTTPRequest(r)
-		res := responder.NewContextualResponder(w, r)
-
-		ctx := gofr.NewContext(res, req, app)
+		ctx := setMockHTTP(app)
 		ctx.SetPathParams(map[string]string{
 			"id": tc.id,
 		})
+
 		_, err := h.Update(ctx)
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
@@ -343,11 +324,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	app := gofr.New()
-	ctrl := gomock.NewController(t)
-	mock := service.NewMockServices(ctrl)
-	h := New(mock)
-
+	app, h, mock := setMock(t)
 	testCases := []struct {
 		desc     string
 		id       string
@@ -386,24 +363,20 @@ func TestDelete(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tc := range testCases {
-		w := httptest.NewRecorder()
-		r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
-
-		req := request.NewHTTPRequest(r)
-		res := responder.NewContextualResponder(w, r)
-
-		ctx := gofr.NewContext(res, req, app)
+		ctx := setMockHTTP(app)
 		ctx.SetPathParams(map[string]string{
 			"id": tc.id,
 		})
+
 		resp, err := h.Delete(ctx)
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
+
 		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expResp) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expResp, resp)
 		}
-
 	}
 }

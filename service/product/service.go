@@ -23,56 +23,66 @@ func (s *services) Get(ctx *gofr.Context) ([]*models.Product, error) {
 	return s.store.Get(ctx)
 }
 
-func (s *services) GetById(ctx *gofr.Context, id int) (*models.Product, error) {
-	if !validateId(id) {
+func (s *services) GetByID(ctx *gofr.Context, id int) (*models.Product, error) {
+	if !validateID(id) {
 		return nil, errors.InvalidParam{
 			Param: []string{"id"},
 		}
 	}
-	return s.store.GetById(ctx, id)
+
+	return s.store.GetByID(ctx, id)
 }
 
 func (s *services) Create(ctx *gofr.Context, p models.Product) (*models.Product, error) {
-	if !validateId(p.Id) {
+	if !validateID(p.ID) {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
+
 	err := s.store.Create(ctx, p)
 	if err != nil {
 		return nil, err
 	}
-	res, err := s.GetById(ctx, p.Id)
+
+	res, err := s.GetByID(ctx, p.ID)
 	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
 func (s *services) Update(ctx *gofr.Context, p models.Product) (*models.Product, error) {
-	if !validateId(p.Id) {
+	if !validateID(p.ID) {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
+
 	err := s.store.Update(ctx, p)
 	if err != nil {
 		return nil, err
 	}
-	res, err := s.GetById(ctx, p.Id)
+
+	res, err := s.GetByID(ctx, p.ID)
 	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
 func (s *services) Delete(ctx *gofr.Context, id int) error {
-	if !validateId(id) {
+	if !validateID(id) {
 		return errors.InvalidParam{Param: []string{"id"}}
 	}
-	_, err := s.GetById(ctx, id)
+
+	_, err := s.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
+
 	err = s.store.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

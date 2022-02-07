@@ -3,6 +3,7 @@ package product
 import (
 	"context"
 	"gofr-curd/models"
+	"gofr-curd/store"
 	"reflect"
 	"testing"
 
@@ -14,7 +15,7 @@ func TestCoreLayer(t *testing.T) {
 	app := gofr.New()
 
 	testGet(t, app)
-	testGetById(t, app)
+	testGetByID(t, app)
 	testCreate(t, app)
 	testUpdate(t, app)
 	testDelete(t, app)
@@ -30,35 +31,38 @@ func testGet(t *testing.T, app *gofr.Gofr) {
 			desc:   "success case",
 			expErr: nil,
 			expOut: []*models.Product{
-				&models.Product{
-					Id:   1,
+				{
+					ID:   1,
 					Name: "test",
 					Type: "example",
 				},
-				&models.Product{
-					Id:   2,
+				{
+					ID:   2,
 					Name: "this",
 					Type: "that",
 				},
 			},
 		},
 	}
-	for _, tc := range testCases {
+	for _, test := range testCases {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
 
-		store := New()
-		out, err := store.Get(ctx)
+		s := New()
+		out, err := s.Get(ctx)
+
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
+
 		if tc.expErr == nil && !reflect.DeepEqual(out, tc.expOut) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, out)
 		}
 	}
 }
 
-func testGetById(t *testing.T, app *gofr.Gofr) {
+func testGetByID(t *testing.T, app *gofr.Gofr) {
 	testCases := []struct {
 		desc   string
 		input  int
@@ -70,7 +74,7 @@ func testGetById(t *testing.T, app *gofr.Gofr) {
 			input:  1,
 			expErr: nil,
 			expOut: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "test",
 				Type: "example",
 			},
@@ -85,32 +89,44 @@ func testGetById(t *testing.T, app *gofr.Gofr) {
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, test := range testCases {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
 
-		store := New()
+		s := New()
 
-		out, err := store.GetById(ctx, tc.input)
+		out, err := s.GetByID(ctx, tc.input)
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
+
 		if tc.expErr == nil && !reflect.DeepEqual(out, tc.expOut) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, out)
 		}
 	}
 }
 
+type testCase struct {
+	desc   string
+	input  models.Product
+	expErr error
+}
+
+func setTest(app *gofr.Gofr) (store.Store, *gofr.Context) {
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	s := New()
+
+	return s, ctx
+}
+
 func testCreate(t *testing.T, app *gofr.Gofr) {
-	tesCases := []struct {
-		desc   string
-		input  models.Product
-		expErr error
-	}{
+	tesCases := []testCase{
 		{
 			desc: "success case",
 			input: models.Product{
-				Id:   3,
+				ID:   3,
 				Name: "this",
 				Type: "that",
 			},
@@ -119,10 +135,9 @@ func testCreate(t *testing.T, app *gofr.Gofr) {
 	}
 
 	for _, tc := range tesCases {
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
-		store := New()
-		err := store.Create(ctx, tc.input)
+		s, ctx := setTest(app)
+		err := s.Create(ctx, tc.input)
+
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
@@ -130,15 +145,11 @@ func testCreate(t *testing.T, app *gofr.Gofr) {
 }
 
 func testUpdate(t *testing.T, app *gofr.Gofr) {
-	tesCases := []struct {
-		desc   string
-		input  models.Product
-		expErr error
-	}{
+	tesCases := []testCase{
 		{
 			desc: "success case",
 			input: models.Product{
-				Id:   3,
+				ID:   3,
 				Name: "hello",
 				Type: "world",
 			},
@@ -147,10 +158,9 @@ func testUpdate(t *testing.T, app *gofr.Gofr) {
 	}
 
 	for _, tc := range tesCases {
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
-		store := New()
-		err := store.Update(ctx, tc.input)
+		s, ctx := setTest(app)
+		err := s.Update(ctx, tc.input)
+
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
@@ -173,8 +183,9 @@ func testDelete(t *testing.T, app *gofr.Gofr) {
 	for _, tc := range tesCases {
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
-		store := New()
-		err := store.Delete(ctx, tc.input)
+		s := New()
+		err := s.Delete(ctx, tc.input)
+
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}

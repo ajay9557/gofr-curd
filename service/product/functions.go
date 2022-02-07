@@ -1,5 +1,5 @@
 package product
 
-func validateId(id int) bool {
+func validateID(id int) bool {
 	return id > 0
 }

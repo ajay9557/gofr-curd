@@ -10,17 +10,17 @@ import (
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
-type handler struct {
+type Handler struct {
 	service service.Services
 }
 
-func New(s service.Services) handler {
-	return handler{
+func New(s service.Services) Handler {
+	return Handler{
 		service: s,
 	}
 }
 
-func (h *handler) GetById(ctx *gofr.Context) (interface{}, error) {
+func (h *Handler) GetByID(ctx *gofr.Context) (interface{}, error) {
 	i := ctx.PathParam("id")
 
 	if i == "" {
@@ -32,10 +32,11 @@ func (h *handler) GetById(ctx *gofr.Context) (interface{}, error) {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
 
-	resp, err := h.service.GetById(ctx, id)
+	resp, err := h.service.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+
 	return &models.Response{
 		Data:       *resp,
 		Message:    "data retrieved",
@@ -43,12 +44,12 @@ func (h *handler) GetById(ctx *gofr.Context) (interface{}, error) {
 	}, err
 }
 
-func (h *handler) Get(ctx *gofr.Context) (interface{}, error) {
+func (h *Handler) Get(ctx *gofr.Context) (interface{}, error) {
 	resp, err := h.service.Get(ctx)
 	return resp, err
 }
 
-func (h *handler) Create(ctx *gofr.Context) (interface{}, error) {
+func (h *Handler) Create(ctx *gofr.Context) (interface{}, error) {
 	var p models.Product
 	if err := ctx.Bind(&p); err != nil {
 		ctx.Logger.Errorf("error in binding: %v", err)
@@ -59,10 +60,11 @@ func (h *handler) Create(ctx *gofr.Context) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return resp, err
 }
 
-func (h *handler) Update(ctx *gofr.Context) (interface{}, error) {
+func (h *Handler) Update(ctx *gofr.Context) (interface{}, error) {
 	i := ctx.PathParam("id")
 
 	if i == "" {
@@ -75,19 +77,22 @@ func (h *handler) Update(ctx *gofr.Context) (interface{}, error) {
 	}
 
 	var p models.Product
-	if err := ctx.Bind(&p); err != nil {
+	p.ID = id
+
+	if err = ctx.Bind(&p); err != nil {
 		ctx.Logger.Errorf("error in binding: %v", err)
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
-	p.Id = id
+
 	resp, err := h.service.Update(ctx, p)
 	if err != nil {
 		return nil, err
 	}
+
 	return resp, nil
 }
 
-func (h *handler) Delete(ctx *gofr.Context) (interface{}, error) {
+func (h *Handler) Delete(ctx *gofr.Context) (interface{}, error) {
 	i := ctx.PathParam("id")
 
 	if i == "" {
@@ -103,6 +108,7 @@ func (h *handler) Delete(ctx *gofr.Context) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &models.Response{
 		Message:    "deleted successfully",
 		StatusCode: http.StatusOK,

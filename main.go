@@ -16,7 +16,7 @@ func main() {
 	l := productService.New(s)
 	h := productHandler.New(l)
 
-	app.GET("/products/{id}", h.GetById)
+	app.GET("/products/{id}", h.GetByID)
 	app.GET("/products", h.Get)
 	app.POST("/products", h.Create)
 	app.PUT("/products/{id}", h.Update)

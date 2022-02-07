@@ -1,12 +1,13 @@
 package main
 
 import (
-	"developer.zopsmart.com/go/gofr/pkg/gofr"
-	"developer.zopsmart.com/go/gofr/pkg/gofr/request"
 	"net/http"
 	"os"
 	"testing"
 	"time"
+
+	"developer.zopsmart.com/go/gofr/pkg/gofr"
+	"developer.zopsmart.com/go/gofr/pkg/gofr/request"
 )
 
 func TestMain(m *testing.M) {
@@ -35,6 +36,7 @@ func TestMain(m *testing.M) {
 	   type varchar (50))
 	`
 	}
+
 	if _, err := db.Exec(query); err != nil {
 		app.Logger.Errorf("got error sourcing the schema: ", err)
 	}

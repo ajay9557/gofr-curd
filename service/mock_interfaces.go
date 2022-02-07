@@ -79,19 +79,19 @@ func (mr *MockServicesMockRecorder) Get(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockServices)(nil).Get), ctx)
 }
 
-// GetById mocks base method.
-func (m *MockServices) GetById(ctx *gofr.Context, id int) (*models.Product, error) {
+// GetByID mocks base method.
+func (m *MockServices) GetByID(ctx *gofr.Context, id int) (*models.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", ctx, id)
+	ret := m.ctrl.Call(m, "GetByID", ctx, id)
 	ret0, _ := ret[0].(*models.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetById indicates an expected call of GetById.
-func (mr *MockServicesMockRecorder) GetById(ctx, id interface{}) *gomock.Call {
+// GetByID indicates an expected call of GetByID.
+func (mr *MockServicesMockRecorder) GetByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockServices)(nil).GetById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockServices)(nil).GetByID), ctx, id)
 }
 
 // Update mocks base method.
