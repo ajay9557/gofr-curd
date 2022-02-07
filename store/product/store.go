@@ -6,8 +6,6 @@ import (
 	"gofr-curd/store"
 	"strconv"
 
-	"github.com/go-sql-driver/mysql"
-
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
@@ -22,21 +20,14 @@ func (p *product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 	var res []*models.Product
 	rows, err := ctx.DB().QueryContext(ctx, "select id,name,type from products")
 	if err != nil {
-		return nil, errors.EntityNotFound{
-			Entity: "products",
-			ID:     "all",
-		}
+		return nil, errors.EntityNotFound{Entity: "products", ID: "all"}
 	}
 
 	for rows.Next() {
 		var p models.Product
 		err := rows.Scan(&p.Id, &p.Name, &p.Type)
-		if driverErr, ok := err.(*mysql.MySQLError); ok {
-			if driverErr.Number == 1045 {
-				return nil, errors.Error("Access denied")
-			} else {
-				return nil, errors.Error("Cannot scan row")
-			}
+		if err != nil {
+			return nil, errors.EntityNotFound{Entity: "product"}
 		}
 		res = append(res, &p)
 	}
