@@ -16,7 +16,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-func Test_GetById(t *testing.T) {
+func Test_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	serv := services.NewMockProductservice(ctrl)
 	h := New(serv)
@@ -24,40 +24,41 @@ func Test_GetById(t *testing.T) {
 
 	tcs := []struct {
 		desc           string
-		Id             string
+		ID             string
 		err            error
 		expectedOutput interface{}
 		mock           []*gomock.Call
 	}{
 		{
 			desc: "Success",
-			Id:   "1",
+			ID:   "1",
 			err:  nil,
 			expectedOutput: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "US POLO",
 			},
 			mock: []*gomock.Call{serv.EXPECT().GetByID(gomock.Any(), gomock.Any()).Return(models.Product{
-				Id: 1, Name: "Shirts", Type: "US POLO"}, nil)},
+				ID: 1, Name: "Shirts", Type: "US POLO"}, nil)},
 		},
 		{
 			desc: "Failure-2",
-			Id:   "45",
+			ID:   "45",
 			err: errors.EntityNotFound{
 				Entity: "Product",
 				ID:     "45",
 			},
 			expectedOutput: nil,
-			mock: []*gomock.Call{serv.EXPECT().GetByID(gomock.Any(), gomock.Any()).Return(models.Product{}, errors.EntityNotFound{
-				Entity: "Product",
-				ID:     "45",
-			})},
+			mock: []*gomock.Call{serv.EXPECT().GetByID(gomock.Any(), gomock.Any()).
+				Return(models.Product{}, errors.EntityNotFound{
+					Entity: "Product",
+					ID:     "45",
+				})},
 		},
 	}
 
-	for _, tc := range tcs {
-
+	for _, test := range tcs {
+		tc := test
 		t.Run(tc.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
@@ -65,9 +66,9 @@ func Test_GetById(t *testing.T) {
 			res := responder.NewContextualResponder(w, r)
 			ctx := gofr.NewContext(res, req, app)
 			ctx.SetPathParams(map[string]string{
-				"id": tc.Id,
+				"id": tc.ID,
 			})
-			resp, err := h.GetById(ctx)
+			resp, err := h.GetByID(ctx)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
 			}
@@ -78,7 +79,7 @@ func Test_GetById(t *testing.T) {
 	}
 }
 
-func Test_UpdateById(t *testing.T) {
+func Test_UpdateByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	serv := services.NewMockProductservice(ctrl)
 	h := New(serv)
@@ -86,15 +87,15 @@ func Test_UpdateById(t *testing.T) {
 
 	tcs := []struct {
 		desc           string
-		Id             string
-		input []byte
+		ID             string
+		input          []byte
 		err            error
 		expectedOutput interface{}
 		mock           []*gomock.Call
 	}{
 		{
 			desc: "Success",
-			Id:   "1",
+			ID:   "1",
 			err:  nil,
 			input: []byte(`{
 				"Id":0,
@@ -102,16 +103,16 @@ func Test_UpdateById(t *testing.T) {
 				"Type": "US POLO"
 			}`),
 			expectedOutput: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "US POLO",
 			},
-			mock: []*gomock.Call{serv.EXPECT().UpdateById(gomock.Any(), gomock.Any(), gomock.Any()).Return(models.Product{
-				Id: 1, Name: "Shirts", Type: "US POLO"}, nil)},
+			mock: []*gomock.Call{serv.EXPECT().UpdateByID(gomock.Any(), gomock.Any(), gomock.Any()).Return(models.Product{
+				ID: 1, Name: "Shirts", Type: "US POLO"}, nil)},
 		},
 		{
 			desc: "Failure-2",
-			Id:   "45",
+			ID:   "45",
 			input: []byte(`{
 				"Id":0,
 				"Name": "Shirts",
@@ -122,14 +123,14 @@ func Test_UpdateById(t *testing.T) {
 				ID:     "45",
 			},
 			expectedOutput: nil,
-			mock: []*gomock.Call{serv.EXPECT().UpdateById(gomock.Any(), gomock.Any(),gomock.Any()).Return(models.Product{}, errors.EntityNotFound{
+			mock: []*gomock.Call{serv.EXPECT().UpdateByID(gomock.Any(), gomock.Any(), gomock.Any()).Return(models.Product{}, errors.EntityNotFound{
 				Entity: "Product",
 				ID:     "45",
 			})},
 		},
 		{
 			desc: "Success",
-			Id:   "1",
+			ID:   "1",
 			err:  errors.InvalidParam{Param: []string{"body"}},
 			input: []byte(`
 				"Id":0,
@@ -137,13 +138,12 @@ func Test_UpdateById(t *testing.T) {
 				"Type": "US POLO"
 			`),
 			expectedOutput: nil,
-			mock: nil,
+			mock:           nil,
 		},
-
 	}
 
-	for _, tc := range tcs {
-
+	for _, test := range tcs {
+		tc := test
 		t.Run(tc.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, "http://dummy", bytes.NewReader(tc.input))
@@ -151,9 +151,9 @@ func Test_UpdateById(t *testing.T) {
 			res := responder.NewContextualResponder(w, r)
 			ctx := gofr.NewContext(res, req, app)
 			ctx.SetPathParams(map[string]string{
-				"id": tc.Id,
+				"id": tc.ID,
 			})
-			resp, err := h.UpdateById(ctx)
+			resp, err := h.UpdateByID(ctx)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
 			}
@@ -180,21 +180,22 @@ func Test_GetProducts(t *testing.T) {
 			desc: "Success",
 			err:  nil,
 			expectedOutput: []models.Product{{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "US POLO",
 			}},
 			mock: []*gomock.Call{serv.EXPECT().GetProducts(gomock.Any()).Return([]models.Product{{
-				Id: 1, Name: "Shirts", Type: "US POLO"}}, nil)},
+				ID: 1, Name: "Shirts", Type: "US POLO"}}, nil)},
 		}, {
 			desc:           "Failure",
 			err:            errors.InvalidParam{Param: []string{"body"}},
 			expectedOutput: nil,
-			mock:           []*gomock.Call{serv.EXPECT().GetProducts(gomock.Any()).Return([]models.Product{}, errors.InvalidParam{Param: []string{"body"}})},
+			mock: []*gomock.Call{serv.EXPECT().GetProducts(gomock.Any()).
+				Return([]models.Product{}, errors.InvalidParam{Param: []string{"body"}})},
 		},
 	}
-	for _, tc := range tcs {
-
+	for _, test := range tcs {
+		tc := test
 		t.Run(tc.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
@@ -210,7 +211,6 @@ func Test_GetProducts(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func Test_AddProduct(t *testing.T) {
@@ -234,12 +234,12 @@ func Test_AddProduct(t *testing.T) {
 				"Type": "US POLO"
 			}`),
 			expectedOutput: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "US POLO",
 			},
 			mock: []*gomock.Call{serv.EXPECT().AddProduct(gomock.Any(), gomock.Any()).Return(models.Product{
-				Id: 1, Name: "Shirts", Type: "US POLO"}, nil)},
+				ID: 1, Name: "Shirts", Type: "US POLO"}, nil)},
 		},
 		{
 			desc: "Failure",
@@ -250,7 +250,8 @@ func Test_AddProduct(t *testing.T) {
 				"Type": "US POLO"
 			}`),
 			expectedOutput: nil,
-			mock:           []*gomock.Call{serv.EXPECT().AddProduct(gomock.Any(), gomock.Any()).Return(models.Product{}, errors.Error("internal error"))},
+			mock: []*gomock.Call{serv.EXPECT().AddProduct(gomock.Any(), gomock.Any()).
+				Return(models.Product{}, errors.Error("internal error"))},
 		},
 		{
 			desc: "Failure",
@@ -264,7 +265,9 @@ func Test_AddProduct(t *testing.T) {
 			mock:           nil,
 		},
 	}
-	for _, tc := range tcs {
+
+	for _, test := range tcs {
+		tc := test
 
 		t.Run(tc.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
@@ -281,7 +284,6 @@ func Test_AddProduct(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func Test_Delete(t *testing.T) {
@@ -292,29 +294,31 @@ func Test_Delete(t *testing.T) {
 	tcs := []struct {
 		desc string
 		err  error
-		id   string
+		ID   string
 		mock []*gomock.Call
 	}{
 		{
 			desc: "Success",
 			err:  nil,
-			id:   "1",
-			mock: []*gomock.Call{serv.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(nil)},
+			ID:   "1",
+			mock: []*gomock.Call{serv.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(nil)},
 		},
 		{
 			desc: "Failure-2",
-			id:   "45",
+			ID:   "45",
 			err: errors.EntityNotFound{
 				Entity: "Product",
 				ID:     "45",
 			},
-			mock: []*gomock.Call{serv.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(errors.EntityNotFound{
+			mock: []*gomock.Call{serv.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(errors.EntityNotFound{
 				Entity: "Product",
 				ID:     "45",
 			})},
 		},
 	}
-	for _, tc := range tcs {
+
+	for _, test := range tcs {
+		tc := test
 
 		t.Run(tc.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
@@ -323,13 +327,12 @@ func Test_Delete(t *testing.T) {
 			res := responder.NewContextualResponder(w, r)
 			ctx := gofr.NewContext(res, req, app)
 			ctx.SetPathParams(map[string]string{
-				"id": tc.id,
+				"id": tc.ID,
 			})
-			_, err := h.DeleteById(ctx)
+			_, err := h.DeleteByID(ctx)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
 			}
 		})
 	}
-
 }

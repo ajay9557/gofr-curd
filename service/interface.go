@@ -10,6 +10,6 @@ type Productservice interface {
 	GetByID(ctx *gofr.Context, id string) (model.Product, error)
 	GetProducts(ctx *gofr.Context) ([]model.Product, error)
 	AddProduct(*gofr.Context, model.Product) (model.Product, error)
-	DeleteById(ctx *gofr.Context, id string) error
-	UpdateById(ctx *gofr.Context, prod model.Product,id string) (model.Product,error)
+	DeleteByID(ctx *gofr.Context, id string) error
+	UpdateByID(ctx *gofr.Context, prod model.Product, id string) (model.Product, error)
 }

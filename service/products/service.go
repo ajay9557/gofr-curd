@@ -19,32 +19,35 @@ func New(productstore store.Productstorer) ProductStore {
 }
 
 func (p ProductStore) GetByID(ctx *gofr.Context, i string) (model.Product, error) {
-	isValid, err := validateId(i)
+	isValid, err := validateID(i)
 	if !isValid {
 		return model.Product{}, err
 	}
+
 	id, _ := strconv.Atoi(i)
 
-	resp, err := p.store.GetProductById(ctx, id)
+	resp, err := p.store.GetProductByID(ctx, id)
 	if err != nil {
 		return model.Product{}, errors.EntityNotFound{Entity: "product", ID: fmt.Sprint(id)}
 	}
+
 	return resp, nil
 }
 
-func (p ProductStore) DeleteById(ctx *gofr.Context, i string) error {
-	isValid, err := validateId(i)
+func (p ProductStore) DeleteByID(ctx *gofr.Context, i string) error {
+	isValid, err := validateID(i)
 	if !isValid {
 		return err
 	}
+
 	id, _ := strconv.Atoi(i)
 
-	err = p.store.DeleteById(ctx, id)
+	err = p.store.DeleteByID(ctx, id)
 	if err != nil {
 		return errors.EntityNotFound{Entity: "product", ID: fmt.Sprint(id)}
 	}
-	return nil
 
+	return nil
 }
 
 func (p ProductStore) GetProducts(ctx *gofr.Context) ([]model.Product, error) {
@@ -52,6 +55,7 @@ func (p ProductStore) GetProducts(ctx *gofr.Context) ([]model.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return resp, nil
 }
 
@@ -60,29 +64,35 @@ func (p ProductStore) AddProduct(ctx *gofr.Context, prod model.Product) (model.P
 	if !isValid {
 		return model.Product{}, err
 	}
+
 	id, err := p.store.AddProduct(ctx, prod)
 	if err != nil {
 		return model.Product{}, err
 	}
-	prod.Id = id
-	return prod, nil
 
+	prod.ID = id
+
+	return prod, nil
 }
 
-func (p ProductStore) UpdateById(ctx *gofr.Context, prod model.Product, id string) (model.Product, error) {
-	isValid, err := validateId(id)
+func (p ProductStore) UpdateByID(ctx *gofr.Context, prod model.Product, id string) (model.Product, error) {
+	isValid, err := validateID(id)
 	if !isValid {
 		return model.Product{}, err
 	}
-	isValid, err = validate(prod.Id)
+
+	isValid, err = validate(prod.ID)
 	if !isValid {
 		return model.Product{}, err
 	}
+
 	i, _ := strconv.Atoi(id)
-	prod.Id = i
-	resp, err := p.store.UpdateById(ctx, prod)
+	prod.ID = i
+
+	resp, err := p.store.UpdateByID(ctx, prod)
 	if err != nil {
-		return model.Product{}, errors.EntityNotFound{Entity: "product", ID: fmt.Sprint(id)}
+		return model.Product{}, errors.EntityNotFound{Entity: "product", ID: id}
 	}
+
 	return resp, nil
 }
