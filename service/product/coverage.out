@@ -1,0 +1,22 @@
+mode: set
+github.com/tejas/gofr-crud/service/product/service.go:17.55,21.2 1 1
+github.com/tejas/gofr-crud/service/product/service.go:23.85,24.17 1 1
+github.com/tejas/gofr-crud/service/product/service.go:34.2,34.51 1 1
+github.com/tejas/gofr-crud/service/product/service.go:24.17,27.17 2 1
+github.com/tejas/gofr-crud/service/product/service.go:31.3,31.18 1 1
+github.com/tejas/gofr-crud/service/product/service.go:27.17,29.4 1 1
+github.com/tejas/gofr-crud/service/product/service.go:37.79,39.16 2 1
+github.com/tejas/gofr-crud/service/product/service.go:43.2,43.18 1 1
+github.com/tejas/gofr-crud/service/product/service.go:39.16,41.3 1 1
+github.com/tejas/gofr-crud/service/product/service.go:46.97,47.22 1 1
+github.com/tejas/gofr-crud/service/product/service.go:57.2,57.51 1 1
+github.com/tejas/gofr-crud/service/product/service.go:47.22,50.17 2 1
+github.com/tejas/gofr-crud/service/product/service.go:54.3,54.25 1 1
+github.com/tejas/gofr-crud/service/product/service.go:50.17,52.4 1 0
+github.com/tejas/gofr-crud/service/product/service.go:60.97,63.16 2 1
+github.com/tejas/gofr-crud/service/product/service.go:67.2,67.27 1 1
+github.com/tejas/gofr-crud/service/product/service.go:63.16,65.3 1 1
+github.com/tejas/gofr-crud/service/product/service.go:70.66,71.18 1 1
+github.com/tejas/gofr-crud/service/product/service.go:75.2,77.12 2 1
+github.com/tejas/gofr-crud/service/product/service.go:71.18,73.3 1 1
+github.com/tejas/gofr-crud/service/product/functions.go:3.27,5.2 1 1

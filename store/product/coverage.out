@@ -1,0 +1,23 @@
+mode: set
+github.com/tejas/gofr-crud/store/product/store.go:16.31,18.2 1 1
+github.com/tejas/gofr-crud/store/product/store.go:20.84,26.26 3 1
+github.com/tejas/gofr-crud/store/product/store.go:30.2,30.21 1 1
+github.com/tejas/gofr-crud/store/product/store.go:26.26,28.3 1 1
+github.com/tejas/gofr-crud/store/product/store.go:33.78,36.16 2 1
+github.com/tejas/gofr-crud/store/product/store.go:40.2,40.15 1 1
+github.com/tejas/gofr-crud/store/product/store.go:45.2,47.18 2 1
+github.com/tejas/gofr-crud/store/product/store.go:59.2,59.22 1 1
+github.com/tejas/gofr-crud/store/product/store.go:36.16,38.3 1 0
+github.com/tejas/gofr-crud/store/product/store.go:40.15,43.3 2 1
+github.com/tejas/gofr-crud/store/product/store.go:47.18,52.17 3 1
+github.com/tejas/gofr-crud/store/product/store.go:56.3,56.36 1 1
+github.com/tejas/gofr-crud/store/product/store.go:52.17,54.4 1 0
+github.com/tejas/gofr-crud/store/product/store.go:62.96,65.16 2 1
+github.com/tejas/gofr-crud/store/product/store.go:69.2,69.18 1 1
+github.com/tejas/gofr-crud/store/product/store.go:65.16,67.3 1 1
+github.com/tejas/gofr-crud/store/product/store.go:72.96,76.16 2 1
+github.com/tejas/gofr-crud/store/product/store.go:80.2,80.18 1 1
+github.com/tejas/gofr-crud/store/product/store.go:76.16,78.3 1 1
+github.com/tejas/gofr-crud/store/product/store.go:83.65,86.16 2 1
+github.com/tejas/gofr-crud/store/product/store.go:90.2,90.12 1 1
+github.com/tejas/gofr-crud/store/product/store.go:86.16,88.3 1 0

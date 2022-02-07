@@ -14,7 +14,7 @@ func main() {
 	prodService := productService.New(prodStore)
 	prodHandler := productHandler.New(prodService)
 
-	app.GET("/product/{id}", prodHandler.GetProductById)
+	app.GET("/product/{id}", prodHandler.GetProductByID)
 	app.GET("/products", prodHandler.GetAllProducts)
 	app.PUT("/product/{id}", prodHandler.UpdateProduct)
 	app.DELETE("/product/{id}", prodHandler.DeleteProduct)
@@ -24,5 +24,4 @@ func main() {
 
 	app.Server.HTTP.Port = 8000
 	app.Start()
-
 }

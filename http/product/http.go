@@ -10,21 +10,15 @@ import (
 	"github.com/tejas/gofr-crud/service"
 )
 
-type handler struct {
+type Handler struct {
 	service1 service.ProductService
 }
 
-func New(s service.ProductService) handler {
-	return handler{
-		service1: s,
-	}
+func New(s service.ProductService) Handler {
+	return Handler{service1: s}
 }
 
-type response struct {
-	Products []models.Product
-}
-
-func (h handler) GetProductById(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) GetProductByID(ctx *gofr.Context) (interface{}, error) {
 	i := ctx.PathParam("id")
 
 	if i == "" {
@@ -36,72 +30,65 @@ func (h handler) GetProductById(ctx *gofr.Context) (interface{}, error) {
 		return id, errors.InvalidParam{Param: []string{"id"}}
 	}
 
-	res, err := h.service1.GetProductById(ctx, id)
+	res, err := h.service1.GetProductByID(ctx, id)
 	if err != nil {
 		return nil, errors.EntityNotFound{
 			Entity: "product",
 			ID:     i,
 		}
 	}
+
 	fmt.Println(res)
+
 	return res, nil
 }
 
-func (h handler) GetAllProducts(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) GetAllProducts(ctx *gofr.Context) (interface{}, error) {
 	resp, err := h.service1.GetAllProducts(ctx)
 
 	if err != nil {
 		return nil, errors.Error("internal error")
 	}
+
 	return resp, nil
 }
 
-func (h handler) UpdateProduct(ctx *gofr.Context) (interface{}, error) {
-	i := ctx.PathParam("id")
-
-	if i == "" {
-		return nil, errors.MissingParam{Param: []string{"id"}}
-	}
-
-	id, err := strconv.Atoi(i)
-
-	if err != nil {
-		return nil, errors.InvalidParam{Param: []string{"id"}}
-	}
-
+func (h Handler) UpdateProduct(ctx *gofr.Context) (interface{}, error) {
 	var prod models.Product
 
-	if err = ctx.Bind(&prod); err != nil {
-		ctx.Logger.Errorf("error in binding: %v", err)
+	err := ctx.Bind(&prod)
+
+	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
 
-	prod.Id = id
-
-	resp, err := h.service1.UpdateProduct(ctx, prod)
+	_, err = h.service1.UpdateProduct(ctx, prod)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Error("internal error")
 	}
 
-	return resp, nil
+	return prod, nil
 }
 
-func (h handler) CreateProduct(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) CreateProduct(ctx *gofr.Context) (interface{}, error) {
 	var prod models.Product
 
 	err := ctx.Bind(&prod)
 	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
+
 	_, err = h.service1.CreateProduct(ctx, prod)
+
 	if err != nil {
 		return nil, errors.Error("internal errror")
 	}
+
 	return prod, nil
 }
 
-func (h handler) DeleteProduct(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) DeleteProduct(ctx *gofr.Context) (interface{}, error) {
 	i := ctx.PathParam("id")
 
 	if i == "" {
@@ -118,5 +105,5 @@ func (h handler) DeleteProduct(ctx *gofr.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	return "product deleted successfuly.", nil
+	return "product deleted successfully.", nil
 }

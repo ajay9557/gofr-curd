@@ -2,14 +2,9 @@ module github.com/tejas/gofr-crud
 
 go 1.17
 
-require (
-	developer.zopsmart.com/go/gofr v0.0.0-20220202112927-e0c12c2c2b83
-	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/jinzhu/gorm v1.9.16
-	github.com/stretchr/testify v1.7.0
-)
 
 require (
+	developer.zopsmart.com/go/gofr v0.0.0-20220202112927-e0c12c2c2b83
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect

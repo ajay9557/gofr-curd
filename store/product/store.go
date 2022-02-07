@@ -11,18 +11,16 @@ import (
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 )
 
-type dbStore struct {
-}
+type dbStore struct{}
 
 func New() store.ProductStore {
 	return dbStore{}
 }
 
-func (p dbStore) GetProductById(ctx *gofr.Context, id int) (models.Product, error) {
-
+func (p dbStore) GetProductByID(ctx *gofr.Context, id int) (models.Product, error) {
 	var product models.Product
 
-	err := ctx.DB().QueryRowContext(ctx, "select id, name, type from product where id = ?", id).Scan(&product.Id, &product.Name, &product.Type)
+	err := ctx.DB().QueryRowContext(ctx, "select id, name, type from product where id = ?", id).Scan(&product.ID, &product.Name, &product.Type)
 
 	if err == sql.ErrNoRows {
 		return models.Product{}, errors.EntityNotFound{Entity: "product", ID: fmt.Sprint(id)}
@@ -35,7 +33,7 @@ func (p dbStore) GetAllProducts(ctx *gofr.Context) ([]models.Product, error) {
 	rows, err := ctx.DB().QueryContext(ctx, "select * from product")
 
 	if err != nil {
-		return nil, errors.DB{Err: err}
+		return nil, errors.Error("internal query error")
 	}
 
 	defer func() {
@@ -48,7 +46,7 @@ func (p dbStore) GetAllProducts(ctx *gofr.Context) ([]models.Product, error) {
 	for rows.Next() {
 		var prod models.Product
 
-		err := rows.Scan(&prod.Id, &prod.Name, &prod.Type)
+		err := rows.Scan(&prod.ID, &prod.Name, &prod.Type)
 
 		if err != nil {
 			return nil, err
@@ -61,7 +59,7 @@ func (p dbStore) GetAllProducts(ctx *gofr.Context) ([]models.Product, error) {
 }
 
 func (p dbStore) UpdateProduct(ctx *gofr.Context, prod models.Product) (models.Product, error) {
-	_, err := ctx.DB().ExecContext(ctx, "update product set name = ?, type = ? where id = ?", prod.Name, prod.Type, prod.Id)
+	_, err := ctx.DB().ExecContext(ctx, "update product set name = ?, type = ? where id = ?", prod.Name, prod.Type, prod.ID)
 
 	if err != nil {
 		return models.Product{}, errors.DB{Err: err}
@@ -71,17 +69,13 @@ func (p dbStore) UpdateProduct(ctx *gofr.Context, prod models.Product) (models.P
 }
 
 func (p dbStore) CreateProduct(ctx *gofr.Context, prod models.Product) (models.Product, error) {
-	var resp models.Product
-
-	query := "insert into product values (?,?,?)"
-
-	_, err := ctx.DB().ExecContext(ctx, query, prod.Id, prod.Name, prod.Type)
+	_, err := ctx.DB().ExecContext(ctx, "insert into product values (?,?,?)", prod.ID, prod.Name, prod.Type)
 
 	if err != nil {
-		return models.Product{}, errors.DB{Err: err}
+		return prod, errors.Error("error in inserting new product")
 	}
 
-	return resp, nil
+	return prod, nil
 }
 
 func (p dbStore) DeleteProduct(ctx *gofr.Context, id int) error {
