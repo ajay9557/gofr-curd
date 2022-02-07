@@ -55,10 +55,6 @@ func (h *handler) Create(ctx *gofr.Context) (interface{}, error) {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
 
-	if p.Id != 0 {
-		return nil, errors.InvalidParam{Param: []string{"id"}}
-	}
-
 	resp, err := h.service.Create(ctx, p)
 	if err != nil {
 		return nil, err
