@@ -23,5 +23,4 @@ func main() {
 	app.DELETE("/product/{id}", ht.DeleteById)
 	app.Server.HTTP.Port = 9092
 	app.Start()
-
 }

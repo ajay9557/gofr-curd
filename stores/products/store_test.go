@@ -15,8 +15,105 @@ import (
 
 func TestCoreLayer(t *testing.T) {
 	app := gofr.New()
+	testInsertProduct(t, app)
+	testUpdateProduct(t, app)
 	testProductsGetById(t, app)
-	//TestProductDeleteById(t, app)
+	testProductDeleteById(t, app)
+	testAllProducts(t, app)
+}
+
+func testInsertProduct(t *testing.T, app *gofr.Gofr) {
+
+	tcs := []struct {
+		desc           string
+		input          models.Product
+		err            error
+		expectedOutput models.Product
+	}{
+		{
+			desc: "Success",
+			err:  nil,
+			input: models.Product{
+				Id:   6,
+				Name: "Brand",
+				Type: "Mafti",
+			},
+			expectedOutput: models.Product{
+				Id:   6,
+				Name: "Brand",
+				Type: "Mafti",
+			},
+		},
+		{
+			desc: "Failure",
+			err:  errors.Error("Internal DB error"),
+			input: models.Product{
+				Id:   3,
+				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoih",
+				Type: "dummy",
+			},
+			expectedOutput: models.Product{
+				Id:   3,
+				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoih",
+				Type: "dummy",
+			},
+		},
+	}
+	for _, tc := range tcs {
+		ctx := gofr.NewContext(nil, nil, app)
+		ctx.Context = context.Background()
+		store := New()
+		t.Run(tc.desc, func(t *testing.T) {
+			res, err := store.CreateProducts(ctx, tc.input)
+			if !reflect.DeepEqual(err, tc.err) {
+				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
+			}
+			if !reflect.DeepEqual(res, tc.expectedOutput) {
+				t.Errorf("Expected : %v,Obtained : %v ", tc.expectedOutput, res)
+			}
+		})
+	}
+}
+
+func testUpdateProduct(t *testing.T, app *gofr.Gofr) {
+	tcs := []struct {
+		desc  string
+		id    int
+		err   error
+		input models.Product
+	}{
+		{
+			desc: "Success",
+			id:   6,
+			err:  nil,
+			input: models.Product{
+				Id:   6,
+				Name: "Brands",
+				Type: "Twills",
+			},
+		},
+		{
+			desc: "Failure case",
+			id:   3,
+			input: models.Product{
+				Id:   3,
+				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoih",
+				Type: "food",
+			},
+			err: errors.Error("Internal DB error"),
+		},
+	}
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	store := New()
+	for _, tc := range tcs {
+		t.Run(tc.desc, func(t *testing.T) {
+			err := store.UpdateId(ctx, tc.input)
+			if !reflect.DeepEqual(err, tc.err) {
+				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
+			}
+		})
+	}
 }
 
 func testProductsGetById(t *testing.T, app *gofr.Gofr) {
@@ -41,11 +138,11 @@ func testProductsGetById(t *testing.T, app *gofr.Gofr) {
 	}{
 		{
 			desc: "Success",
-			Id:   3,
+			Id:   6,
 			err:  nil,
 			expectedOutput: models.Product{
-				Id:   3,
-				Name: "Shirts",
+				Id:   6,
+				Name: "Brands",
 				Type: "Twills",
 			},
 			Mock: []interface{}{mock.ExpectQuery(query).WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"}).AddRow(1, "Shirtspio", "US POLO"))},
@@ -73,35 +170,38 @@ func testProductsGetById(t *testing.T, app *gofr.Gofr) {
 		})
 	}
 }
+func testProductDeleteById(t *testing.T, app *gofr.Gofr) {
+	tcs := []struct {
+		desc string
+		Id   int
+		err  error
+	}{
+		{
+			desc: "Success",
+			Id:   6,
+			err:  nil,
+		},
+	}
+	for _, tc := range tcs {
+		ctx := gofr.NewContext(nil, nil, app)
+		ctx.Context = context.Background()
+		store := New()
+		t.Run(tc.desc, func(t *testing.T) {
+			err := store.DeleteId(ctx, tc.Id)
+			if !reflect.DeepEqual(err, tc.err) {
+				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
+			}
+		})
+	}
+}
 
-// func TestProductDeleteById(t *testing.T) {
-// 	app := gofr.New()
-// 	tcs := []struct {
-// 		desc string
-// 		Id   int
-// 		err  error
-// 	}{
-// 		{
-// 			desc: "Success",
-// 			Id:   1,
-// 			err:  nil,
-// 		},
-// 		{
-// 			desc: "Failure",
-// 			Id:   4,
-// 			err: errors.Error("Internal DB error"),
-// 		},
-// 	}
+func testAllProducts(t *testing.T, app *gofr.Gofr) {
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
 
-// 	for _, tc := range tcs {
-// 		ctx := gofr.NewContext(nil, nil, app)
-// 		ctx.Context = context.Background()
-// 		store := New()
-// 		t.Run(tc.desc, func(t *testing.T) {
-// 			err := store.DeleteId(ctx, tc.Id)
-// 			if !reflect.DeepEqual(err, tc.err) {
-// 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
-// 			}
-// 		})
-// 	}
-// }
+	store := New()
+	_, err := store.GetAll(ctx)
+	if err != nil {
+		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
+	}
+}
