@@ -13,8 +13,6 @@ import (
 func TestCoreLayer(t *testing.T) {
 	app := gofr.New()
 
-	//seeder := datastore.NewSeeder(&app.DataStore, "../../db")
-	//seeder.ResetCounter = true
 	testGet(t, app)
 	testGetById(t, app)
 	testCreate(t, app)
@@ -66,7 +64,6 @@ func testGetById(t *testing.T, app *gofr.Gofr) {
 		input  int
 		expErr error
 		expOut *models.Product
-		//mockCalls []*sqlmock.ExpectedQuery
 	}{
 		{
 			desc:   "success case",
@@ -77,12 +74,6 @@ func testGetById(t *testing.T, app *gofr.Gofr) {
 				Name: "test",
 				Type: "example",
 			},
-			//mockCalls: []*sqlmock.ExpectedQuery{
-			//	mock.ExpectQuery("select name, type from products where id=?").
-			//		WithArgs(1).
-			//		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "type"}).
-			//			AddRow(1, "ss", "example")),
-			//},
 		},
 		{
 			desc:  "entity not in database",
@@ -91,11 +82,6 @@ func testGetById(t *testing.T, app *gofr.Gofr) {
 				Entity: "product",
 				ID:     "1022",
 			},
-			//mockCalls: []*sqlmock.ExpectedQuery{
-			//	mock.ExpectQuery("select name, type from products where id=?").
-			//		WithArgs(1022).
-			//		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "type"})),
-			//},
 		},
 	}
 
