@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"developer.zopsmart.com/go/gofr/pkg/datastore"
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
@@ -14,13 +13,13 @@ import (
 func TestCoreLayer(t *testing.T) {
 	app := gofr.New()
 
-	seeder := datastore.NewSeeder(&app.DataStore, "../../db")
-	seeder.ResetCounter = true
-	//testGet(t, app)
-	seeder.RefreshTables(t, "products")
-	//testGetById(t, app)
+	//seeder := datastore.NewSeeder(&app.DataStore, "../../db")
+	//seeder.ResetCounter = true
+	testGet(t, app)
+	testGetById(t, app)
 	testCreate(t, app)
-	//seeder.RefreshTables(t, "products")
+	testUpdate(t, app)
+	testDelete(t, app)
 }
 
 func testGet(t *testing.T, app *gofr.Gofr) {
@@ -47,19 +46,17 @@ func testGet(t *testing.T, app *gofr.Gofr) {
 		},
 	}
 	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			ctx := gofr.NewContext(nil, nil, app)
-			ctx.Context = context.Background()
+		ctx := gofr.NewContext(nil, nil, app)
+		ctx.Context = context.Background()
 
-			store := New()
-			out, err := store.Get(ctx)
-			if !reflect.DeepEqual(err, tc.expErr) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
-			}
-			if tc.expErr == nil && !reflect.DeepEqual(out, tc.expOut) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, out)
-			}
-		})
+		store := New()
+		out, err := store.Get(ctx)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
+		if tc.expErr == nil && !reflect.DeepEqual(out, tc.expOut) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, out)
+		}
 	}
 }
 
@@ -133,14 +130,33 @@ func testCreate(t *testing.T, app *gofr.Gofr) {
 			},
 			expErr: nil,
 		},
+	}
+
+	for _, tc := range tesCases {
+		ctx := gofr.NewContext(nil, nil, app)
+		ctx.Context = context.Background()
+		store := New()
+		err := store.Create(ctx, tc.input)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
+	}
+}
+
+func testUpdate(t *testing.T, app *gofr.Gofr) {
+	tesCases := []struct {
+		desc   string
+		input  models.Product
+		expErr error
+	}{
 		{
-			desc: "Entity already exists",
+			desc: "success case",
 			input: models.Product{
-				Id:   1,
-				Name: "test",
-				Type: "example",
+				Id:   3,
+				Name: "hello",
+				Type: "world",
 			},
-			expErr: errors.EntityAlreadyExists{},
+			expErr: nil,
 		},
 	}
 
@@ -148,13 +164,33 @@ func testCreate(t *testing.T, app *gofr.Gofr) {
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
 		store := New()
-		resp, err := store.Create(ctx, tc.input)
+		err := store.Update(ctx, tc.input)
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
-		if tc.expErr == nil && !reflect.DeepEqual(resp, &tc.input) {
-			t.Errorf("%s : expected %v, but got %v", tc.desc, &tc.input, resp)
-		}
+	}
+}
 
+func testDelete(t *testing.T, app *gofr.Gofr) {
+	tesCases := []struct {
+		desc   string
+		input  int
+		expErr error
+	}{
+		{
+			desc:   "success case",
+			input:  3,
+			expErr: nil,
+		},
+	}
+
+	for _, tc := range tesCases {
+		ctx := gofr.NewContext(nil, nil, app)
+		ctx.Context = context.Background()
+		store := New()
+		err := store.Delete(ctx, tc.input)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
 	}
 }

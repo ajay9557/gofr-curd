@@ -1,13 +1,14 @@
 package product
 
 import (
-	"developer.zopsmart.com/go/gofr/pkg/errors"
-	"developer.zopsmart.com/go/gofr/pkg/gofr"
-	"github.com/golang/mock/gomock"
 	"gofr-curd/models"
 	"gofr-curd/store"
 	"reflect"
 	"testing"
+
+	"developer.zopsmart.com/go/gofr/pkg/errors"
+	"developer.zopsmart.com/go/gofr/pkg/gofr"
+	"github.com/golang/mock/gomock"
 )
 
 func TestServices_GetById(t *testing.T) {

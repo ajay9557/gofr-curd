@@ -2,10 +2,11 @@ package product
 
 import (
 	"database/sql"
-	"github.com/go-sql-driver/mysql"
 	"gofr-curd/models"
 	"gofr-curd/store"
 	"strconv"
+
+	"github.com/go-sql-driver/mysql"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
