@@ -17,6 +17,10 @@ func main() {
 	h := productHandler.New(l)
 
 	app.GET("/products/{id}", h.GetById)
+	app.GET("/products", h.Get)
+	app.POST("/products", h.Create)
+	app.PUT("/products/{id}", h.Update)
+	app.DELETE("/products/{id}", h.Delete)
 
 	app.Server.HTTP.Port = 8000
 	app.Start()
