@@ -13,9 +13,10 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-func TestGetByUserId(t *testing.T) {
+func TestGetByUserID(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockStore := stores.NewMockStore(ctrl)
@@ -23,45 +24,50 @@ func TestGetByUserId(t *testing.T) {
 
 	tcs := []struct {
 		desc           string
-		Id             int
+		ID             int
 		expectedOutput models.Product
 		err            error
 		mock           []*gomock.Call
 	}{
 		{
 			desc: "Success",
-			Id:   1,
+			ID:   1,
 			expectedOutput: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "US POLO",
 			},
 			err: nil,
-			mock: []*gomock.Call{mockStore.EXPECT().GetId(gomock.Any(), gomock.Any()).Return(models.Product{
-				Id: 1, Name: "Shirts", Type: "US POLO"}, nil)},
+			mock: []*gomock.Call{mockStore.EXPECT().GetID(gomock.Any(), gomock.Any()).Return(models.Product{
+				ID: 1, Name: "Shirts", Type: "US POLO"}, nil)},
 		},
 		{
 			desc:           "Failure",
-			Id:             0,
+			ID:             0,
 			expectedOutput: models.Product{},
 			err:            errors.EntityNotFound{Entity: "product", ID: "0"},
 		},
 		{
 			desc:           "Failure-2",
-			Id:             412345,
+			ID:             412345,
 			expectedOutput: models.Product{},
 			err:            errors.EntityNotFound{Entity: "product", ID: "412345"},
-			mock:           []*gomock.Call{mockStore.EXPECT().GetId(gomock.Any(), gomock.Any()).Return(models.Product{}, errors.EntityNotFound{Entity: "product", ID: "412345"})},
+			mock: []*gomock.Call{mockStore.EXPECT().GetID(gomock.Any(), gomock.Any()).Return(
+				models.Product{}, errors.EntityNotFound{Entity: "product", ID: "412345"})},
 		},
 	}
-	for _, tc := range tcs {
+	for _, test := range tcs {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
+
 		t.Run(tc.desc, func(t *testing.T) {
-			res, err := mock.GetByUserId(ctx, tc.Id)
+			res, err := mock.GetByUserID(ctx, tc.ID)
+
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
 			}
+
 			if !reflect.DeepEqual(res, tc.expectedOutput) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.expectedOutput, res)
 			}
@@ -69,9 +75,10 @@ func TestGetByUserId(t *testing.T) {
 	}
 }
 
-func Test_DeleteById(t *testing.T) {
+func Test_DeleteByID(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockStore := stores.NewMockStore(ctrl)
@@ -79,34 +86,36 @@ func Test_DeleteById(t *testing.T) {
 
 	tcs := []struct {
 		desc           string
-		Id             int
+		ID             int
 		expectedOutput models.Product
 		err            error
 		mock           []*gomock.Call
 	}{
 		{
 			desc: "Success",
-			Id:   1,
+			ID:   1,
 			err:  nil,
-			mock: []*gomock.Call{mockStore.EXPECT().DeleteId(gomock.Any(), gomock.Any()).Return(nil)},
+			mock: []*gomock.Call{mockStore.EXPECT().DeleteID(gomock.Any(), gomock.Any()).Return(nil)},
 		},
 		{
 			desc: "Failure",
-			Id:   0,
+			ID:   0,
 			err:  errors.InvalidParam{Param: []string{"id"}},
 		},
 		{
 			desc: "Failure-1",
-			Id:   412345,
+			ID:   412345,
 			err:  errors.Error("Internal DB error"),
-			mock: []*gomock.Call{mockStore.EXPECT().DeleteId(gomock.Any(), gomock.Any()).Return(errors.Error("Internal DB error"))},
+			mock: []*gomock.Call{mockStore.EXPECT().DeleteID(gomock.Any(), gomock.Any()).Return(errors.Error("Internal DB error"))},
 		},
 	}
-	for _, tc := range tcs {
+	for _, test := range tcs {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
+
 		t.Run(tc.desc, func(t *testing.T) {
-			err := mock.DeleteByProductId(ctx, tc.Id)
+			err := mock.DeleteByProductID(ctx, tc.ID)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %s,Obtained : %s ", tc.err, err)
 			}
@@ -117,6 +126,7 @@ func Test_DeleteById(t *testing.T) {
 func Test_UpdateProduct(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockStore := stores.NewMockStore(ctrl)
@@ -124,27 +134,27 @@ func Test_UpdateProduct(t *testing.T) {
 
 	tcs := []struct {
 		desc  string
-		Id    int
+		ID    int
 		input models.Product
 		err   error
 		mock  []*gomock.Call
 	}{
 		{
 			desc: "Success",
-			Id:   1,
+			ID:   1,
 			input: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "Lenin",
 			},
 			err:  nil,
-			mock: []*gomock.Call{mockStore.EXPECT().UpdateId(gomock.Any(), gomock.Any()).Return(nil)},
+			mock: []*gomock.Call{mockStore.EXPECT().UpdateID(gomock.Any(), gomock.Any()).Return(nil)},
 		},
 		{
 			desc: "Failure",
-			Id:   0,
+			ID:   0,
 			input: models.Product{
-				Id:   0,
+				ID:   0,
 				Name: "Shirts",
 				Type: "Lenin",
 			},
@@ -152,21 +162,23 @@ func Test_UpdateProduct(t *testing.T) {
 		},
 		{
 			desc: "Failure-1",
-			Id:   412345,
+			ID:   412345,
 			input: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "Lenin",
 			},
 			err:  errors.Error("Internal DB error"),
-			mock: []*gomock.Call{mockStore.EXPECT().UpdateId(gomock.Any(), gomock.Any()).Return(errors.Error("Internal DB error"))},
+			mock: []*gomock.Call{mockStore.EXPECT().UpdateID(gomock.Any(), gomock.Any()).Return(errors.Error("Internal DB error"))},
 		},
 	}
-	for _, tc := range tcs {
+	for _, test := range tcs {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
+
 		t.Run(tc.desc, func(t *testing.T) {
-			err := mock.UpdateByProductId(ctx, tc.input)
+			err := mock.UpdateByProductID(ctx, tc.input)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %s,Obtained : %s ", tc.err, err)
 			}
@@ -176,6 +188,7 @@ func Test_UpdateProduct(t *testing.T) {
 func Test_InsertProduct(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockStore := stores.NewMockStore(ctrl)
@@ -183,16 +196,16 @@ func Test_InsertProduct(t *testing.T) {
 
 	tcs := []struct {
 		desc  string
-		Id    int
+		ID    int
 		input models.Product
 		err   error
 		mock  []*gomock.Call
 	}{
 		{
 			desc: "Failure",
-			Id:   0,
+			ID:   0,
 			input: models.Product{
-				Id:   0,
+				ID:   0,
 				Name: "Shirts",
 				Type: "Lenin",
 			},
@@ -200,23 +213,25 @@ func Test_InsertProduct(t *testing.T) {
 		},
 		{
 			desc: "Success",
-			Id:   1,
+			ID:   1,
 			input: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "Lenin",
 			},
 			err: errors.Error("Internal DB error"),
 			mock: []*gomock.Call{mockStore.EXPECT().CreateProducts(gomock.Any(), gomock.Any()).Return(models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "Lenin",
 			}, errors.Error("Internal DB error"))},
 		},
 	}
-	for _, tc := range tcs {
+	for _, test := range tcs {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
+
 		t.Run(tc.desc, func(t *testing.T) {
 			res, err := mock.InsertProduct(ctx, tc.input)
 			if !reflect.DeepEqual(err, tc.err) {
@@ -232,6 +247,7 @@ func Test_InsertProduct(t *testing.T) {
 func Test_GetProducts(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockStore := stores.NewMockStore(ctrl)
@@ -239,16 +255,16 @@ func Test_GetProducts(t *testing.T) {
 
 	tcs := []struct {
 		desc  string
-		Id    int
+		ID    int
 		input []models.Product
 		err   error
 		mock  []*gomock.Call
 	}{
 		{
 			desc: "Success",
-			Id:   1,
+			ID:   1,
 			input: []models.Product{{
-				Id:   1,
+				ID:   1,
 				Name: "Shirts",
 				Type: "Lenin",
 			},
@@ -256,7 +272,7 @@ func Test_GetProducts(t *testing.T) {
 			err: nil,
 			mock: []*gomock.Call{mockStore.EXPECT().GetAll(gomock.Any()).Return([]models.Product{
 				{
-					Id:   1,
+					ID:   1,
 					Name: "Shirts",
 					Type: "Lenin",
 				},
@@ -264,15 +280,17 @@ func Test_GetProducts(t *testing.T) {
 		},
 		{
 			desc:  "Failure",
-			Id:    1,
+			ID:    1,
 			input: nil,
 			err:   errors.Error("Internal DB error"),
 			mock:  []*gomock.Call{mockStore.EXPECT().GetAll(gomock.Any()).Return(nil, errors.Error("Internal DB error"))},
 		},
 	}
-	for _, tc := range tcs {
+	for _, test := range tcs {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
+
 		t.Run(tc.desc, func(t *testing.T) {
 			res, err := mock.GetProducts(ctx)
 			if !reflect.DeepEqual(err, tc.err) {

@@ -50,18 +50,18 @@ func (mr *MockStoreMockRecorder) CreateProducts(ctx, product interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProducts", reflect.TypeOf((*MockStore)(nil).CreateProducts), ctx, product)
 }
 
-// DeleteId mocks base method.
-func (m *MockStore) DeleteId(ctx *gofr.Context, id int) error {
+// DeleteID mocks base method.
+func (m *MockStore) DeleteID(ctx *gofr.Context, id int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteId", ctx, id)
+	ret := m.ctrl.Call(m, "DeleteID", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteId indicates an expected call of DeleteId.
-func (mr *MockStoreMockRecorder) DeleteId(ctx, id interface{}) *gomock.Call {
+// DeleteID indicates an expected call of DeleteID.
+func (mr *MockStoreMockRecorder) DeleteID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteId", reflect.TypeOf((*MockStore)(nil).DeleteId), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteID", reflect.TypeOf((*MockStore)(nil).DeleteID), ctx, id)
 }
 
 // GetAll mocks base method.
@@ -79,31 +79,31 @@ func (mr *MockStoreMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockStore)(nil).GetAll), ctx)
 }
 
-// GetId mocks base method.
-func (m *MockStore) GetId(ctx *gofr.Context, id int) (models.Product, error) {
+// GetID mocks base method.
+func (m *MockStore) GetID(ctx *gofr.Context, id int) (models.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetId", ctx, id)
+	ret := m.ctrl.Call(m, "GetID", ctx, id)
 	ret0, _ := ret[0].(models.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetId indicates an expected call of GetId.
-func (mr *MockStoreMockRecorder) GetId(ctx, id interface{}) *gomock.Call {
+// GetID indicates an expected call of GetID.
+func (mr *MockStoreMockRecorder) GetID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetId", reflect.TypeOf((*MockStore)(nil).GetId), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetID", reflect.TypeOf((*MockStore)(nil).GetID), ctx, id)
 }
 
-// UpdateId mocks base method.
-func (m *MockStore) UpdateId(ctx *gofr.Context, product models.Product) error {
+// UpdateID mocks base method.
+func (m *MockStore) UpdateID(ctx *gofr.Context, product models.Product) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateId", ctx, product)
+	ret := m.ctrl.Call(m, "UpdateID", ctx, product)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateId indicates an expected call of UpdateId.
-func (mr *MockStoreMockRecorder) UpdateId(ctx, product interface{}) *gomock.Call {
+// UpdateID indicates an expected call of UpdateID.
+func (mr *MockStoreMockRecorder) UpdateID(ctx, product interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateId", reflect.TypeOf((*MockStore)(nil).UpdateId), ctx, product)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateID", reflect.TypeOf((*MockStore)(nil).UpdateID), ctx, product)
 }

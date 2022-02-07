@@ -14,13 +14,13 @@ func main() {
 	app.Server.ValidateHeaders = false
 	store := products.New()
 	service := servicelayer.New(store)
-	ht := httplayer.Handler{service}
+	ht := httplayer.Handler{Service: service}
 
-	app.GET("/product/{id}", ht.GetById)
+	app.GET("/product/{id}", ht.GetByID)
 	app.GET("/product", ht.GetAllProducts)
 	app.POST("/product", ht.Insert)
 	app.PUT("/product", ht.Update)
-	app.DELETE("/product/{id}", ht.DeleteById)
+	app.DELETE("/product/{id}", ht.DeleteByID)
 	app.Server.HTTP.Port = 9092
 	app.Start()
 }

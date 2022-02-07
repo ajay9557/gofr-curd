@@ -2,16 +2,9 @@ package products
 
 import (
 	"testing"
-
-	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
-func TestCoreLayer(t *testing.T) {
-	app := gofr.New()
-	testIdValidation(t, app)
-}
-
-func testIdValidation(t *testing.T, app *gofr.Gofr) {
+func TestIDValidation(t *testing.T) {
 	testCases := []struct {
 		desc        string
 		input       int
@@ -28,13 +21,13 @@ func testIdValidation(t *testing.T, app *gofr.Gofr) {
 			expectedOut: false,
 		},
 	}
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
-			result := checkId(ts.input)
+			result := checkID(ts.input)
 			if result != ts.expectedOut {
 				t.Errorf("Expected %v obtained %v", ts.expectedOut, result)
 			}
 		})
 	}
-
 }

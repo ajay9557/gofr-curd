@@ -17,13 +17,12 @@ func TestCoreLayer(t *testing.T) {
 	app := gofr.New()
 	testInsertProduct(t, app)
 	testUpdateProduct(t, app)
-	testProductsGetById(t, app)
-	testProductDeleteById(t, app)
+	testProductsGetByID(t, app)
+	testProductDeleteByID(t, app)
 	testAllProducts(t, app)
 }
 
 func testInsertProduct(t *testing.T, app *gofr.Gofr) {
-
 	tcs := []struct {
 		desc           string
 		input          models.Product
@@ -34,12 +33,12 @@ func testInsertProduct(t *testing.T, app *gofr.Gofr) {
 			desc: "Success",
 			err:  nil,
 			input: models.Product{
-				Id:   6,
+				ID:   6,
 				Name: "Brand",
 				Type: "Mafti",
 			},
 			expectedOutput: models.Product{
-				Id:   6,
+				ID:   6,
 				Name: "Brand",
 				Type: "Mafti",
 			},
@@ -48,21 +47,24 @@ func testInsertProduct(t *testing.T, app *gofr.Gofr) {
 			desc: "Failure",
 			err:  errors.Error("Internal DB error"),
 			input: models.Product{
-				Id:   3,
-				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoih",
+				ID:   3,
+				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoia",
 				Type: "dummy",
 			},
 			expectedOutput: models.Product{
-				Id:   3,
-				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoih",
+				ID:   3,
+				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoia",
 				Type: "dummy",
 			},
 		},
 	}
-	for _, tc := range tcs {
+
+	for _, test := range tcs {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
 		store := New()
+
 		t.Run(tc.desc, func(t *testing.T) {
 			res, err := store.CreateProducts(ctx, tc.input)
 			if !reflect.DeepEqual(err, tc.err) {
@@ -78,26 +80,26 @@ func testInsertProduct(t *testing.T, app *gofr.Gofr) {
 func testUpdateProduct(t *testing.T, app *gofr.Gofr) {
 	tcs := []struct {
 		desc  string
-		id    int
+		ID    int
 		err   error
 		input models.Product
 	}{
 		{
 			desc: "Success",
-			id:   6,
+			ID:   6,
 			err:  nil,
 			input: models.Product{
-				Id:   6,
+				ID:   6,
 				Name: "Brands",
 				Type: "Twills",
 			},
 		},
 		{
 			desc: "Failure case",
-			id:   3,
+			ID:   3,
 			input: models.Product{
-				Id:   3,
-				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoih",
+				ID:   3,
+				Name: "very-long-namebviuauefieufohoiahhwoieflruogeroigruigwuoehfihoweinveoihvery-long-namebviuauefieufohoia",
 				Type: "food",
 			},
 			err: errors.Error("Internal DB error"),
@@ -106,9 +108,11 @@ func testUpdateProduct(t *testing.T, app *gofr.Gofr) {
 	ctx := gofr.NewContext(nil, nil, app)
 	ctx.Context = context.Background()
 	store := New()
-	for _, tc := range tcs {
+
+	for _, test := range tcs {
+		tc := test
 		t.Run(tc.desc, func(t *testing.T) {
-			err := store.UpdateId(ctx, tc.input)
+			err := store.UpdateID(ctx, tc.input)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
 			}
@@ -116,51 +120,60 @@ func testUpdateProduct(t *testing.T, app *gofr.Gofr) {
 	}
 }
 
-func testProductsGetById(t *testing.T, app *gofr.Gofr) {
+func testProductsGetByID(t *testing.T, app *gofr.Gofr) {
 	db, mock, err := sqlmock.New()
-	defer db.Close()
+	if err != nil {
+		return
+	}
+
 	if err != nil {
 		t.Fatalf("database error :%s", err)
 	}
+
+	defer db.Close()
+
 	database, err := gorm.Open("mysql", db)
 	if err != nil {
 		log.Println("Error opening gorm conn", db)
 	}
 
 	app.ORM = database
-	query := "Select Id,Name,Type from Product where Id =?"
+	query := "Select ID,Name,Type from Product where ID =?"
 	tcs := []struct {
 		desc           string
-		Id             int
+		ID             int
 		err            error
 		expectedOutput models.Product
 		Mock           []interface{}
 	}{
 		{
 			desc: "Success",
-			Id:   6,
+			ID:   6,
 			err:  nil,
 			expectedOutput: models.Product{
-				Id:   6,
+				ID:   6,
 				Name: "Brands",
 				Type: "Twills",
 			},
-			Mock: []interface{}{mock.ExpectQuery(query).WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"}).AddRow(1, "Shirtspio", "US POLO"))},
+			Mock: []interface{}{mock.ExpectQuery(query).WillReturnRows(sqlmock.NewRows(
+				[]string{"ID", "Name", "Type"}).AddRow(1, "Shirtspio", "US POLO"))},
 		},
 		{
 			desc:           "Failure",
-			Id:             0,
+			ID:             0,
 			err:            errors.EntityNotFound{Entity: "Product", ID: "0"},
 			expectedOutput: models.Product{},
 			Mock:           nil,
 		},
 	}
-	for _, tc := range tcs {
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
-		store := New()
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	store := New()
+
+	for _, test := range tcs {
+		tc := test
 		t.Run(tc.desc, func(t *testing.T) {
-			res, err := store.GetId(ctx, tc.Id)
+			res, err := store.GetID(ctx, tc.ID)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
 			}
@@ -170,24 +183,27 @@ func testProductsGetById(t *testing.T, app *gofr.Gofr) {
 		})
 	}
 }
-func testProductDeleteById(t *testing.T, app *gofr.Gofr) {
+func testProductDeleteByID(t *testing.T, app *gofr.Gofr) {
 	tcs := []struct {
 		desc string
-		Id   int
+		ID   int
 		err  error
 	}{
 		{
 			desc: "Success",
-			Id:   6,
+			ID:   6,
 			err:  nil,
 		},
 	}
-	for _, tc := range tcs {
+
+	for _, test := range tcs {
+		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
 		store := New()
+
 		t.Run(tc.desc, func(t *testing.T) {
-			err := store.DeleteId(ctx, tc.Id)
+			err := store.DeleteID(ctx, tc.ID)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
 			}
@@ -201,6 +217,7 @@ func testAllProducts(t *testing.T, app *gofr.Gofr) {
 
 	store := New()
 	_, err := store.GetAll(ctx)
+
 	if err != nil {
 		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
 	}
