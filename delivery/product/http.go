@@ -33,6 +33,9 @@ func (h *handler) GetById(ctx *gofr.Context) (interface{}, error) {
 	}
 
 	resp, err := h.service.GetById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
 	return &models.Response{
 		Data:       *resp,
 		Message:    "data retrieved",

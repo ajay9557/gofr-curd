@@ -38,6 +38,8 @@ func TestGetById(t *testing.T) {
 					Name: "test",
 					Type: "example",
 				},
+				Message:    "data retrieved",
+				StatusCode: http.StatusOK,
 			},
 			calls: []*gomock.Call{
 				mock.EXPECT().GetById(gomock.Any(), 1).Return(&models.Product{
