@@ -313,7 +313,7 @@ func Test_Update(t *testing.T) {
 			},
 		},
 		{
-			desc:   "Case:3-Failure, Invalid Body",
+			desc:   "Case:3-Failure, Missing Body",
 			resp:   nil,
 			expErr: gerror.MissingParam{Param: []string{"Name", "Type"}},
 			id:     "1",
@@ -323,12 +323,23 @@ func Test_Update(t *testing.T) {
 			},
 		},
 		{
-			desc: "Case:4-Failure, Invalid Id",
+			desc: "Case:4-Failure, Missing Id",
 			resp: nil,
 			expErr: gerror.MissingParam{
 				Param: []string{"id"},
 			},
 			id: "",
+			body: models.Product{
+
+				Type: "Daily-Use",
+			},
+		},
+
+		{
+			desc:   "Case:5-Failure, Invalid Id",
+			resp:   nil,
+			expErr: gerror.InvalidParam{Param: []string{"id"}},
+			id:     "daedaed",
 			body: models.Product{
 
 				Type: "Daily-Use",
@@ -396,10 +407,14 @@ func Test_Delete(t *testing.T) {
 			expResp: nil,
 		},
 		{
-			desc: "Case:3-Failure, Invalid Id",
-			expErr: gerror.MissingParam{
-				Param: []string{"id"},
-			},
+			desc:    "Case:3-Failure, Invalid Id",
+			expErr:  gerror.InvalidParam{Param: []string{"id"}},
+			id:      "fweffewef",
+			expResp: nil,
+		},
+		{
+			desc:    "Case:4-Failure, Missing Id",
+			expErr:  gerror.MissingParam{Param: []string{"id"}},
 			id:      "",
 			expResp: nil,
 		},

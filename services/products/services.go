@@ -5,6 +5,7 @@ package products
 
 import (
 	"errors"
+	"reflect"
 
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 	"github.com/arohanzst/testapp/models"
@@ -20,7 +21,7 @@ func New(p stores.Product) services.Product {
 	return &Product{p}
 }
 
-//Fetches a product with the given ID
+//Fetches a product with the given Id
 func (se *Product) ReadByID(ctx *gofr.Context, id int) (*models.Product, error) {
 
 	if id < 1 {
@@ -29,11 +30,8 @@ func (se *Product) ReadByID(ctx *gofr.Context, id int) (*models.Product, error) 
 	}
 
 	product, err := se.p.ReadByID(ctx, id)
-	//ctx.Log("INFO", *product)
 
 	if err != nil {
-
-		//ctx.Log("ERRO", err)
 
 		return nil, err
 	}
@@ -41,6 +39,7 @@ func (se *Product) ReadByID(ctx *gofr.Context, id int) (*models.Product, error) 
 	return product, nil
 }
 
+//Fetches all the products
 func (se *Product) Read(ctx *gofr.Context) ([]models.Product, error) {
 
 	product, err := se.p.Read(ctx)
@@ -52,14 +51,13 @@ func (se *Product) Read(ctx *gofr.Context) ([]models.Product, error) {
 	return product, nil
 }
 
+//Creates a Product entity
 func (se *Product) Create(ctx *gofr.Context, value *models.Product) (*models.Product, error) {
 
-	if value == nil {
+	if value == nil || reflect.DeepEqual(value, models.Product{}) {
 
 		return nil, errors.New("Invalid Entity")
 	}
-
-	//ctx.Log("INFO", value)
 
 	if value.Name == "" || value.Type == "" {
 
@@ -76,9 +74,10 @@ func (se *Product) Create(ctx *gofr.Context, value *models.Product) (*models.Pro
 
 }
 
+//Updates a product with the given Id
 func (se *Product) Update(ctx *gofr.Context, value *models.Product, id int) (*models.Product, error) {
 
-	if value == nil {
+	if value == nil || reflect.DeepEqual(value, models.Product{}) {
 
 		return nil, errors.New("Invalid Entity")
 	}
@@ -105,7 +104,7 @@ func (se *Product) Update(ctx *gofr.Context, value *models.Product, id int) (*mo
 	return product, nil
 }
 
-//Deletes a User with the given ID
+//Deletes a product with the given Id
 func (se *Product) Delete(ctx *gofr.Context, id int) error {
 
 	if id < 1 {

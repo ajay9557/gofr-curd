@@ -25,9 +25,9 @@ func (p Product) ReadByID(ctx *gofr.Context, id int) (*mProduct.Product, error) 
 
 	var resp models.Product
 
-	err := ctx.DB().QueryRowContext(ctx, "SELECT * FROM Product where Id = ?", id).Scan(&resp.Id, &resp.Name, &resp.Type)
+	err := ctx.DB().QueryRowContext(ctx, "SELECT Id, Name, Type FROM Product where Id = ?", id).Scan(&resp.Id, &resp.Name, &resp.Type)
 	if err == sql.ErrNoRows {
-		ctx.Log("ERRO", err)
+
 		return nil, perror.EntityNotFound{Entity: "Product", ID: strconv.Itoa(id)}
 	}
 
@@ -64,6 +64,7 @@ func (p Product) Read(ctx *gofr.Context) ([]models.Product, error) {
 	return products, nil
 }
 
+//Creates a given product entity
 func (p Product) Create(ctx *gofr.Context, value *models.Product) (*models.Product, error) {
 
 	row, err := ctx.DB().Exec("INSERT INTO Product(Name, Type) values(?, ?)", value.Name, value.Type)
@@ -90,6 +91,7 @@ func (p Product) Create(ctx *gofr.Context, value *models.Product) (*models.Produ
 	return resp, nil
 }
 
+//Updates a product with the given id
 func (p Product) Update(ctx *gofr.Context, value *models.Product, id int) (*models.Product, error) {
 
 	query := "Update Product Set "
@@ -127,6 +129,7 @@ func (p Product) Update(ctx *gofr.Context, value *models.Product, id int) (*mode
 	return resp, nil
 }
 
+//Deletes a product with a given id
 func (p Product) Delete(ctx *gofr.Context, id int) error {
 
 	_, err := ctx.DB().ExecContext(ctx, "DELETE FROM Product where Id=?", id)

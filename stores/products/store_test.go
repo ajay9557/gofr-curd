@@ -2,6 +2,7 @@ package products
 
 import (
 	"context"
+	"errors"
 	"log"
 	"reflect"
 	"testing"
@@ -22,10 +23,10 @@ func TestCoreLayer(t *testing.T) {
 		log.Println("Error in opening gorm conn", db)
 	}
 	app.ORM = database
-	//testReadByID(t, app, mock)
-	//testRead(t, app, mock)
-	//testCreate(t, app, mock)
-	//testUpdate(t, app, mock)
+	testReadByID(t, app, mock)
+	testRead(t, app, mock)
+	testCreate(t, app, mock)
+	testUpdate(t, app, mock)
 	testDelete(t, app, mock)
 }
 
@@ -43,7 +44,7 @@ func testReadByID(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 			input:  1,
 			expErr: nil,
 			mockCalls: []*sqlmock.ExpectedQuery{
-				mock.ExpectQuery("SELECT * FROM Product where Id = ?").
+				mock.ExpectQuery("SELECT Id, Name, Type FROM Product where Id = ?").
 					WithArgs(1).
 					WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"}).
 						AddRow(1, "Biscuit", "Grocery")),
@@ -62,7 +63,7 @@ func testReadByID(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 				ID:     "10",
 			},
 			mockCalls: []*sqlmock.ExpectedQuery{
-				mock.ExpectQuery("SELECT * FROM Product where Id = ?").
+				mock.ExpectQuery("SELECT Id, Name, Type FROM Product where Id = ?").
 					WithArgs(10).
 					WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"})),
 			},
@@ -111,16 +112,16 @@ func testRead(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 				},
 			},
 		},
-		// {
-		// 	desc:   "Failure",
-		// 	expErr: errors.New("Error in Given Query"),
-		// 	mockCalls: []*sqlmock.ExpectedQuery{
-		// 		mock.ExpectQuery("SELECT Id, Name, Type FROM Product").
-		// 			WithArgs().
-		// 			WillReturnError(errors.New("Error in Given Query")),
-		// 	},
-		// 	expOut: nil,
-		// },
+		{
+			desc:   "Failure",
+			expErr: errors.New("Error in Given Query"),
+			mockCalls: []*sqlmock.ExpectedQuery{
+				mock.ExpectQuery("SELECT Id, Name, Type FROM Product").
+					WithArgs().
+					WillReturnError(errors.New("Error in Given Query")),
+			},
+			expOut: nil,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -154,11 +155,6 @@ func testCreate(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 			expErr: nil,
 			expOut: &models.Product{Id: 17, Name: "Trimmer", Type: "Electric"},
 		},
-		// {
-		// 	desc:          "Test Case 2",
-		// 	input:         models.Product{},
-		// 	expErr:        New("FAILED TO UPDATE THE PRODUCT"),
-		// },
 	}
 
 	for _, tc := range testCases {
@@ -179,7 +175,6 @@ func testCreate(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 
 func testUpdate(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 
-	//data := models.Product{1, "Biscuit", }
 	testCases := []struct {
 		desc   string
 		input  models.Product
@@ -194,11 +189,6 @@ func testUpdate(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 			expErr: nil,
 			expOut: &models.Product{Id: 17, Name: "Study-Lamp", Type: "Electric"},
 		},
-		// {
-		// 	desc:          "Test Case 2",
-		// 	input:         models.Product{},
-		// 	expErr:        New("FAILED TO UPDATE THE PRODUCT"),
-		// },
 	}
 
 	for _, tc := range testCases {
@@ -219,7 +209,6 @@ func testUpdate(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 
 func testDelete(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 
-	//data := models.Product{1, "Biscuit", }
 	testCases := []struct {
 		desc   string
 		id     int
@@ -232,11 +221,6 @@ func testDelete(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 			expErr: nil,
 			expOut: nil,
 		},
-		// {
-		// 	desc:          "Test Case 2",
-		// 	input:         models.Product{},
-		// 	expErr:        New("FAILED TO UPDATE THE PRODUCT"),
-		// },
 	}
 
 	for _, tc := range testCases {
