@@ -35,18 +35,18 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
-// DeleteById mocks base method.
-func (m *MockStore) DeleteById(id int, ctx *gofr.Context) error {
+// DeleteByID mocks base method.
+func (m *MockStore) DeleteByID(id int, ctx *gofr.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", id, ctx)
+	ret := m.ctrl.Call(m, "DeleteByID", id, ctx)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteById indicates an expected call of DeleteById.
-func (mr *MockStoreMockRecorder) DeleteById(id, ctx interface{}) *gomock.Call {
+// DeleteByID indicates an expected call of DeleteByID.
+func (mr *MockStoreMockRecorder) DeleteByID(id, ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockStore)(nil).DeleteById), id, ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockStore)(nil).DeleteByID), id, ctx)
 }
 
 // GetAllProducts mocks base method.
@@ -64,19 +64,19 @@ func (mr *MockStoreMockRecorder) GetAllProducts(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllProducts", reflect.TypeOf((*MockStore)(nil).GetAllProducts), ctx)
 }
 
-// GetById mocks base method.
-func (m *MockStore) GetById(id int, ctx *gofr.Context) (models.Product, error) {
+// GetByID mocks base method.
+func (m *MockStore) GetByID(id int, ctx *gofr.Context) (models.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", id, ctx)
+	ret := m.ctrl.Call(m, "GetByID", id, ctx)
 	ret0, _ := ret[0].(models.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetById indicates an expected call of GetById.
-func (mr *MockStoreMockRecorder) GetById(id, ctx interface{}) *gomock.Call {
+// GetByID indicates an expected call of GetByID.
+func (mr *MockStoreMockRecorder) GetByID(id, ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockStore)(nil).GetById), id, ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockStore)(nil).GetByID), id, ctx)
 }
 
 // InsertProduct mocks base method.

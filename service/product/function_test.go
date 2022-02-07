@@ -24,7 +24,8 @@ func TestIdValidation(t *testing.T) {
 		},
 	}
 
-	for _, ts := range testCases {
+	for _, v := range testCases {
+		ts := v
 		t.Run(ts.desc, func(t *testing.T) {
 			res := idValidation(ts.id)
 			if !reflect.DeepEqual(ts.expectedRes, res) {

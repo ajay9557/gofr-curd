@@ -27,7 +27,7 @@ func TestGetById(t *testing.T) {
 			id:          1,
 			expectedErr: nil,
 			expectedRes: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "jeans",
 				Type: "clothes",
 			},
@@ -40,12 +40,13 @@ func TestGetById(t *testing.T) {
 		},
 	}
 
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
 			store := New()
-			res, err := store.GetById(ts.id, ctx)
+			res, err := store.GetByID(ts.id, ctx)
 			if err != nil && !reflect.DeepEqual(ts.expectedErr, err) {
 				t.Error("expected ", ts.expectedErr, "obtained", err)
 			}
@@ -64,6 +65,7 @@ func TestGetAllProducts(t *testing.T) {
 	ctx.Context = context.Background()
 	store := New()
 	_, err := store.GetAllProducts(ctx)
+
 	if err != nil {
 		t.Errorf("Failed, Expected %v Obtained %v", nil, err)
 	}
@@ -73,32 +75,34 @@ func TestInsertProduct(t *testing.T) {
 	app := gofr.New()
 	seeder := datastore.NewSeeder(&app.DataStore, "../db")
 	seeder.ResetCounter = true
+
 	testCases := []struct {
 		desc        string
-		product     models.Product
 		expectedErr error
+		product     models.Product
 	}{
 		{
-			desc: "Success case",
+			desc:        "Success case",
+			expectedErr: nil,
 			product: models.Product{
-				Id:   7,
+				ID:   7,
 				Name: "biryani",
 				Type: "food",
 			},
-			expectedErr: nil,
 		},
 		{
-			desc: "Failure case",
+			desc:        "Failure case",
+			expectedErr: errors.Error("Error in executing query"),
 			product: models.Product{
-				Id:   2,
+				ID:   2,
 				Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkj",
 				Type: "food",
 			},
-			expectedErr: errors.Error("Error in executing query"),
 		},
 	}
 
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
@@ -123,7 +127,7 @@ func TestUpdateProduct(t *testing.T) {
 		{
 			desc: "Success case",
 			product: models.Product{
-				Id:   7,
+				ID:   7,
 				Name: "apple",
 				Type: "food",
 			},
@@ -132,7 +136,7 @@ func TestUpdateProduct(t *testing.T) {
 		{
 			desc: "Failure case",
 			product: models.Product{
-				Id:   2,
+				ID:   2,
 				Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkj",
 				Type: "food",
 			},
@@ -140,7 +144,8 @@ func TestUpdateProduct(t *testing.T) {
 		},
 	}
 
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
@@ -168,12 +173,14 @@ func TestDeleteById(t *testing.T) {
 			expectedErr: nil,
 		},
 	}
-	for _, ts := range testCases {
+
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
 			store := New()
-			err := store.DeleteById(ts.id, ctx)
+			err := store.DeleteByID(ts.id, ctx)
 			if err != nil && !reflect.DeepEqual(ts.expectedErr, err) {
 				t.Error("expected ", ts.expectedErr, "obtained", err)
 			}

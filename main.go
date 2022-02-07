@@ -17,12 +17,14 @@ func main() {
 	serviceH := serviceHandler.New(storeH)
 	handler := Handler.New(serviceH)
 
-	app.GET("/product/{id}", handler.GetById)
+	app.GET("/product/{id}", handler.GetByID)
 	app.GET("/product", handler.GetAllProductDetails)
 	app.POST("/product", handler.InsertProduct)
-	app.PUT("/product", handler.UpdateProductById)
-	app.DELETE("/product/{id}", handler.DeleteByProductId)
+	app.PUT("/product", handler.UpdateProductByID)
+	app.DELETE("/product/{id}", handler.DeleteByProductID)
 	app.Server.HTTP.Port = 8000
+
 	fmt.Println("Listening at port 8000")
+
 	app.Start()
 }

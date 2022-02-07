@@ -16,13 +16,12 @@ import (
 )
 
 func TestGetById(t *testing.T) {
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := service.NewMockService(ctrl)
 	mockHandler := New(mockService)
 
-	testCases := []struct {
+	testGetCases := []struct {
 		desc        string
 		id          string
 		mock        []*gomock.Call
@@ -33,14 +32,14 @@ func TestGetById(t *testing.T) {
 			desc: "Success case",
 			id:   "1",
 			mock: []*gomock.Call{
-				mockService.EXPECT().GetByProductId(gomock.Any(), gomock.Any()).Return(models.Product{
-					Id:   1,
+				mockService.EXPECT().GetByProductID(gomock.Any(), gomock.Any()).Return(models.Product{
+					ID:   1,
 					Name: "jeans",
 					Type: "clothes",
 				}, nil),
 			},
 			expectedRes: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "jeans",
 				Type: "clothes",
 			},
@@ -62,7 +61,7 @@ func TestGetById(t *testing.T) {
 			desc: "Failure case - 3",
 			id:   "3",
 			mock: []*gomock.Call{
-				mockService.EXPECT().GetByProductId(gomock.Any(), gomock.Any()).
+				mockService.EXPECT().GetByProductID(gomock.Any(), gomock.Any()).
 					Return(models.Product{}, errors.EntityNotFound{Entity: "product", ID: "3"}),
 			},
 			expectedRes: nil,
@@ -72,7 +71,8 @@ func TestGetById(t *testing.T) {
 
 	app := gofr.New()
 
-	for _, ts := range testCases {
+	for _, test := range testGetCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/product", nil)
@@ -84,7 +84,7 @@ func TestGetById(t *testing.T) {
 			ctx.SetPathParams(map[string]string{
 				"id": ts.id,
 			})
-			resp, err := mockHandler.GetById(ctx)
+			resp, err := mockHandler.GetByID(ctx)
 			if !reflect.DeepEqual(ts.expectedRes, resp) {
 				t.Error("expected ", ts.expectedRes, "obtained", resp)
 			}
@@ -111,7 +111,7 @@ func TestGetAllProductDetails(t *testing.T) {
 			desc: "Success case",
 			mock: []*gomock.Call{
 				mockService.EXPECT().GetProducts(gomock.Any()).Return([]models.Product{
-					{Id: 1,
+					{ID: 1,
 						Name: "jeans",
 						Type: "clothes",
 					},
@@ -119,7 +119,7 @@ func TestGetAllProductDetails(t *testing.T) {
 			},
 			expectedRes: []models.Product{
 				{
-					Id:   1,
+					ID:   1,
 					Name: "jeans",
 					Type: "clothes",
 				},
@@ -136,7 +136,8 @@ func TestGetAllProductDetails(t *testing.T) {
 	}
 	app := gofr.New()
 
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/product", nil)
@@ -162,12 +163,12 @@ func TestInsertProduct(t *testing.T) {
 	mockService := service.NewMockService(ctrl)
 	mockHandler := New(mockService)
 
-	testCases := []struct {
+	testInsertCases := []struct {
 		desc        string
 		product     []byte
 		mock        []*gomock.Call
-		expectedRes interface{}
 		expectedErr error
+		expectedRes interface{}
 	}{
 		{
 			desc: "Success case",
@@ -179,12 +180,12 @@ func TestInsertProduct(t *testing.T) {
 			mock: []*gomock.Call{
 				mockService.EXPECT().InsertProductDetails(gomock.Any(), gomock.Any()).Return(nil),
 			},
+			expectedErr: nil,
 			expectedRes: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "jeans",
 				Type: "clothes",
 			},
-			expectedErr: nil,
 		},
 		{
 			desc: "Failure case - invalid body",
@@ -193,8 +194,8 @@ func TestInsertProduct(t *testing.T) {
 				"Name": "jeans",
 				"Type": "clothes",
 			}`),
-			expectedRes: nil,
 			expectedErr: errors.InvalidParam{Param: []string{"body"}},
+			expectedRes: nil,
 		},
 		{
 			desc: "Failure case 2",
@@ -208,13 +209,14 @@ func TestInsertProduct(t *testing.T) {
 					errors.Error("internal errror"),
 				),
 			},
-			expectedRes: nil,
 			expectedErr: errors.Error("internal errror"),
+			expectedRes: nil,
 		},
 	}
 	app := gofr.New()
 
-	for _, ts := range testCases {
+	for _, test := range testInsertCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("POST", "/product", bytes.NewReader(ts.product))
@@ -240,7 +242,7 @@ func TestUpdateProductById(t *testing.T) {
 	mockService := service.NewMockService(ctrl)
 	mockHandler := New(mockService)
 
-	testCases := []struct {
+	testUpdateCases := []struct {
 		desc        string
 		product     []byte
 		mock        []*gomock.Call
@@ -258,7 +260,7 @@ func TestUpdateProductById(t *testing.T) {
 				mockService.EXPECT().UpdateProductDetails(gomock.Any(), gomock.Any()).Return(nil),
 			},
 			expectedRes: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "jeans",
 				Type: "clothes",
 			},
@@ -292,21 +294,21 @@ func TestUpdateProductById(t *testing.T) {
 	}
 	app := gofr.New()
 
-	for _, ts := range testCases {
+	for _, test := range testUpdateCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
-			w := httptest.NewRecorder()
 			r := httptest.NewRequest("PUT", "/product", bytes.NewReader(ts.product))
-
-			req := request.NewHTTPRequest(r)
+			w := httptest.NewRecorder()
 			res := responder.NewContextualResponder(w, r)
-
+			req := request.NewHTTPRequest(r)
 			ctx := gofr.NewContext(res, req, app)
-			resp, err := mockHandler.UpdateProductById(ctx)
-			if !reflect.DeepEqual(ts.expectedRes, resp) {
-				t.Error("expected ", ts.expectedRes, "obtained", resp)
-			}
+			resp, err := mockHandler.UpdateProductByID(ctx)
+
 			if !reflect.DeepEqual(ts.expectedErr, err) {
 				t.Error("expected ", ts.expectedErr, "obtained", err)
+			}
+			if !reflect.DeepEqual(ts.expectedRes, resp) {
+				t.Error("expected ", ts.expectedRes, "obtained", resp)
 			}
 		})
 	}
@@ -318,7 +320,7 @@ func TestDeleteByProductId(t *testing.T) {
 	mockService := service.NewMockService(ctrl)
 	mockHandler := New(mockService)
 
-	testCases := []struct {
+	testDelCases := []struct {
 		desc        string
 		id          string
 		mock        []*gomock.Call
@@ -328,7 +330,7 @@ func TestDeleteByProductId(t *testing.T) {
 			desc: "Success case",
 			id:   "1",
 			mock: []*gomock.Call{
-				mockService.EXPECT().DeleteProductById(gomock.Any(), gomock.Any()).Return(nil),
+				mockService.EXPECT().DeleteProductByID(gomock.Any(), gomock.Any()).Return(nil),
 			},
 			expectedErr: nil,
 		},
@@ -346,7 +348,7 @@ func TestDeleteByProductId(t *testing.T) {
 			desc: "Failure case - 3",
 			id:   "3",
 			mock: []*gomock.Call{
-				mockService.EXPECT().DeleteProductById(gomock.Any(), gomock.Any()).
+				mockService.EXPECT().DeleteProductByID(gomock.Any(), gomock.Any()).
 					Return(errors.Error("internal error")),
 			},
 			expectedErr: errors.Error("internal error"),
@@ -355,7 +357,8 @@ func TestDeleteByProductId(t *testing.T) {
 
 	app := gofr.New()
 
-	for _, ts := range testCases {
+	for _, test := range testDelCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("DELETE", "/product", nil)
@@ -367,7 +370,7 @@ func TestDeleteByProductId(t *testing.T) {
 			ctx.SetPathParams(map[string]string{
 				"id": ts.id,
 			})
-			_, err := mockHandler.DeleteByProductId(ctx)
+			_, err := mockHandler.DeleteByProductID(ctx)
 			if !reflect.DeepEqual(ts.expectedErr, err) {
 				t.Error("expected ", ts.expectedErr, "obtained", err)
 			}

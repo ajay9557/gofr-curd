@@ -15,7 +15,6 @@ import (
 )
 
 func TestGetProductById(t *testing.T) {
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockStore := store.NewMockStore(ctrl)
@@ -32,14 +31,14 @@ func TestGetProductById(t *testing.T) {
 			desc: "Success case",
 			id:   1,
 			mock: []*gomock.Call{
-				mockStore.EXPECT().GetById(gomock.Any(), gomock.Any()).Return(models.Product{
-					Id:   1,
+				mockStore.EXPECT().GetByID(gomock.Any(), gomock.Any()).Return(models.Product{
+					ID:   1,
 					Name: "jeans",
 					Type: "clothes",
 				}, nil),
 			},
 			expectedRes: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "jeans",
 				Type: "clothes",
 			},
@@ -49,7 +48,7 @@ func TestGetProductById(t *testing.T) {
 			desc: "Failure case - 1",
 			id:   2,
 			mock: []*gomock.Call{
-				mockStore.EXPECT().GetById(gomock.Any(), gomock.Any()).Return(models.Product{},
+				mockStore.EXPECT().GetByID(gomock.Any(), gomock.Any()).Return(models.Product{},
 					errors.EntityNotFound{Entity: "product", ID: "2"}),
 			},
 			expectedRes: models.Product{},
@@ -62,12 +61,12 @@ func TestGetProductById(t *testing.T) {
 			expectedErr: errors.InvalidParam{Param: []string{"id"}},
 		},
 	}
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
-
 			ctx := gofr.NewContext(nil, nil, gofr.New())
 			ctx.Context = context.Background()
-			res, err := mockHandler.GetByProductId(ts.id, ctx)
+			res, err := mockHandler.GetByProductID(ts.id, ctx)
 
 			if !reflect.DeepEqual(ts.expectedRes, res) {
 				fmt.Print("expected ", ts.expectedRes, "obtained", res)
@@ -95,7 +94,7 @@ func TestGetProducts(t *testing.T) {
 			desc: "Success case",
 			mock: []*gomock.Call{
 				mockStore.EXPECT().GetAllProducts(gomock.Any()).Return([]models.Product{
-					{Id: 1,
+					{ID: 1,
 						Name: "jeans",
 						Type: "clothes",
 					},
@@ -103,7 +102,7 @@ func TestGetProducts(t *testing.T) {
 			},
 			expectedRes: []models.Product{
 				{
-					Id:   1,
+					ID:   1,
 					Name: "jeans",
 					Type: "clothes"},
 			},
@@ -118,9 +117,9 @@ func TestGetProducts(t *testing.T) {
 			expectedErr: errors.EntityNotFound{Entity: "product", ID: "2"},
 		},
 	}
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
-
 			ctx := gofr.NewContext(nil, nil, gofr.New())
 			ctx.Context = context.Background()
 			res, err := mockHandler.GetProducts(ctx)
@@ -143,46 +142,46 @@ func TestInsertProductDetails(t *testing.T) {
 
 	testCases := []struct {
 		desc        string
-		product     models.Product
 		mock        []*gomock.Call
+		product     models.Product
 		expectedErr error
 	}{
 		{
 			desc: "Success case",
-			product: models.Product{
-				Id:   1,
-				Name: "shirt",
-				Type: "jeans",
-			},
 			mock: []*gomock.Call{
 				mockStore.EXPECT().InsertProduct(gomock.Any(), gomock.Any()).Return(nil),
+			},
+			product: models.Product{
+				ID:   1,
+				Name: "shirt",
+				Type: "jeans",
 			},
 			expectedErr: nil,
 		},
 		{
 			desc: "Failure case",
+			mock: []*gomock.Call{
+				mockStore.EXPECT().InsertProduct(gomock.Any(), gomock.Any()).Return(errors.Error("Error in database"))},
 			product: models.Product{
-				Id:   2,
+				ID:   2,
 				Name: "shirt",
 				Type: "jeans",
 			},
-			mock: []*gomock.Call{
-				mockStore.EXPECT().InsertProduct(gomock.Any(), gomock.Any()).Return(errors.Error("Error in database"))},
 			expectedErr: errors.Error("Error in database"),
 		},
 		{
 			desc: "Failure ID case",
 			product: models.Product{
-				Id:   0,
+				ID:   0,
 				Name: "shirt",
 				Type: "jeans",
 			},
 			expectedErr: errors.InvalidParam{Param: []string{"id"}},
 		},
 	}
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
-
 			ctx := gofr.NewContext(nil, nil, gofr.New())
 			ctx.Context = context.Background()
 			err := mockHandler.InsertProductDetails(ts.product, ctx)
@@ -209,7 +208,7 @@ func TestUpdateProductDetails(t *testing.T) {
 		{
 			desc: "Success case",
 			product: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "shirt",
 				Type: "jeans",
 			},
@@ -221,7 +220,7 @@ func TestUpdateProductDetails(t *testing.T) {
 		{
 			desc: "Failure case",
 			product: models.Product{
-				Id:   2,
+				ID:   2,
 				Name: "shirt",
 				Type: "jeans",
 			},
@@ -232,16 +231,16 @@ func TestUpdateProductDetails(t *testing.T) {
 		{
 			desc: "Failure ID case",
 			product: models.Product{
-				Id:   0,
+				ID:   0,
 				Name: "shirt",
 				Type: "jeans",
 			},
 			expectedErr: errors.InvalidParam{Param: []string{"id"}},
 		},
 	}
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
-
 			ctx := gofr.NewContext(nil, nil, gofr.New())
 			ctx.Context = context.Background()
 			err := mockHandler.UpdateProductDetails(ts.product, ctx)
@@ -269,7 +268,7 @@ func TestDeleteProductById(t *testing.T) {
 			desc: "Success case",
 			id:   1,
 			mock: []*gomock.Call{
-				mockStore.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(nil),
+				mockStore.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(nil),
 			},
 			expectedErr: nil,
 		},
@@ -277,7 +276,7 @@ func TestDeleteProductById(t *testing.T) {
 			desc: "Failure case - 1",
 			id:   2,
 			mock: []*gomock.Call{
-				mockStore.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(errors.Error("Error in database"))},
+				mockStore.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(errors.Error("Error in database"))},
 			expectedErr: errors.Error("Error in database"),
 		},
 		{
@@ -286,12 +285,12 @@ func TestDeleteProductById(t *testing.T) {
 			expectedErr: errors.InvalidParam{Param: []string{"id"}},
 		},
 	}
-	for _, ts := range testCases {
+	for _, test := range testCases {
+		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
-
 			ctx := gofr.NewContext(nil, nil, gofr.New())
 			ctx.Context = context.Background()
-			err := mockHandler.DeleteProductById(ts.id, ctx)
+			err := mockHandler.DeleteProductByID(ts.id, ctx)
 			if !reflect.DeepEqual(ts.expectedErr, err) {
 				fmt.Print("expected ", ts.expectedErr, "obtained", err)
 			}

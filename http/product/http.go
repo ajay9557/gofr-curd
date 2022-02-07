@@ -9,79 +9,99 @@ import (
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
-type handler struct {
+type Handler struct {
 	serv service.Service
 }
 
-func New(s service.Service) handler {
-	return handler{serv: s}
+func New(s service.Service) Handler {
+	return Handler{serv: s}
 }
 
-func (h handler) GetById(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) GetByID(ctx *gofr.Context) (interface{}, error) {
 	i := ctx.PathParam("id")
+
 	if i == "" {
 		return nil, errors.MissingParam{Param: []string{"id"}}
 	}
+
 	id, err := strconv.Atoi(i)
+
 	if err != nil {
 		return nil, errors.MissingParam{Param: []string{"id"}}
 	}
-	product, err := h.serv.GetByProductId(id, ctx)
+
+	product, err := h.serv.GetByProductID(id, ctx)
+
 	if err != nil {
 		return nil, errors.EntityNotFound{
 			Entity: "product",
 			ID:     i,
 		}
 	}
+
 	return product, nil
 }
 
-func (h handler) GetAllProductDetails(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) GetAllProductDetails(ctx *gofr.Context) (interface{}, error) {
 	allProducts, err := h.serv.GetProducts(ctx)
+
 	if err != nil {
 		return nil, errors.Error("internal error")
 	}
+
 	return allProducts, nil
 }
 
-func (h handler) InsertProduct(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) InsertProduct(ctx *gofr.Context) (interface{}, error) {
 	var product models.Product
-	err := ctx.Bind(&product)
-	if err != nil {
+
+	if err := ctx.Bind(&product); err != nil {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
-	err = h.serv.InsertProductDetails(product, ctx)
-	if err != nil {
+
+	if err := h.serv.InsertProductDetails(product, ctx); err != nil {
 		return nil, errors.Error("internal errror")
 	}
+
 	return product, nil
 }
 
-func (h handler) UpdateProductById(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) UpdateProductByID(ctx *gofr.Context) (interface{}, error) {
 	var product models.Product
+
 	err := ctx.Bind(&product)
+
 	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
+
 	err = h.serv.UpdateProductDetails(product, ctx)
+
 	if err != nil {
 		return nil, errors.Error("internal errror")
 	}
+
 	return product, nil
 }
 
-func (h handler) DeleteByProductId(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) DeleteByProductID(ctx *gofr.Context) (interface{}, error) {
 	i := ctx.PathParam("id")
+
 	if i == "" {
 		return nil, errors.MissingParam{Param: []string{"id"}}
 	}
+
 	id, err := strconv.Atoi(i)
+
 	if err != nil {
 		return nil, errors.MissingParam{Param: []string{"id"}}
 	}
-	err = h.serv.DeleteProductById(id, ctx)
+
+	err = h.serv.DeleteProductByID(id, ctx)
+
 	if err != nil {
 		return nil, errors.Error("internal error")
 	}
+
 	return "Deleted successfully", nil
 }
