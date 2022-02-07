@@ -2,97 +2,157 @@ package products
 
 import (
 	"context"
-
-	"reflect"
+	"fmt"
 	"testing"
 	"zopsmart/gofr-curd/model"
 
+	//	"developer.zopsmart.com/go/gofr/pkg/datastore"
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
-	//	"github.com/DATA-DOG/go-sqlmock"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func Test_GetById(t *testing.T) {
-	tests := []struct {
-		desc   string
-		id     int
-		err    error
-		output model.Product
-	}{
-		{
-			desc: "Get existent id",
-			id:   1,
-			err:  nil,
-			output: model.Product{
-				Id:   1,
-				Name: "Reebok",
-				Type: "Bats",
-			},
-		},
-		{
-			desc: "Get no-existent id",
-			id:   45,
-			err: errors.EntityNotFound{
-				Entity: "product",
-				ID:     "45",
-			},
-			output: model.Product{},
-		},
-	}
-	for _, tc := range tests {
-		app := gofr.New()
+func TestCoreLayer(t *testing.T) {
+	app := gofr.New()
 
-		//app.ORM = database
+	testAddProduct(t, app)
+	testGetProductByID(t, app)
+	testAddProductWithError(t, app)
+	testUpdateProduct(t, app)
+	testGetProducts(t, app)
+	testDeleteProduct(t, app)
+	testErrors(t, app)
+}
+
+
+var id int
+
+func testAddProduct(t *testing.T, app *gofr.Gofr) {
+	tests := []struct {
+		desc    string
+		product model.Product
+		err     error
+	}{
+		{"create succuss test #1", model.Product{Name: "Test123", Type: "Test"}, nil},
+	}
+
+	for i, tc := range tests {
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
 
 		store := New()
-		res, err := store.GetProductById(ctx, tc.id)
-		if !reflect.DeepEqual(res, tc.output) {
-			t.Errorf("expected %v got %v", tc.output, res)
-		}
-		if tc.err != err {
-			t.Errorf("expected %s got %s", tc.err, err)
+		resp, err := store.AddProduct(ctx, tc.product)
+		id = resp
+		fmt.Println(id)
+		app.Logger.Log(resp)
+
+		assert.Equal(t, tc.err, err, "TEST[%d], failed.\n%s", i, tc.desc)
+	}
+}
+
+func testAddProductWithError(t *testing.T, app *gofr.Gofr) {
+	customer := model.Product{
+		Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkj",
+	}
+
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+
+	store := New()
+
+	_, err := store.AddProduct(ctx, customer)
+	if _, ok := err.(errors.DB); err != nil && ok == false {
+		t.Errorf("Error Testcase FAILED")
+	}
+}
+
+func testGetProductByID(t *testing.T, app *gofr.Gofr) {
+	tests := []struct {
+		desc string
+		id   int
+		err  error
+	}{
+		{"Get existent id", id, nil},
+		{"Get non existent id", 1223, errors.EntityNotFound{Entity: "product", ID: "1223"}},
+	}
+    fmt.Println(id)
+	for i, tc := range tests {
+		ctx := gofr.NewContext(nil, nil, app)
+		ctx.Context = context.Background()
+
+		store := New()
+
+		_, err := store.GetProductById(ctx, tc.id)
+		assert.Equal(t, tc.err, err, "TEST[%d], failed.\n%s", i, tc.desc)
+	}
+}
+
+func testUpdateProduct(t *testing.T, app *gofr.Gofr) {
+	tests := []struct {
+		desc     string
+		customer model.Product
+		err      error
+	}{
+		{"update succuss", model.Product{Id: id, Name: "Test1234"}, nil},
+		{"update fail", model.Product{Id: 1, Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkj"}, errors.DB{}},
+	}
+
+	for i, tc := range tests {
+		ctx := gofr.NewContext(nil, nil, app)
+		ctx.Context = context.Background()
+
+		store := New()
+
+		_, err := store.UpdateById(ctx, tc.customer)
+		if _, ok := err.(errors.DB); err != nil && ok == false {
+			t.Errorf("TEST[%v] Failed.\tExpected %v\tGot %v\n%s", i, tc.err, err, tc.desc)
 		}
 	}
 }
 
-func Test_GetProducts(t *testing.T) {
-	tests := []struct {
-		desc   string
-		err    error
-		output []model.Product
-	}{
-		{
-			desc: "Success",
-			err:  nil,
-			output: []model.Product{
-				{
-					Id:   1,
-					Name: "Reebok",
-					Type: "Bats",
-				}, {
-					Id:   2,
-					Name: "Mehfil",
-					Type: "Biryani",
-				},
-			},
-		},
-	}
-	for _, tc := range tests {
-		app := gofr.New()
+func testGetProducts(t *testing.T, app *gofr.Gofr) {
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
 
-		//app.ORM = database
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
+	store := New()
 
-		store := New()
-		res, err := store.GetProducts(ctx)
-		if !reflect.DeepEqual(res, tc.output) {
-			t.Errorf("expected %v got %v", tc.output, res)
-		}
-		if tc.err != err {
-			t.Errorf("expected %s got %s", tc.err, err)
-		}
+	_, err := store.GetProducts(ctx)
+	if err != nil {
+		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
 	}
+}
+
+func testDeleteProduct(t *testing.T, app *gofr.Gofr) {
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+
+	store := New()
+
+	err := store.DeleteById(ctx, id)
+	if err != nil {
+		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
+	}
+}
+
+func testErrors(t *testing.T, app *gofr.Gofr) {
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	_ = ctx.DB().Close() // close the connection to generate errors
+
+	store := New()
+
+	err := store.DeleteById(ctx, 64)
+	if err == nil {
+		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
+	}
+
+	_, err = store.GetProducts(ctx)
+	if err == nil {
+		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
+	}
+}
+
+func TestNew(t *testing.T) {
+	_ = New()
 }

@@ -43,10 +43,7 @@ func (s *DbStore) GetProducts(ctx *gofr.Context) ([]model.Product, error) {
 	var products []model.Product
 	for rows.Next() {
 		var pd model.Product
-		err := rows.Scan(&pd.Id, &pd.Name, &pd.Type)
-		if err != nil {
-			return nil, err
-		}
+		rows.Scan(&pd.Id, &pd.Name, &pd.Type)
 		products = append(products, pd)
 	}
 	return products, nil
