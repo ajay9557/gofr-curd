@@ -38,7 +38,7 @@ func testGetByID(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 			"success case",
 			1,
 			&models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "legion",
 				Type: "laptop",
 			},
