@@ -32,7 +32,7 @@ func TestGetUserById(t *testing.T) {
 		id        string
 		mock      *gomock.Call
 		expectedErr  error
-		expectedRes *models.Product
+		expectedRes interface{}
 	}{
 		{
 			desc: "Success case",
@@ -52,19 +52,25 @@ func TestGetUserById(t *testing.T) {
 		},
 		{
 			desc: "Failure case",
-			id: "352",
+			id: "id",
 			expectedErr: errors.MissingParam{Param: []string{"id"}},
-			mock: 
-				mockService.EXPECT().GetProdByID(gomock.Any(),gomock.Any()).Return(&models.Product{}, errors.EntityNotFound{Entity: "product", ID: "352"}),
 			expectedRes: nil,
-				},
+		},
 
-				{
-					desc: "Failure case",
-					id: "",
-					expectedErr: errors.MissingParam{Param: []string{"id"}},
-					expectedRes: nil,
-				},
+		{
+			desc: "Failure case",
+			id: "",
+			expectedErr: errors.MissingParam{Param: []string{"id"}},
+			expectedRes: nil,
+		},
+		{
+			desc: "Failure case",
+			id: "234",
+			expectedErr: errors.EntityNotFound{Entity: "product", ID: "234"},
+			expectedRes: nil,
+			mock: mockService.EXPECT().GetProdByID(gomock.Any(),1).Return(&models.Product{},
+				errors.EntityNotFound{Entity: "product",ID: "234"} ),
+		},
 	}
 	
 
@@ -85,7 +91,7 @@ func TestGetUserById(t *testing.T) {
 			})
 
 			resp, err := mock.GetProdByIdHandler(ctx)
-			if err != tc.expectedErr {
+			if !reflect.DeepEqual(err,tc.expectedErr) {
 				t.Errorf("Expected %v, but got %v", tc.expectedErr, err)
 			}
 
