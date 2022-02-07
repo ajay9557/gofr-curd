@@ -35,12 +35,11 @@ func (m *MockProduct) EXPECT() *MockProductMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockProduct) Create(arg0 *gofr.Context, arg1 models.Product) (int, error) {
+func (m *MockProduct) Create(arg0 *gofr.Context, arg1 models.Product) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Create indicates an expected call of Create

@@ -35,20 +35,21 @@ func TestCoreLayer(t *testing.T) {
 	testGetProductByID(t, app, mock)
 	testGetProducts(t, app, mock)
 	testCreate(t, app, mock)
+	testUpdateById(t, app, mock)
+	testDeleteById(t, app, mock)
 	seeder.RefreshTables(t, "products")
 
 }
 
 func testGetProductByID(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 
-	rows := mock.NewRows([]string{"id", "name", "category"}).AddRow(1, "mouse", "electronics")
+	// rows := mock.NewRows([]string{"id", "name", "category"}).AddRow(1, "mouse", "electronics")
 
 	tests := []struct {
 		desc            string
 		id              int
 		expectedProduct *models.Product
 		err             error
-		mockCall        *sqlmock.ExpectedQuery
 	}{
 		{
 			desc: "Get existent id",
@@ -58,15 +59,13 @@ func testGetProductByID(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 				Name:     "mouse",
 				Category: "electronics",
 			},
-			err:      nil,
-			mockCall: mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(1).WillReturnRows(rows),
+			err: nil,
 		},
 		{
 			desc:            "Get non existent id",
 			id:              100,
 			expectedProduct: nil,
 			err:             errors.EntityNotFound{Entity: "products", ID: "100"},
-			mockCall:        mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(100).WillReturnRows(mock.NewRows([]string{"id", "name", "category"})),
 		},
 	}
 
@@ -85,14 +84,10 @@ func testGetProductByID(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 }
 
 func testGetProducts(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
-
-	rows := mock.NewRows([]string{"id", "name", "category"}).AddRow(1, "mouse", "electronics")
-
 	tests := []struct {
 		desc            string
 		expectedProduct []*models.Product
 		err             error
-		mockCall        *sqlmock.ExpectedQuery
 	}{
 		{
 			desc: "Get All Products",
@@ -103,8 +98,7 @@ func testGetProducts(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 					Category: "electronics",
 				},
 			},
-			err:      nil,
-			mockCall: mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(1).WillReturnRows(rows),
+			err: nil,
 		},
 	}
 
@@ -125,15 +119,11 @@ func testGetProducts(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 func testCreate(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 	tests := []struct {
 		desc          string
-		expectedId    int
 		expectedError error
-		// mockCall      sqlmock.ExpectedExec
 	}{
 		{
 			desc:          "Success Case",
-			expectedId:    14,
 			expectedError: nil,
-			// mockCall: ,
 		},
 	}
 
@@ -144,10 +134,69 @@ func testCreate(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
 
-			productId, err := store.Create(ctx, models.Product{Name: "volleyball", Category: "sports"})
+			err := store.Create(ctx, models.Product{Id: 2, Name: "volleyball", Category: "sports"})
 
 			assert.Equal(t, tc.expectedError, err, "TEST[%d], failed.\n%s", i, tc.desc)
-			assert.Equal(t, tc.expectedId, productId, "TEST[%d], failed.\n%s", i, tc.desc)
+		})
+	}
+}
+
+func testUpdateById(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
+	tests := []struct {
+		desc          string
+		id            int
+		input         models.Product
+		expectedError error
+	}{
+		{
+			desc: "Success Case",
+			id:   1,
+			input: models.Product{
+				Id:       1,
+				Name:     "mouse",
+				Category: "gaming",
+			},
+			expectedError: nil,
+		},
+	}
+
+	store := New()
+
+	for i, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			ctx := gofr.NewContext(nil, nil, app)
+			ctx.Context = context.Background()
+
+			err := store.UpdateById(ctx, tc.id, tc.input)
+
+			assert.Equal(t, tc.expectedError, err, "TEST[%d], failed.\n%s", i, tc.desc)
+		})
+	}
+}
+
+func testDeleteById(t *testing.T, app *gofr.Gofr, mock sqlmock.Sqlmock) {
+	tests := []struct {
+		desc          string
+		id            int
+		expectedError error
+	}{
+		{
+			desc:          "Success Case",
+			id:            1,
+			expectedError: nil,
+		},
+	}
+
+	store := New()
+
+	for i, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			ctx := gofr.NewContext(nil, nil, app)
+			ctx.Context = context.Background()
+
+			err := store.DeleteById(ctx, tc.id)
+
+			assert.Equal(t, tc.expectedError, err, "TEST[%d], failed.\n%s", i, tc.desc)
 		})
 	}
 }

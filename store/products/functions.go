@@ -9,7 +9,7 @@ func formUpdateQuery(p models.Product) (fields string, args []interface{}) {
 	}
 
 	if p.Category != "" {
-		fields += " email = ?,"
+		fields += " category = ?,"
 		args = append(args, p.Category)
 	}
 

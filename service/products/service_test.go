@@ -183,7 +183,7 @@ func TestCreate(t *testing.T) {
 			expected:      &input1,
 			expectedError: nil,
 			mockCall: []*gomock.Call{
-				mockStore.EXPECT().Create(ctx, input1).Return(1, nil),
+				mockStore.EXPECT().Create(ctx, input1).Return(nil),
 				mockStore.EXPECT().GetById(ctx, 1).Return(&input1, nil),
 			},
 		},
@@ -193,6 +193,15 @@ func TestCreate(t *testing.T) {
 			expected:      nil,
 			expectedError: errors.Error("Need Product data to create new product"),
 			mockCall:      nil,
+		},
+		{
+			desc:          "Error while creating",
+			input:         input1,
+			expected:      nil,
+			expectedError: errors.Error("Connection lost"),
+			mockCall: []*gomock.Call{
+				mockStore.EXPECT().Create(ctx, input1).Return(errors.Error("Connection lost")),
+			},
 		},
 	}
 

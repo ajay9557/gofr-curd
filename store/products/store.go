@@ -46,12 +46,13 @@ func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 	return products, nil
 }
 
-func (p product) Create(ctx *gofr.Context, pr models.Product) (int, error) {
-	result, _ := ctx.DB().ExecContext(ctx, "INSERT INTO products(name, category) values(?, ?)", pr.Name, pr.Category)
+func (p product) Create(ctx *gofr.Context, pr models.Product) error {
+	_, err := ctx.DB().ExecContext(ctx, "INSERT INTO products(id, name, category) values(?, ?, ?)", pr.Id, pr.Name, pr.Category)
+	if err != nil {
+		return errors.Error("Connection lost")
+	}
 
-	id, _ := result.LastInsertId()
-
-	return int(id), nil
+	return nil
 }
 
 func (p product) UpdateById(ctx *gofr.Context, id int, pr models.Product) error {
@@ -62,7 +63,7 @@ func (p product) UpdateById(ctx *gofr.Context, id int, pr models.Product) error 
 	args = append(args, id)
 
 	subQuery := fields[:len(fields)-1]
-	query += subQuery + "WHERE id = ?"
+	query += subQuery + " WHERE id = ?"
 
 	_, err := ctx.DB().ExecContext(ctx, query, args...)
 	if err != nil {

@@ -158,11 +158,8 @@ func TestCreateHandler(t *testing.T) {
 		{
 			desc:          "Success case",
 			expectedError: nil,
-			body: models.Product{
-				Name:     "mouse",
-				Category: "electronics",
-			},
-			mockCall: mockService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(&p, nil),
+			body:          p,
+			mockCall:      mockService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(&p, nil),
 		},
 		{
 			desc:          "Empty body",

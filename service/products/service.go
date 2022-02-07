@@ -54,10 +54,13 @@ func (srv *Service) Create(ctx *gofr.Context, pr models.Product) (*models.Produc
 		return nil, errors.Error("Need Product data to create new product")
 	}
 
-	id, _ := srv.store.Create(ctx, pr)
+	err := srv.store.Create(ctx, pr)
+	if err != nil {
+		return nil, err
+	}
 
 	// Fetch created product
-	product, _ := srv.store.GetById(ctx, id)
+	product, _ := srv.store.GetById(ctx, pr.Id)
 
 	return product, nil
 }
