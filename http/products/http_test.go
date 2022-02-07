@@ -30,7 +30,7 @@ func TestGetByIdHandler(t *testing.T) {
 	handler := New(mockProductService)
 
 	product := models.Product{
-		Id:       1,
+		ID:       1,
 		Name:     "mouse",
 		Category: "electronics",
 	}
@@ -42,26 +42,34 @@ func TestGetByIdHandler(t *testing.T) {
 		mockCall      *gomock.Call
 	}{
 		{
-			desc:          "Successfull operation case",
+			desc:          "Successful operation case",
 			id:            "1",
 			expectedError: nil,
-			mockCall:      mockProductService.EXPECT().GetById(gomock.Any(), "1").Return(&product, nil),
+			mockCall:      mockProductService.EXPECT().GetByID(gomock.Any(), "1").Return(&product, nil),
 		},
 		{
 			desc:          "id must be a number",
 			id:            "abc",
 			expectedError: gofrError.EntityNotFound{Entity: "products", ID: "abc"},
-			mockCall:      mockProductService.EXPECT().GetById(gomock.Any(), "abc").Return(nil, gofrError.EntityNotFound{Entity: "products", ID: "abc"}),
+			mockCall: mockProductService.EXPECT().GetByID(gomock.Any(), "abc").Return(
+				nil,
+				gofrError.EntityNotFound{Entity: "products", ID: "abc"},
+			),
 		},
 		{
 			desc:          "id must be greater than 0",
 			id:            "-1",
 			expectedError: gofrError.EntityNotFound{Entity: "products", ID: "-1"},
-			mockCall:      mockProductService.EXPECT().GetById(gomock.Any(), "-1").Return(nil, gofrError.EntityNotFound{Entity: "products", ID: "-1"}),
+			mockCall: mockProductService.EXPECT().GetByID(gomock.Any(), "-1").Return(
+				nil,
+				gofrError.EntityNotFound{Entity: "products", ID: "-1"},
+			),
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, "/products/{id}", nil)
 			res := httptest.NewRecorder()
@@ -76,7 +84,7 @@ func TestGetByIdHandler(t *testing.T) {
 				"id": tc.id,
 			})
 
-			_, err := handler.GetByIdHandler(ctx)
+			_, err := handler.GetByIDHandler(ctx)
 
 			if !errors.Is(err, tc.expectedError) {
 				t.Errorf("Expected: %v, Got: %v", tc.expectedError, err)
@@ -96,7 +104,7 @@ func TestGetHandler(t *testing.T) {
 
 	products := []*models.Product{
 		{
-			Id:       1,
+			ID:       1,
 			Name:     "mouse",
 			Category: "electronics",
 		},
@@ -108,18 +116,23 @@ func TestGetHandler(t *testing.T) {
 		mockCall      *gomock.Call
 	}{
 		{
-			desc:          "Successfull operation case",
+			desc:          "Successful operation case",
 			expectedError: nil,
 			mockCall:      mockProductService.EXPECT().Get(gomock.Any()).Return(products, nil),
 		},
 		{
 			desc:          "Something went wrong",
 			expectedError: gofrError.EntityNotFound{Entity: "products"},
-			mockCall:      mockProductService.EXPECT().Get(gomock.Any()).Return(nil, gofrError.EntityNotFound{Entity: "products"}),
+			mockCall: mockProductService.EXPECT().Get(gomock.Any()).Return(
+				nil,
+				gofrError.EntityNotFound{Entity: "products"},
+			),
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
@@ -144,7 +157,7 @@ func TestCreateHandler(t *testing.T) {
 	productHandler := New(mockService)
 
 	p := models.Product{
-		Id:       1,
+		ID:       1,
 		Name:     "mouse",
 		Category: "electronics",
 	}
@@ -169,16 +182,18 @@ func TestCreateHandler(t *testing.T) {
 		},
 		{
 			desc:          "Error while creating",
-			expectedError: errors.New("Something went wrong"),
+			expectedError: errors.New("SOMETHING WENT WRONG"),
 			body: models.Product{
 				Name:     "mouse",
 				Category: "electronics",
 			},
-			mockCall: mockService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("Something went wrong")),
+			mockCall: mockService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("SOMETHING WENT WRONG")),
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
 			pr, _ := json.Marshal(tc.body)
 			req := httptest.NewRequest(http.MethodPost, "/products", bytes.NewBuffer(pr))
@@ -210,7 +225,7 @@ func TestUpdateHandler(t *testing.T) {
 	productHandler := New(mockService)
 
 	p := models.Product{
-		Id:       1,
+		ID:       1,
 		Name:     "mouse",
 		Category: "electronics",
 	}
@@ -229,7 +244,7 @@ func TestUpdateHandler(t *testing.T) {
 			body: models.Product{
 				Category: "electronics",
 			},
-			mockCall: mockService.EXPECT().UpdateById(gomock.Any(), gomock.Any(), gomock.Any()).Return(&p, nil),
+			mockCall: mockService.EXPECT().UpdateByID(gomock.Any(), gomock.Any(), gomock.Any()).Return(&p, nil),
 		},
 		{
 			desc:          "Empty body",
@@ -245,7 +260,10 @@ func TestUpdateHandler(t *testing.T) {
 			body: models.Product{
 				Category: "electronics",
 			},
-			mockCall: mockService.EXPECT().UpdateById(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gofrError.InvalidParam{Param: []string{"id"}}),
+			mockCall: mockService.EXPECT().UpdateByID(gomock.Any(), gomock.Any(), gomock.Any()).Return(
+				nil,
+				gofrError.InvalidParam{Param: []string{"id"}},
+			),
 		},
 		{
 			desc:          "Id must be greater than 0",
@@ -254,11 +272,16 @@ func TestUpdateHandler(t *testing.T) {
 			body: models.Product{
 				Category: "electronics",
 			},
-			mockCall: mockService.EXPECT().UpdateById(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, gofrError.InvalidParam{Param: []string{"id"}}),
+			mockCall: mockService.EXPECT().UpdateByID(gomock.Any(), gomock.Any(), gomock.Any()).Return(
+				nil,
+				gofrError.InvalidParam{Param: []string{"id"}},
+			),
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
 			pr, _ := json.Marshal(tc.body)
 			req := httptest.NewRequest(http.MethodPut, "/products/{id}", bytes.NewBuffer(pr))
@@ -302,23 +325,25 @@ func TestDeleteHandler(t *testing.T) {
 			desc:          "Success case",
 			expectedError: nil,
 			id:            "1",
-			mockCall:      mockService.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(nil),
+			mockCall:      mockService.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(nil),
 		},
 		{
 			desc:          "Id must be number",
 			expectedError: gofrError.InvalidParam{Param: []string{"id"}},
 			id:            "abc",
-			mockCall:      mockService.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(gofrError.InvalidParam{Param: []string{"id"}}),
+			mockCall:      mockService.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(gofrError.InvalidParam{Param: []string{"id"}}),
 		},
 		{
 			desc:          "Id must be greater than 0",
 			expectedError: gofrError.InvalidParam{Param: []string{"id"}},
 			id:            "-1",
-			mockCall:      mockService.EXPECT().DeleteById(gomock.Any(), gomock.Any()).Return(gofrError.InvalidParam{Param: []string{"id"}}),
+			mockCall:      mockService.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(gofrError.InvalidParam{Param: []string{"id"}}),
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
 			req := httptest.NewRequest(http.MethodDelete, "/products/{id}", nil)
 			res := httptest.NewRecorder()

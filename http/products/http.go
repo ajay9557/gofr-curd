@@ -2,6 +2,7 @@ package products
 
 import (
 	"encoding/json"
+	"net/http"
 	"reflect"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
@@ -10,20 +11,20 @@ import (
 	"github.com/ridhdhish-desai-zs/product-gofr/service"
 )
 
-type handler struct {
+type Handler struct {
 	srv service.Product
 }
 
-func New(s service.Product) handler {
-	return handler{
+func New(s service.Product) Handler {
+	return Handler{
 		srv: s,
 	}
 }
 
-func (h handler) GetByIdHandler(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) GetByIDHandler(ctx *gofr.Context) (interface{}, error) {
 	param := ctx.PathParam("id")
 
-	p, err := h.srv.GetById(ctx, param)
+	p, err := h.srv.GetByID(ctx, param)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +38,7 @@ func (h handler) GetByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	return resData, nil
 }
 
-func (h handler) GetHandler(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) GetHandler(ctx *gofr.Context) (interface{}, error) {
 	products, err := h.srv.Get(ctx)
 	if err != nil {
 		return nil, err
@@ -52,7 +53,7 @@ func (h handler) GetHandler(ctx *gofr.Context) (interface{}, error) {
 	return resData, nil
 }
 
-func (h handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
 	var product models.Product
 
 	reqBody := ctx.Request().Body
@@ -68,15 +69,17 @@ func (h handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
 	}
 
 	resData := &struct {
-		Product *models.Product `json:"product"`
+		Product    *models.Product `json:"product"`
+		StatusCode int             `json:"statusCode"`
 	}{
-		Product: pr,
+		Product:    pr,
+		StatusCode: http.StatusCreated,
 	}
 
 	return resData, nil
 }
 
-func (h handler) UpdateProductHandler(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) UpdateProductHandler(ctx *gofr.Context) (interface{}, error) {
 	var product models.Product
 
 	reqBody := ctx.Request().Body
@@ -88,7 +91,7 @@ func (h handler) UpdateProductHandler(ctx *gofr.Context) (interface{}, error) {
 
 	id := ctx.PathParam("id")
 
-	pr, err := h.srv.UpdateById(ctx, id, product)
+	pr, err := h.srv.UpdateByID(ctx, id, product)
 	if err != nil {
 		return nil, err
 	}
@@ -102,18 +105,20 @@ func (h handler) UpdateProductHandler(ctx *gofr.Context) (interface{}, error) {
 	return resData, nil
 }
 
-func (h handler) DeleteProductHandler(ctx *gofr.Context) (interface{}, error) {
+func (h Handler) DeleteProductHandler(ctx *gofr.Context) (interface{}, error) {
 	id := ctx.PathParam("id")
 
-	err := h.srv.DeleteById(ctx, id)
+	err := h.srv.DeleteByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	resData := &struct {
-		Message string `json:"message"`
+		Message    string `json:"message"`
+		StatusCode int    `json:"statusCode"`
 	}{
-		Message: "Product deleted successfully",
+		Message:    "Product deleted successfully",
+		StatusCode: http.StatusCreated,
 	}
 
 	return resData, nil

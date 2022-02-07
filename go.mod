@@ -4,10 +4,8 @@ go 1.17
 
 require (
 	developer.zopsmart.com/go/gofr v0.0.0-20220128104102-2e46a3994349
-	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/golang/mock v1.6.0
 	github.com/stretchr/testify v1.7.0
-	gorm.io/gorm v1.22.4
 )
 
 require (
@@ -79,7 +77,6 @@ require (
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.2 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
-	github.com/jinzhu/gorm v1.9.16 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -142,4 +139,5 @@ require (
 	gorm.io/driver/postgres v1.2.3 // indirect
 	gorm.io/driver/sqlite v1.2.6 // indirect
 	gorm.io/driver/sqlserver v1.2.1 // indirect
+	gorm.io/gorm v1.22.4 // indirect
 )

@@ -16,10 +16,10 @@ func New() store.Product {
 	return product{}
 }
 
-func (p product) GetById(ctx *gofr.Context, id int) (*models.Product, error) {
+func (p product) GetByID(ctx *gofr.Context, id int) (*models.Product, error) {
 	var product models.Product
 
-	err := ctx.DB().QueryRowContext(ctx, "SELECT * FROM products WHERE id = ?", id).Scan(&product.Id, &product.Name, &product.Category)
+	err := ctx.DB().QueryRowContext(ctx, "SELECT * FROM products WHERE id = ?", id).Scan(&product.ID, &product.Name, &product.Category)
 	if err == sql.ErrNoRows {
 		return nil, errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(id)}
 	}
@@ -28,14 +28,14 @@ func (p product) GetById(ctx *gofr.Context, id int) (*models.Product, error) {
 }
 
 func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
-
 	var products []*models.Product
 
 	rows, _ := ctx.DB().QueryContext(ctx, "SELECT * FROM products")
 
 	for rows.Next() {
 		var pr models.Product
-		err := rows.Scan(&pr.Id, &pr.Name, &pr.Category)
+		err := rows.Scan(&pr.ID, &pr.Name, &pr.Category)
+
 		if err != nil {
 			return nil, errors.EntityNotFound{Entity: "product"}
 		}
@@ -47,7 +47,7 @@ func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 }
 
 func (p product) Create(ctx *gofr.Context, pr models.Product) error {
-	_, err := ctx.DB().ExecContext(ctx, "INSERT INTO products(id, name, category) values(?, ?, ?)", pr.Id, pr.Name, pr.Category)
+	_, err := ctx.DB().ExecContext(ctx, "INSERT INTO products(id, name, category) values(?, ?, ?)", pr.ID, pr.Name, pr.Category)
 	if err != nil {
 		return errors.Error("Connection lost")
 	}
@@ -55,8 +55,7 @@ func (p product) Create(ctx *gofr.Context, pr models.Product) error {
 	return nil
 }
 
-func (p product) UpdateById(ctx *gofr.Context, id int, pr models.Product) error {
-
+func (p product) UpdateByID(ctx *gofr.Context, id int, pr models.Product) error {
 	query := "UPDATE products SET"
 
 	fields, args := formUpdateQuery(pr)
@@ -73,8 +72,7 @@ func (p product) UpdateById(ctx *gofr.Context, id int, pr models.Product) error 
 	return nil
 }
 
-func (p product) DeleteById(ctx *gofr.Context, id int) error {
-
+func (p product) DeleteByID(ctx *gofr.Context, id int) error {
 	result, _ := ctx.DB().ExecContext(ctx, "DELETE FROM products WHERE id = ?", id)
 
 	r, _ := result.RowsAffected()

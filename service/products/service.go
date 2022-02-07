@@ -21,17 +21,17 @@ func New(s store.Product) service.Product {
 	}
 }
 
-func (srv *Service) GetById(ctx *gofr.Context, id string) (*models.Product, error) {
-	convId, err := strconv.Atoi(id)
+func (srv *Service) GetByID(ctx *gofr.Context, id string) (*models.Product, error) {
+	convID, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, errors.EntityNotFound{Entity: "products", ID: id}
 	}
 
-	if convId < 0 {
+	if convID < 0 {
 		return nil, errors.EntityNotFound{Entity: "products", ID: id}
 	}
 
-	product, err := srv.store.GetById(ctx, convId)
+	product, err := srv.store.GetByID(ctx, convID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,65 +54,69 @@ func (srv *Service) Create(ctx *gofr.Context, pr models.Product) (*models.Produc
 		return nil, errors.Error("Need Product data to create new product")
 	}
 
-	err := srv.store.Create(ctx, pr)
+	_, err := srv.store.GetByID(ctx, pr.ID)
+	if err == nil {
+		return nil, errors.InvalidParam{Param: []string{"id"}}
+	}
+
+	err = srv.store.Create(ctx, pr)
 	if err != nil {
 		return nil, err
 	}
 
 	// Fetch created product
-	product, _ := srv.store.GetById(ctx, pr.Id)
+	product, _ := srv.store.GetByID(ctx, pr.ID)
 
 	return product, nil
 }
 
-func (srv *Service) UpdateById(ctx *gofr.Context, id string, pr models.Product) (*models.Product, error) {
-
-	convId, err := strconv.Atoi(id)
+func (srv *Service) UpdateByID(ctx *gofr.Context, id string, pr models.Product) (*models.Product, error) {
+	convID, err := strconv.Atoi(id)
 	// Id must be a number
 	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
 
 	// Id must be greater than 0
-	if convId < 0 {
+	if convID < 0 {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
 
 	// Checking whether product is exist or not
-	_, err = srv.store.GetById(ctx, convId)
+	_, err = srv.store.GetByID(ctx, convID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = srv.store.UpdateById(ctx, convId, pr)
+	err = srv.store.UpdateByID(ctx, convID, pr)
 	if err != nil {
 		return nil, err
 	}
 
-	p, _ := srv.store.GetById(ctx, convId)
+	p, _ := srv.store.GetByID(ctx, convID)
 
 	return p, nil
 }
 
-func (srv *Service) DeleteById(ctx *gofr.Context, id string) error {
-	convId, err := strconv.Atoi(id)
+func (srv *Service) DeleteByID(ctx *gofr.Context, id string) error {
+	convID, err := strconv.Atoi(id)
 	// Id must be a number
 	if err != nil {
 		return errors.InvalidParam{Param: []string{"id"}}
 	}
 
 	// Id must be greater than 0
-	if convId < 0 {
+	if convID < 0 {
 		return errors.InvalidParam{Param: []string{"id"}}
 	}
 
 	// Checking whether product is exist or not
-	_, err = srv.store.GetById(ctx, convId)
+	_, err = srv.store.GetByID(ctx, convID)
 	if err != nil {
 		return err
 	}
 
-	err = srv.store.DeleteById(ctx, convId)
+	err = srv.store.DeleteByID(ctx, convID)
 	if err != nil {
 		return err
 	}

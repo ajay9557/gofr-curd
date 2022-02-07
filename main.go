@@ -16,11 +16,11 @@ func main() {
 	srv := productService.New(st)
 	h := productHandler.New(srv)
 
-	app.GET("/products/{id}", h.GetByIdHandler)
+	app.GET("/products/{id}", h.GetByIDHandler)
 	app.GET("/products", h.GetHandler)
 	app.POST("/products", h.CreateProductHandler)
 	app.PUT("/products/{id}", h.UpdateProductHandler)
-	app.DELETE("products/{id}", h.DeleteProductHandler)
+	app.DELETE("/products/{id}", h.DeleteProductHandler)
 
 	app.Server.HTTP.Port = 5000
 	app.Server.ValidateHeaders = false

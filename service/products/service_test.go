@@ -23,7 +23,7 @@ func TestGetById(t *testing.T) {
 	productService := New(mockProductStore)
 
 	product := models.Product{
-		Id:       1,
+		ID:       1,
 		Name:     "mouse",
 		Category: "electronics",
 	}
@@ -43,7 +43,7 @@ func TestGetById(t *testing.T) {
 			id:            "1",
 			expected:      &product,
 			expectedError: nil,
-			mockCall:      mockProductStore.EXPECT().GetById(ctx, 1).Return(&product, nil),
+			mockCall:      mockProductStore.EXPECT().GetByID(ctx, 1).Return(&product, nil),
 		},
 		{
 			desc:          "Case2",
@@ -64,16 +64,18 @@ func TestGetById(t *testing.T) {
 			id:            "1",
 			expected:      nil,
 			expectedError: errors.EntityNotFound{Entity: "products"},
-			mockCall:      mockProductStore.EXPECT().GetById(ctx, 1).Return(nil, errors.EntityNotFound{Entity: "products"}),
+			mockCall:      mockProductStore.EXPECT().GetByID(ctx, 1).Return(nil, errors.EntityNotFound{Entity: "products"}),
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
 
-			p, err := productService.GetById(ctx, tc.id)
+			p, err := productService.GetByID(ctx, tc.id)
 
 			if tc.expectedError != err {
 				t.Errorf("Expected: %v, Got: %v", tc.expectedError, err)
@@ -100,7 +102,7 @@ func TestGet(t *testing.T) {
 
 	products := []*models.Product{
 		{
-			Id:       1,
+			ID:       1,
 			Name:     "mouse",
 			Category: "electronics",
 		},
@@ -116,7 +118,7 @@ func TestGet(t *testing.T) {
 			desc: "Fetching all products",
 			expected: []*models.Product{
 				{
-					Id:       1,
+					ID:       1,
 					Name:     "mouse",
 					Category: "electronics",
 				},
@@ -132,7 +134,9 @@ func TestGet(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
@@ -165,7 +169,7 @@ func TestCreate(t *testing.T) {
 
 	// Test Inputs
 	input1 := models.Product{
-		Id:       1,
+		ID:       1,
 		Name:     "mouse",
 		Category: "gaming",
 	}
@@ -184,7 +188,7 @@ func TestCreate(t *testing.T) {
 			expectedError: nil,
 			mockCall: []*gomock.Call{
 				mockStore.EXPECT().Create(ctx, input1).Return(nil),
-				mockStore.EXPECT().GetById(ctx, 1).Return(&input1, nil),
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, nil),
 			},
 		},
 		{
@@ -205,7 +209,9 @@ func TestCreate(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
 			pr, err := productService.Create(ctx, tc.input)
 
@@ -235,7 +241,7 @@ func TestUpdateById(t *testing.T) {
 
 	// Test inputs
 	input1 := models.Product{
-		Id:       1,
+		ID:       1,
 		Name:     "monitor",
 		Category: "gaming",
 	}
@@ -255,9 +261,9 @@ func TestUpdateById(t *testing.T) {
 			expected:      &input1,
 			expectedError: nil,
 			mockCall: []*gomock.Call{
-				mockStore.EXPECT().GetById(ctx, 1).Return(&input1, nil),
-				mockStore.EXPECT().UpdateById(ctx, 1, input1).Return(nil),
-				mockStore.EXPECT().GetById(ctx, 1).Return(&input1, nil),
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, nil),
+				mockStore.EXPECT().UpdateByID(ctx, 1, input1).Return(nil),
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, nil),
 			},
 		},
 		{
@@ -283,7 +289,7 @@ func TestUpdateById(t *testing.T) {
 			expected:      nil,
 			expectedError: errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(100)},
 			mockCall: []*gomock.Call{
-				mockStore.EXPECT().GetById(ctx, 100).Return(nil, errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(100)}),
+				mockStore.EXPECT().GetByID(ctx, 100).Return(nil, errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(100)}),
 			},
 		},
 		{
@@ -293,15 +299,17 @@ func TestUpdateById(t *testing.T) {
 			expected:      nil,
 			expectedError: errors.Error("Connection lost"),
 			mockCall: []*gomock.Call{
-				mockStore.EXPECT().GetById(ctx, 1).Return(&input1, nil),
-				mockStore.EXPECT().UpdateById(ctx, 1, input1).Return(errors.Error("Connection lost")),
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, nil),
+				mockStore.EXPECT().UpdateByID(ctx, 1, input1).Return(errors.Error("Connection lost")),
 			},
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
-			pr, err := productService.UpdateById(ctx, tc.id, input1)
+			pr, err := productService.UpdateByID(ctx, tc.id, input1)
 
 			if !reflect.DeepEqual(tc.expectedError, err) {
 				t.Errorf("Expected: %v, Got: %v", tc.expectedError, err)
@@ -328,7 +336,7 @@ func TestDeleteById(t *testing.T) {
 	ctx.Context = context.Background()
 
 	input1 := models.Product{
-		Id:       1,
+		ID:       1,
 		Name:     "monitor",
 		Category: "gaming",
 	}
@@ -344,8 +352,8 @@ func TestDeleteById(t *testing.T) {
 			id:            "1",
 			expectedError: nil,
 			mockCall: []*gomock.Call{
-				mockStore.EXPECT().GetById(ctx, 1).Return(&input1, nil),
-				mockStore.EXPECT().DeleteById(ctx, 1).Return(nil),
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, nil),
+				mockStore.EXPECT().DeleteByID(ctx, 1).Return(nil),
 			},
 		},
 		{
@@ -365,7 +373,7 @@ func TestDeleteById(t *testing.T) {
 			id:            "100",
 			expectedError: errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(100)},
 			mockCall: []*gomock.Call{
-				mockStore.EXPECT().GetById(ctx, 100).Return(nil, errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(100)}),
+				mockStore.EXPECT().GetByID(ctx, 100).Return(nil, errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(100)}),
 			},
 		},
 		{
@@ -373,15 +381,17 @@ func TestDeleteById(t *testing.T) {
 			id:            "1",
 			expectedError: errors.Error("Connection lost"),
 			mockCall: []*gomock.Call{
-				mockStore.EXPECT().GetById(ctx, 1).Return(&input1, nil),
-				mockStore.EXPECT().DeleteById(ctx, 1).Return(errors.Error("Connection lost")),
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, nil),
+				mockStore.EXPECT().DeleteByID(ctx, 1).Return(errors.Error("Connection lost")),
 			},
 		},
 	}
 
-	for _, tc := range tests {
+	for _, test := range tests {
+		tc := test
+
 		t.Run(tc.desc, func(t *testing.T) {
-			err := productService.DeleteById(ctx, tc.id)
+			err := productService.DeleteByID(ctx, tc.id)
 
 			if !reflect.DeepEqual(tc.expectedError, err) {
 				t.Errorf("Expected: %v, Got: %v", tc.expectedError, err)
