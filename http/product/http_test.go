@@ -3,7 +3,6 @@ package product
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"net/http/httptest"
 	"reflect"
 
@@ -115,14 +114,16 @@ func TestCreateProductHandler(t *testing.T) {
 	tests := []struct {
 		desc string
 		// id          string
-		expected    *models.Product
-		input       models.Product
+		expected *models.Product
+		// input       models.Product
+		input       []byte
 		expectedErr error
 		mockCall    *gomock.Call
 	}{
 		{
-			desc:        "Case1",
-			input:       models.Product{Name: "milton", Type: "Water Bottle"},
+			desc: "Case1",
+			// input:       models.Product{Name: "milton", Type: "Water Bottle"},
+			input:       []byte(`{"name":"milton","type":"Water Bottle"}`),
 			expected:    &models.Product{Id: 2, Name: "milton", Type: "Water Bottle"},
 			expectedErr: nil,
 			mockCall:    mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Name: "milton", Type: "Water Bottle"}).Return(&models.Product{Id: 2, Name: "milton", Type: "Water Bottle"}, nil),
@@ -130,45 +131,60 @@ func TestCreateProductHandler(t *testing.T) {
 			// mockCall: mockUserStore.EXPECT().CreateProduct(ctx, models.Product{Name: "milton", Type: "Water Bottle"}).Return( /*&models.Product{}*/ 2, nil),
 		},
 		{
-			desc:        "Case2",
-			input:       models.Product{Name: "", Type: ""},
+			desc: "Case2",
+			// input:       models.Product{Name: "", Type: ""},
+			input:       []byte(`{"name":"","type":""}`),
 			expected:    &models.Product{},
 			expectedErr: errors.Error("Given Empty data"),
 			// mockCall:    nil,
 			mockCall: mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Name: "", Type: ""}).Return(&models.Product{}, errors.Error("Given Empty data")),
 		},
 		{
-			desc:        "Case3",
-			input:       models.Product{Id: 2, Name: "", Type: "Water Bottle"},
+			desc: "Case3",
+			// input:       models.Product{Id: 2, Name: "", Type: "Water Bottle"},
+			input:       []byte(`{"name":"","type":"Water Bottle"}`),
 			expected:    &models.Product{},
 			expectedErr: errors.Error("Please provide Data for Name"),
-			mockCall:    mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Id: 2, Name: "", Type: "Water Bottle"}).Return(&models.Product{}, errors.Error("Please provide Data for Name")),
+			mockCall:    mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Name: "", Type: "Water Bottle"}).Return(&models.Product{}, errors.Error("Please provide Data for Name")),
 			// mockCall: nil,
 		},
 		{
-			desc:        "Case4",
-			input:       models.Product{Id: 2, Name: "milton", Type: ""},
+			desc: "Case4",
+			// input:       models.Product{Id: 2, Name: "milton", Type: ""},
+			input:       []byte(`{"name":"milton","type":""}`),
 			expected:    &models.Product{},
 			expectedErr: errors.Error("Please provide Data for Type"),
-			mockCall:    mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Id: 2, Name: "milton", Type: ""}).Return(&models.Product{}, errors.Error("Please provide Data for Type")),
+			mockCall:    mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Name: "milton", Type: ""}).Return(&models.Product{}, errors.Error("Please provide Data for Type")),
 			// mockCall: nil,
 		},
 
 		{
-			desc:        "Case5",
-			input:       models.Product{Id: 2, Name: "milton", Type: "Water Bottle"},
+			desc: "Case5",
+			// input:       models.Product{Id: 2, Name: "milton", Type: "Water Bottle"},
+			input:       []byte(`{"name":"milton","type":"Water Bottle"}`),
 			expected:    &models.Product{},
 			expectedErr: errors.Error("Couldn't execute query"),
-			mockCall:    mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Id: 2, Name: "milton", Type: "Water Bottle"}).Return(&models.Product{}, errors.Error("Couldn't execute query")),
+			mockCall:    mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Name: "milton", Type: "Water Bottle"}).Return(&models.Product{}, errors.Error("Couldn't execute query")),
+		},
+		{
+			desc: "Case6",
+			// input:       models.Product{Id: 2, Name: "milton", Type: "Water Bottle"},
+			input:       []byte(`{"Some unchangable data"}`),
+			expected:    &models.Product{},
+			expectedErr: errors.InvalidParam{Param: []string{"body"}},
+			mockCall:    nil,
+			// mockCall:    mockUserService.EXPECT().CreateProduct(gomock.Any(), models.Product{Name: "milton", Type: "Water Bottle"}).Return(&models.Product{}, errors.Error("Couldn't execute query")),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
 
-			file, _ := json.Marshal(test.input)
+			// file, _ := json.Marshal(test.input)
 
-			r := httptest.NewRequest( /*http.MethodGet*/ "CREATE", "/products", bytes.NewReader(file))
+			// r := httptest.NewRequest( /*http.MethodGet*/ "CREATE", "/products", bytes.NewReader(file))
+			r := httptest.NewRequest( /*http.MethodGet*/ "CREATE", "/products", bytes.NewReader(test.input))
+
 			w := httptest.NewRecorder()
 
 			req := request.NewHTTPRequest(r)
@@ -348,17 +364,19 @@ func TestUpdateByIdHandler(t *testing.T) {
 	ctx.Context = context.Background()
 
 	tests := []struct {
-		desc        string
-		id          string
-		input       models.Product
+		desc string
+		id   string
+		// input       models.Product
+		input       []byte
 		expected    *models.Product
 		expectedErr error
 		mockCall    *gomock.Call
 	}{
 		{
-			desc:        "Case1",
-			id:          "2",
-			input:       models.Product{Name: "miltonn", Type: "Water Bottlee"},
+			desc: "Case1",
+			id:   "2",
+			// input:       models.Product{Name: "miltonn", Type: "Water Bottlee"},
+			input:       []byte(`{"name":"miltonn","type":"Water Bottlee"}`),
 			expected:    &models.Product{Id: 2, Name: "miltonn", Type: "Water Bottlee"},
 			expectedErr: nil,
 			mockCall:    mockUserService.EXPECT().UpdateById(gomock.Any(), "2", models.Product{Name: "miltonn", Type: "Water Bottlee"}).Return(&models.Product{Id: 2, Name: "miltonn", Type: "Water Bottlee"}, nil),
@@ -366,18 +384,20 @@ func TestUpdateByIdHandler(t *testing.T) {
 
 		},
 		{
-			desc:     "Case2",
-			id:       "100",
-			input:    models.Product{Name: "milton", Type: "Water Bottle"},
+			desc: "Case2",
+			id:   "100",
+			// input:    models.Product{Name: "milton", Type: "Water Bottle"},
+			input:    []byte(`{"name":"milton","type":"Water Bottle"}`),
 			expected: &models.Product{},
 			expectedErr:/* errors.EntityNotFound{Entity: "products", ID: "100"}*/ errors.Error("Couldn't execute query"),
 			mockCall: mockUserService.EXPECT().UpdateById(gomock.Any(), "100", models.Product{Name: "milton", Type: "Water Bottle"}).Return(&models.Product{}, errors.Error("Couldn't execute query")),
 		},
 
 		{
-			desc:        "Case3",
-			id:          "anusri",
-			input:       models.Product{Name: "milton", Type: "Water Bottle"},
+			desc: "Case3",
+			id:   "anusri",
+			// input:       models.Product{Name: "milton", Type: "Water Bottle"},
+			input:       []byte(`{"name":"milton","type":"Water Bottle"}`),
 			expected:    &models.Product{},
 			expectedErr: errors.MissingParam{Param: []string{"anusri"}},
 			// mockCall:    nil,
@@ -385,9 +405,10 @@ func TestUpdateByIdHandler(t *testing.T) {
 		},
 
 		{
-			desc:        "Case4",
-			id:          "-100",
-			input:       models.Product{Name: "milton", Type: "Water Bottle"},
+			desc: "Case4",
+			id:   "-100",
+			// input:       models.Product{Name: "milton", Type: "Water Bottle"},
+			input:       []byte(`{"name":"milton","type":"Water Bottle"}`),
 			expected:    &models.Product{},
 			expectedErr: errors.InvalidParam{Param: []string{"-100"}},
 			// mockCall:    nil,
@@ -395,37 +416,45 @@ func TestUpdateByIdHandler(t *testing.T) {
 		},
 		{
 			desc:        "Case5",
-			id:          "4",
-			input:       models.Product{Name: "", Type: ""},
+			id:          "2",
+			input:       []byte(`{"Some unchangable data"}`),
 			expected:    &models.Product{},
-			expectedErr: errors.Error("Given Empty data"),
-			mockCall:    mockUserService.EXPECT().UpdateById(gomock.Any(), "4", models.Product{Name: "", Type: ""}).Return(&models.Product{}, errors.Error("Given Empty data")),
-			// mockCall:    mockUserStore.EXPECT().GetAllProducts(ctx).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
+			expectedErr: errors.InvalidParam{Param: []string{"body"}},
+			mockCall:    nil,
 		},
-		{
-			desc:        "Case6",
-			id:          "4",
-			input:       models.Product{Name: "", Type: "Water Bottlee"},
-			expected:    &models.Product{},
-			expectedErr: errors.Error("Please provide Data for Name"),
-			// mockCall:    mockUserStore.EXPECT().GetAllProducts(ctx).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
-			mockCall: mockUserService.EXPECT().UpdateById(gomock.Any(), "4", models.Product{Name: "", Type: "Water Bottlee"}).Return(&models.Product{}, errors.Error("Please provide Data for Name")),
-		},
-		{
-			desc:        "Case7",
-			id:          "4",
-			input:       models.Product{Name: "miltonn", Type: ""},
-			expected:    &models.Product{},
-			expectedErr: errors.Error("Please provide Data for Type"),
-			// mockCall:    mockUserStore.EXPECT().GetAllProducts(ctx).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
-			mockCall: mockUserService.EXPECT().UpdateById(gomock.Any(), "4", models.Product{Name: "miltonn", Type: ""}).Return(&models.Product{}, errors.Error("Please provide Data for Type")),
-		},
+		// {
+		// 	desc:        "Case5",
+		// 	id:          "4",
+		// 	input:       models.Product{Name: "", Type: ""},
+		// 	expected:    &models.Product{},
+		// 	expectedErr: errors.Error("Given Empty data"),
+		// 	mockCall:    mockUserService.EXPECT().UpdateById(gomock.Any(), "4", models.Product{Name: "", Type: ""}).Return(&models.Product{}, errors.Error("Given Empty data")),
+		// 	// mockCall:    mockUserStore.EXPECT().GetAllProducts(ctx).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
+		// },
+		// {
+		// 	desc:        "Case6",
+		// 	id:          "4",
+		// 	input:       models.Product{Name: "", Type: "Water Bottlee"},
+		// 	expected:    &models.Product{},
+		// 	expectedErr: errors.Error("Please provide Data for Name"),
+		// 	// mockCall:    mockUserStore.EXPECT().GetAllProducts(ctx).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
+		// 	mockCall: mockUserService.EXPECT().UpdateById(gomock.Any(), "4", models.Product{Name: "", Type: "Water Bottlee"}).Return(&models.Product{}, errors.Error("Please provide Data for Name")),
+		// },
+		// {
+		// 	desc:        "Case7",
+		// 	id:          "4",
+		// 	input:       models.Product{Name: "miltonn", Type: ""},
+		// 	expected:    &models.Product{},
+		// 	expectedErr: errors.Error("Please provide Data for Type"),
+		// 	// mockCall:    mockUserStore.EXPECT().GetAllProducts(ctx).Return( /*&models.Product{}*/ []*models.Product{}, errors.EntityNotFound{Entity: "products"}),
+		// 	mockCall: mockUserService.EXPECT().UpdateById(gomock.Any(), "4", models.Product{Name: "miltonn", Type: ""}).Return(&models.Product{}, errors.Error("Please provide Data for Type")),
+		// },
 	}
 
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
-			file, _ := json.Marshal(test.input)
-			r := httptest.NewRequest( /*http.MethodGet*/ "UPDATE", "/products/{id}", bytes.NewReader(file))
+			// file, _ := json.Marshal(test.input)
+			r := httptest.NewRequest( /*http.MethodGet*/ "UPDATE", "/products/{id}", bytes.NewReader(test.input))
 			w := httptest.NewRecorder()
 
 			req := request.NewHTTPRequest(r)

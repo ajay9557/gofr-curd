@@ -64,7 +64,8 @@ func (h Handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
 	// 	return prd, err
 	// }
 
-	if err := ctx.Bind(&prd); err != nil {
+	err := ctx.Bind(&prd)
+	if err != nil {
 		fmt.Print("Anusri")
 		ctx.Logger.Errorf("error in binding: %v", err)
 		return nil, errors.InvalidParam{Param: []string{"body"}}
@@ -106,11 +107,11 @@ func (h Handler) UpdateByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	param := ctx.PathParam("id")
 
 	var prd models.Product
-	if err := ctx.Bind(&prd); err != nil {
+	err := ctx.Bind(&prd)
+	if err != nil {
 		fmt.Print("Anusri")
 		ctx.Logger.Errorf("error in binding: %v", err)
 		return nil, errors.InvalidParam{Param: []string{"body"}}
-
 	}
 
 	p, err := h.Service.UpdateById(ctx, param, prd)

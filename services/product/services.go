@@ -105,16 +105,16 @@ func (srv *ProductService) UpdateById(ctx *gofr.Context, id string, prd models.P
 
 	// var prd1 *models.Product
 
-	if reflect.DeepEqual(models.Product{}, prd) {
-		return prd1, errors.Error("Given Empty data")
-	}
-	if prd.Name == "" {
-		return prd1, errors.Error("Please provide Data for Name")
-	}
+	// if reflect.DeepEqual(models.Product{}, prd) {
+	// 	return prd1, errors.Error("Given Empty data")
+	// }
+	// if prd.Name == "" {
+	// 	return prd1, errors.Error("Please provide Data for Name")
+	// }
 
-	if prd.Type == "" {
-		return prd1, errors.Error("Please provide Data for Type")
-	}
+	// if prd.Type == "" {
+	// 	return prd1, errors.Error("Please provide Data for Type")
+	// }
 
 	_, err = srv.storeInterface.UpdateById(ctx, convId, prd)
 	if err != nil {

@@ -38,10 +38,10 @@ func (p product) GetAllProducts(ctx *gofr.Context) ([]*models.Product, error) {
 	}
 	for rows.Next() {
 		var prd models.Product
-		err := rows.Scan(&prd.Id, &prd.Name, &prd.Type)
-		if err != nil {
-			return prds, errors.EntityNotFound{Entity: "Product"}
-		}
+		_ = rows.Scan(&prd.Id, &prd.Name, &prd.Type)
+		// if err != nil {
+		// 	return prds, errors.EntityNotFound{Entity: "Product"}
+		// }
 
 		prds = append(prds, &prd)
 	}
@@ -84,6 +84,9 @@ func (p product) UpdateById(ctx *gofr.Context, id int, prd models.Product) (int,
 	fields1 := fields[:len(fields)-1]
 	query1 := "update Product set" + fields1 + " where id = ?"
 	args = append(args, id)
+
+	// println(query1)
+	// fmt.Printf("%v", args)
 
 	// _, err := ctx.DB().Exec("update Product set name = ?,type = ? where id = ?", prd.Name, prd.Type, id)
 	res, err := ctx.DB().ExecContext(ctx, query1, args...)

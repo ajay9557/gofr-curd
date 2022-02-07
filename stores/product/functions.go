@@ -25,7 +25,7 @@ func formUpdateQuery(p models.Product) (fields string, args []interface{}) {
 	}
 
 	if p.Type != "" {
-		fields += "type= ?,"
+		fields += " type= ?,"
 		args = append(args, p.Type)
 	}
 
