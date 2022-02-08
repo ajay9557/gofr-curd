@@ -38,10 +38,14 @@ func TestGetById(t *testing.T) {
 					Type: "clothes",
 				}, nil),
 			},
-			expectedRes: models.Product{
-				ID:   1,
-				Name: "jeans",
-				Type: "clothes",
+			expectedRes: models.Response{
+				Product: models.Product{
+					ID:   1,
+					Name: "jeans",
+					Type: "clothes",
+				},
+				Message:    "product obtained successfully",
+				StatusCode: 200,
 			},
 			expectedErr: nil,
 		},
@@ -74,11 +78,11 @@ func TestGetById(t *testing.T) {
 	for _, test := range testGetCases {
 		ts := test
 		t.Run(ts.desc, func(t *testing.T) {
-			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/product", nil)
+			w := httptest.NewRecorder()
 
-			req := request.NewHTTPRequest(r)
 			res := responder.NewContextualResponder(w, r)
+			req := request.NewHTTPRequest(r)
 
 			ctx := gofr.NewContext(res, req, app)
 			ctx.SetPathParams(map[string]string{
@@ -117,12 +121,16 @@ func TestGetAllProductDetails(t *testing.T) {
 					},
 				}, nil),
 			},
-			expectedRes: []models.Product{
-				{
-					ID:   1,
-					Name: "jeans",
-					Type: "clothes",
+			expectedRes: models.Response{
+				Product: []models.Product{
+					{
+						ID:   1,
+						Name: "jeans",
+						Type: "clothes",
+					},
 				},
+				Message:    "Products obtained successfully",
+				StatusCode: 200,
 			},
 			expectedErr: nil,
 		},
@@ -147,11 +155,11 @@ func TestGetAllProductDetails(t *testing.T) {
 
 			ctx := gofr.NewContext(res, req, app)
 			resp, err := mockHandler.GetAllProductDetails(ctx)
-			if !reflect.DeepEqual(ts.expectedRes, resp) {
-				t.Error("expected ", ts.expectedRes, "obtained", resp)
-			}
 			if !reflect.DeepEqual(ts.expectedErr, err) {
 				t.Error("expected ", ts.expectedErr, "obtained", err)
+			}
+			if !reflect.DeepEqual(ts.expectedRes, resp) {
+				t.Error("expected ", ts.expectedErr, "obtained", resp)
 			}
 		})
 	}
@@ -181,10 +189,14 @@ func TestInsertProduct(t *testing.T) {
 				mockService.EXPECT().InsertProductDetails(gomock.Any(), gomock.Any()).Return(nil),
 			},
 			expectedErr: nil,
-			expectedRes: models.Product{
-				ID:   1,
-				Name: "jeans",
-				Type: "clothes",
+			expectedRes: models.Response{
+				Product: models.Product{
+					ID:   1,
+					Name: "jeans",
+					Type: "clothes",
+				},
+				Message:    "product inserted successfully",
+				StatusCode: 200,
 			},
 		},
 		{
@@ -226,11 +238,11 @@ func TestInsertProduct(t *testing.T) {
 
 			ctx := gofr.NewContext(res, req, app)
 			resp, err := mockHandler.InsertProduct(ctx)
-			if !reflect.DeepEqual(ts.expectedRes, resp) {
-				t.Error("expected ", ts.expectedRes, "obtained", resp)
-			}
 			if !reflect.DeepEqual(ts.expectedErr, err) {
 				t.Error("expected ", ts.expectedErr, "obtained", err)
+			}
+			if !reflect.DeepEqual(ts.expectedRes, resp) {
+				t.Error("expected ", ts.expectedErr, "obtained", resp)
 			}
 		})
 	}
@@ -259,10 +271,14 @@ func TestUpdateProductById(t *testing.T) {
 			mock: []*gomock.Call{
 				mockService.EXPECT().UpdateProductDetails(gomock.Any(), gomock.Any()).Return(nil),
 			},
-			expectedRes: models.Product{
-				ID:   1,
-				Name: "jeans",
-				Type: "clothes",
+			expectedRes: models.Response{
+				Product: models.Product{
+					ID:   1,
+					Name: "jeans",
+					Type: "clothes",
+				},
+				Message:    "product updated successfully",
+				StatusCode: 200,
 			},
 			expectedErr: nil,
 		},
@@ -302,13 +318,10 @@ func TestUpdateProductById(t *testing.T) {
 			res := responder.NewContextualResponder(w, r)
 			req := request.NewHTTPRequest(r)
 			ctx := gofr.NewContext(res, req, app)
-			resp, err := mockHandler.UpdateProductByID(ctx)
+			_, err := mockHandler.UpdateProductByID(ctx)
 
 			if !reflect.DeepEqual(ts.expectedErr, err) {
 				t.Error("expected ", ts.expectedErr, "obtained", err)
-			}
-			if !reflect.DeepEqual(ts.expectedRes, resp) {
-				t.Error("expected ", ts.expectedRes, "obtained", resp)
 			}
 		})
 	}
