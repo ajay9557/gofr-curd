@@ -1,7 +1,6 @@
 package products
 
 import (
-	"database/sql"
 	"fmt"
 	"gofr-curd/models"
 	"gofr-curd/stores"
@@ -21,7 +20,7 @@ func (p *ProductStorer) GetID(ctx *gofr.Context, id int) (models.Product, error)
 	var product models.Product
 	err := ctx.DB().QueryRowContext(ctx, "Select ID,Name,Type from Product where Id =?", id).Scan(&product.ID, &product.Name, &product.Type)
 
-	if err == sql.ErrNoRows {
+	if err != nil {
 		return product, errors.EntityNotFound{Entity: "Product", ID: fmt.Sprint(id)}
 	}
 
@@ -73,7 +72,7 @@ func (p *ProductStorer) GetAll(ctx *gofr.Context) ([]models.Product, error) {
 		err := rows.Scan(&product.ID, &product.Name, &product.Type)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Error("Error in scanning the attributes")
 		}
 
 		products = append(products, product)
