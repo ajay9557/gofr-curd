@@ -3,16 +3,17 @@ package product
 import (
 	"context"
 	"database/sql"
-	"developer.zopsmart.com/go/gofr/pkg/errors"
-	"developer.zopsmart.com/go/gofr/pkg/gofr"
 	"fmt"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/himanshu-kumar-zs/gofr-curd/models"
 	"reflect"
 	"testing"
+
+	"developer.zopsmart.com/go/gofr/pkg/errors"
+	"developer.zopsmart.com/go/gofr/pkg/gofr"
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/himanshu-kumar-zs/gofr-curd/models"
 )
 
-//func TestCoreLayer(t *testing.T) {
+// func TestCoreLayer(t *testing.T) {
 //	app := gofr.New()
 //	db, mock, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 //	//database, err := gorm.Open("mysql", db)
@@ -76,6 +77,7 @@ func TestProductStore_GetByID(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.exp, out)
 		}
@@ -99,7 +101,8 @@ func TestProductStore_GetAll(t *testing.T) {
 					ID:   1,
 					Name: "pavilion",
 					Type: "laptop",
-				}, &models.Product{
+				},
+				&models.Product{
 					ID:   2,
 					Name: "testName",
 					Type: "testType",
@@ -134,6 +137,7 @@ func TestProductStore_GetAll(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if err == nil && !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.exp, out)
 		}
@@ -242,6 +246,7 @@ func TestProductStore_Create(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if err == nil && !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.exp, out)
 		}

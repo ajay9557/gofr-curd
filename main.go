@@ -9,14 +9,14 @@ import (
 
 func main() {
 	app := gofr.New()
-	store := store.New()
-	serv := service.New(store)
-	handler := handler.New(serv)
-	app.GET("/product/{id}", handler.GetByID)
-	app.GET("/products", handler.GetAll)
-	app.PUT("/product/{id}", handler.Update)
-	app.POST("/product", handler.Create)
-	app.DELETE("/product/{id}", handler.Delete)
+	productStore := store.New()
+	serv := service.New(productStore)
+	h := handler.New(serv)
+	app.GET("/product/{id}", h.GetByID)
+	app.GET("/products", h.GetAll)
+	app.PUT("/product/{id}", h.Update)
+	app.POST("/product", h.Create)
+	app.DELETE("/product/{id}", h.Delete)
 	app.Server.HTTP.Port = 3000
 	app.Server.ValidateHeaders = false
 	app.Start()

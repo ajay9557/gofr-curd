@@ -1,13 +1,14 @@
 package product
 
 import (
+	"reflect"
+	"testing"
+
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 	"github.com/golang/mock/gomock"
 	"github.com/himanshu-kumar-zs/gofr-curd/models"
 	"github.com/himanshu-kumar-zs/gofr-curd/store"
-	"reflect"
-	"testing"
 )
 
 var prod = &models.Product{
@@ -41,9 +42,9 @@ func TestProductService_GetByID(t *testing.T) {
 			mockCall: []*gomock.Call{
 				mockStore.EXPECT().GetByID(gomock.Any(), 1).
 					Return(&models.Product{
-						1,
-						"legion",
-						"Laptop",
+						ID:   1,
+						Name: "legion",
+						Type: "Laptop",
 					}, nil),
 			},
 		},
@@ -65,7 +66,7 @@ func TestProductService_GetByID(t *testing.T) {
 			inp:  -1,
 			exp:  nil,
 			expErr: errors.InvalidParam{
-				[]string{"id"},
+				Param: []string{"id"},
 			},
 		},
 	}
@@ -77,10 +78,10 @@ func TestProductService_GetByID(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v , expected %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v , expected %v, got %v", tcs.desc, tcs.exp, out)
 		}
-
 	}
 }
 
@@ -131,7 +132,7 @@ func TestProductService_Update(t *testing.T) {
 			},
 			exp: nil,
 			expErr: errors.InvalidParam{
-				[]string{"id"},
+				Param: []string{"id"},
 			},
 		},
 		{
@@ -154,10 +155,10 @@ func TestProductService_Update(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v , expected %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v , expected %v, got %v", tcs.desc, tcs.exp, out)
 		}
-
 	}
 }
 
@@ -199,7 +200,7 @@ func TestProductService_Delete(t *testing.T) {
 			desc: "invalid id",
 			inp:  -1,
 			expErr: errors.InvalidParam{
-				[]string{"id"},
+				Param: []string{"id"},
 			},
 		},
 	}
@@ -251,7 +252,7 @@ func TestProductService_Create(t *testing.T) {
 				Name: "legion"},
 			exp: nil,
 			expErr: errors.MissingParam{
-				[]string{"type"},
+				Param: []string{"type"},
 			},
 		},
 	}
@@ -263,10 +264,10 @@ func TestProductService_Create(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v , expected %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v , expected %v, got %v", tcs.desc, tcs.exp, out)
 		}
-
 	}
 }
 
@@ -311,6 +312,7 @@ func TestGetAll(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v , expected %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if err == nil && !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v , expected %v, got %v", tcs.desc, tcs.exp, out)
 		}

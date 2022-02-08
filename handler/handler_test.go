@@ -2,19 +2,20 @@ package handler
 
 import (
 	"bytes"
-	"developer.zopsmart.com/go/gofr/pkg/errors"
-	"developer.zopsmart.com/go/gofr/pkg/gofr"
-	"developer.zopsmart.com/go/gofr/pkg/gofr/request"
-	"developer.zopsmart.com/go/gofr/pkg/gofr/responder"
 	"encoding/json"
 	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/himanshu-kumar-zs/gofr-curd/models"
-	"github.com/himanshu-kumar-zs/gofr-curd/services"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"developer.zopsmart.com/go/gofr/pkg/errors"
+	"developer.zopsmart.com/go/gofr/pkg/gofr"
+	"developer.zopsmart.com/go/gofr/pkg/gofr/request"
+	"developer.zopsmart.com/go/gofr/pkg/gofr/responder"
+	"github.com/golang/mock/gomock"
+	"github.com/himanshu-kumar-zs/gofr-curd/models"
+	"github.com/himanshu-kumar-zs/gofr-curd/services"
 )
 
 func TestHandler_GetByID(t *testing.T) {
@@ -34,17 +35,17 @@ func TestHandler_GetByID(t *testing.T) {
 			"id exists",
 			"1",
 			&models.Product{
-				1,
-				"abc",
-				"xyz",
+				ID:   1,
+				Name: "abc",
+				Type: "xyz",
 			},
 			nil,
 			[]*gomock.Call{
 				mockSrv.EXPECT().GetByID(gomock.Any(), 1).
 					Return(&models.Product{
-						1,
-						"abc",
-						"xyz",
+						ID:   1,
+						Name: "abc",
+						Type: "xyz",
 					}, nil),
 			},
 		},
@@ -60,7 +61,7 @@ func TestHandler_GetByID(t *testing.T) {
 			exp:    nil,
 			expErr: errors.InvalidParam{Param: []string{"id"}},
 		},
-		// no need to check id exists or not in handler it will be checked in service layer
+		// no need to check id exists or not in Handler it will be checked in service layer
 		{
 			desc:   "id does not exists",
 			inp:    "1002",
@@ -92,6 +93,7 @@ func TestHandler_GetByID(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected err %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if err == nil && !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.exp, out)
 		}
@@ -163,6 +165,7 @@ func TestHandler_Update(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected err %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if err == nil && !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.exp, out)
 		}
@@ -197,7 +200,7 @@ func TestHandler_Create(t *testing.T) {
 	for _, tcs := range testcases {
 		// make request and response
 		pr, _ := json.Marshal(tcs.body)
-		r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/product"), bytes.NewBuffer(pr))
+		r := httptest.NewRequest(http.MethodPost, "/product", bytes.NewBuffer(pr))
 		w := httptest.NewRecorder()
 
 		req := request.NewHTTPRequest(r)
@@ -210,6 +213,7 @@ func TestHandler_Create(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected err %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if err == nil && !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, tcs.exp, out)
 		}
@@ -268,6 +272,7 @@ func TestHandler_Delete(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected err %v, got %v", tcs.desc, tcs.expErr, err)
 		}
+
 		if err == nil && !reflect.DeepEqual(resp, "successfully deleted") {
 			t.Errorf("%v, expected %v, got %v", tcs.desc, "successfully deleted", resp.(string))
 		}
@@ -312,7 +317,7 @@ func TestHandler_GetAll(t *testing.T) {
 
 	for _, tcs := range testcases {
 		// make request and response
-		r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product"), nil)
+		r := httptest.NewRequest(http.MethodGet, "/product", nil)
 		w := httptest.NewRecorder()
 
 		req := request.NewHTTPRequest(r)
@@ -325,6 +330,7 @@ func TestHandler_GetAll(t *testing.T) {
 		if err == nil && !reflect.DeepEqual(out, tcs.exp) {
 			t.Errorf("%v, expected err %v, got %v", tcs.desc, tcs.exp, out)
 		}
+
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected err %v, got %v", tcs.desc, tcs.expErr, err)
 		}
