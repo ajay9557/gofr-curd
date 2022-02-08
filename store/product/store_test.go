@@ -3,12 +3,13 @@ package product
 import (
 	"context"
 	"database/sql"
-	"github.com/DATA-DOG/go-sqlmock"
 	"gofr-curd/models"
 	"gofr-curd/store"
 	"log"
 	"reflect"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
@@ -27,50 +28,6 @@ func setMock() (*gofr.Context, store.Store, sqlmock.Sqlmock, *sql.DB) {
 	s := New()
 
 	return ctx, s, mock, db
-}
-
-func TestCreate(t *testing.T) {
-	ctx, s, mock, db := setMock()
-	defer db.Close()
-
-	tesCases := []struct {
-		desc     string
-		input    models.Product
-		expErr   error
-		mockCall *sqlmock.ExpectedExec
-	}{
-		{
-			desc: "success case",
-			input: models.Product{
-				ID:   3,
-				Name: "this",
-				Type: "that",
-			},
-			expErr: nil,
-			mockCall: mock.ExpectExec("insert into products(id,name,type) values(?,?,?)").
-				WithArgs(3, "this", "that").WillReturnResult(sqlmock.NewResult(1, 1)),
-		},
-		{
-			desc: "error case",
-			input: models.Product{
-				ID:   3,
-				Name: "hello",
-				Type: "moto",
-			},
-			expErr: errors.EntityAlreadyExists{},
-			mockCall: mock.ExpectExec("insert into products(id,name,type) values(?,?,?)").
-				WithArgs(3, "hello", "moto").WillReturnError(errors.EntityAlreadyExists{}),
-		},
-	}
-
-	for _, test := range tesCases {
-		tc := test
-		err := s.Create(ctx, tc.input)
-		if !reflect.DeepEqual(err, tc.expErr) {
-			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
-		}
-	}
-
 }
 
 func TestGet(t *testing.T) {
@@ -183,18 +140,60 @@ func TestGetByID(t *testing.T) {
 	}
 }
 
-type testCase struct {
-	desc     string
-	input    models.Product
-	expErr   error
-	mockCall *sqlmock.ExpectedExec
+func TestCreate(t *testing.T) {
+	ctx, s, mock, db := setMock()
+	defer db.Close()
+
+	tesCases := []struct {
+		desc     string
+		input    models.Product
+		expErr   error
+		mockCall *sqlmock.ExpectedExec
+	}{
+		{
+			desc: "success case",
+			input: models.Product{
+				ID:   3,
+				Name: "this",
+				Type: "that",
+			},
+			expErr: nil,
+			mockCall: mock.ExpectExec("insert into products(id,name,type) values(?,?,?)").
+				WithArgs(3, "this", "that").WillReturnResult(sqlmock.NewResult(1, 1)),
+		},
+		{
+			desc: "error case",
+			input: models.Product{
+				ID:   3,
+				Name: "hello",
+				Type: "moto",
+			},
+			expErr: errors.EntityAlreadyExists{},
+			mockCall: mock.ExpectExec("insert into products(id,name,type) values(?,?,?)").
+				WithArgs(3, "hello", "moto").WillReturnError(errors.EntityAlreadyExists{}),
+		},
+	}
+
+	for _, test := range tesCases {
+		tc := test
+
+		err := s.Create(ctx, tc.input)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
+	}
 }
 
 func TestUpdate(t *testing.T) {
 	ctx, s, mock, db := setMock()
 	defer db.Close()
 
-	tesCases := []testCase{
+	tesCases := []struct {
+		desc     string
+		input    models.Product
+		expErr   error
+		mockCall *sqlmock.ExpectedExec
+	}{
 		{
 			desc: "success case",
 			input: models.Product{
