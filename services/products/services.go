@@ -21,27 +21,23 @@ func New(p stores.Product) services.Product {
 	return &Product{p}
 }
 
-//Fetches a product with the given Id
+// Fetches a product with the given Id
 func (se *Product) ReadByID(ctx *gofr.Context, id int) (*models.Product, error) {
-
 	if id < 1 {
-
-		return nil, errors.New("Invalid Id")
+		return nil, errors.New("invalid id")
 	}
 
 	product, err := se.p.ReadByID(ctx, id)
 
 	if err != nil {
-
 		return nil, err
 	}
 
 	return product, nil
 }
 
-//Fetches all the products
+// Fetches all the products
 func (se *Product) Read(ctx *gofr.Context) ([]models.Product, error) {
-
 	product, err := se.p.Read(ctx)
 
 	if err != nil {
@@ -51,17 +47,14 @@ func (se *Product) Read(ctx *gofr.Context) ([]models.Product, error) {
 	return product, nil
 }
 
-//Creates a Product entity
+// Creates a Product entity
 func (se *Product) Create(ctx *gofr.Context, value *models.Product) (*models.Product, error) {
-
 	if value == nil || reflect.DeepEqual(value, models.Product{}) {
-
-		return nil, errors.New("Invalid Entity")
+		return nil, errors.New("invalid entity")
 	}
 
 	if value.Name == "" || value.Type == "" {
-
-		return nil, errors.New("Invalid name or Type")
+		return nil, errors.New("invalid name or type")
 	}
 
 	product, err := se.p.Create(ctx, value)
@@ -71,51 +64,43 @@ func (se *Product) Create(ctx *gofr.Context, value *models.Product) (*models.Pro
 	}
 
 	return product, nil
-
 }
 
-//Updates a product with the given Id
+// Updates a product with the given Id
 func (se *Product) Update(ctx *gofr.Context, value *models.Product, id int) (*models.Product, error) {
-
 	if value == nil || reflect.DeepEqual(value, models.Product{}) {
-
-		return nil, errors.New("Invalid Entity")
+		return nil, errors.New("invalid entity")
 	}
 
 	if id < 1 {
-
-		return nil, errors.New("Invalid Id")
+		return nil, errors.New("invalid id")
 	}
 
 	product, err := se.ReadByID(ctx, id)
 
 	if err != nil || product.Name == "" {
-
-		return nil, errors.New("Invalid Id")
+		return nil, errors.New("invalid id")
 	}
 
 	product, err = se.p.Update(ctx, value, id)
 
 	if err != nil {
-
 		return nil, err
 	}
 
 	return product, nil
 }
 
-//Deletes a product with the given Id
+// Deletes a product with the given Id
 func (se *Product) Delete(ctx *gofr.Context, id int) error {
-
 	if id < 1 {
-
-		return errors.New("Invalid Id")
+		return errors.New("invalid id")
 	}
 
 	product, err := se.p.ReadByID(ctx, id)
 
 	if err != nil || product.Name == "" {
-		return errors.New("Invalid Id")
+		return errors.New("invalid id")
 	}
 
 	err = se.p.Delete(ctx, id)

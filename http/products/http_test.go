@@ -35,13 +35,13 @@ func Test_ReadByID(t *testing.T) {
 			desc:  "Case:1",
 			input: "1",
 			resp: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery",
 			},
 			calls: []*gomock.Call{
 				mockProductService.EXPECT().ReadByID(gomock.Any(), 1).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}, nil),
@@ -95,29 +95,29 @@ func Test_ReadByID(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
+		i := tc
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
 
-			req := request.NewHTTPRequest(r)
-			res := responder.NewContextualResponder(w, r)
+		req := request.NewHTTPRequest(r)
+		res := responder.NewContextualResponder(w, r)
 
-			ctx := gofr.NewContext(res, req, app)
+		ctx := gofr.NewContext(res, req, app)
 
-			ctx.SetPathParams(map[string]string{
-				"id": tc.input,
-			})
-
-			//id, err := strconv.Atoi(tc.input)
-
-			resp, err := handler.ReadByIdHandler(ctx)
-			if !reflect.DeepEqual(err, tc.expErr) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
-			}
-			if tc.expErr == nil && !reflect.DeepEqual(resp, tc.resp) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.resp, resp)
-			}
+		ctx.SetPathParams(map[string]string{
+			"id": tc.input,
 		})
+
+		resp, err := handler.ReadByIDHandler(ctx)
+		if !reflect.DeepEqual(err, i.expErr) {
+			t.Errorf("%s : expected %v, but got %v", i.desc, i.expErr, err)
+		}
+
+		if i.expErr == nil {
+			if !reflect.DeepEqual(resp, i.resp) {
+				t.Errorf("%s : expected %v, but got %v", i.desc, i.resp, resp)
+			}
+		}
 	}
 }
 
@@ -136,13 +136,13 @@ func Test_Read(t *testing.T) {
 		{
 			desc: "Case:1-Success",
 			resp: []models.Product{{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery",
 			}},
 			calls: []*gomock.Call{
 				mockProductService.EXPECT().Read(gomock.Any()).Return([]models.Product{{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}}, nil),
@@ -152,33 +152,33 @@ func Test_Read(t *testing.T) {
 		{
 			desc:   "Case:2-Failure, Internal Server Error",
 			resp:   nil,
-			expErr: errors.New("Internal Server Error"),
+			expErr: errors.New("internal server error"),
 			calls: []*gomock.Call{
-				mockProductService.EXPECT().Read(gomock.Any()).Return(nil, errors.New("Internal Server Error")),
+				mockProductService.EXPECT().Read(gomock.Any()).Return(nil, errors.New("internal server error")),
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
+		i := tc
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
 
-			req := request.NewHTTPRequest(r)
-			res := responder.NewContextualResponder(w, r)
+		req := request.NewHTTPRequest(r)
+		res := responder.NewContextualResponder(w, r)
 
-			ctx := gofr.NewContext(res, req, app)
+		ctx := gofr.NewContext(res, req, app)
 
-			//id, err := strconv.Atoi(tc.input)
+		resp, err := handler.ReadHandler(ctx)
+		if !reflect.DeepEqual(err, i.expErr) {
+			t.Errorf("%s : expected %v, but got %v", i.desc, i.expErr, err)
+		}
 
-			resp, err := handler.ReadHandler(ctx)
-			if !reflect.DeepEqual(err, tc.expErr) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		if i.expErr == nil {
+			if !reflect.DeepEqual(resp, i.resp) {
+				t.Errorf("%s : expected %v, but got %v", i.desc, i.resp, resp)
 			}
-			if tc.expErr == nil && !reflect.DeepEqual(resp, tc.resp) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.resp, resp)
-			}
-		})
+		}
 	}
 }
 
@@ -198,23 +198,23 @@ func Test_Create(t *testing.T) {
 		{
 			desc: "Case:1-Success",
 			resp: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery",
 			},
 			calls: []*gomock.Call{
 				mockProductService.EXPECT().Create(gomock.Any(), &models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}, nil),
 			},
 			body: models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery",
 			},
@@ -223,9 +223,9 @@ func Test_Create(t *testing.T) {
 		{
 			desc:   "Case:2-Failure, Internal Server Error",
 			resp:   nil,
-			expErr: errors.New("Internal Server Error"),
+			expErr: errors.New("internal server error"),
 			calls: []*gomock.Call{
-				mockProductService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("Internal Server Error")),
+				mockProductService.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("internal server error")),
 			},
 		},
 		{
@@ -240,27 +240,25 @@ func Test_Create(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
+		b, _ := json.Marshal(tc.body)
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, "http://dummy", bytes.NewReader(b))
 
-			b, _ := json.Marshal(tc.body)
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, "http://dummy", bytes.NewReader(b))
+		req := request.NewHTTPRequest(r)
+		res := responder.NewContextualResponder(w, r)
 
-			req := request.NewHTTPRequest(r)
-			res := responder.NewContextualResponder(w, r)
+		ctx := gofr.NewContext(res, req, app)
 
-			ctx := gofr.NewContext(res, req, app)
+		resp, err := handler.CreateHandler(ctx)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
 
-			//id, err := strconv.Atoi(tc.input)
-
-			resp, err := handler.CreateHandler(ctx)
-			if !reflect.DeepEqual(err, tc.expErr) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
-			}
-			if tc.expErr == nil && !reflect.DeepEqual(resp, tc.resp) {
+		if tc.expErr == nil {
+			if !reflect.DeepEqual(resp, tc.resp) {
 				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.resp, resp)
 			}
-		})
+		}
 	}
 }
 
@@ -281,13 +279,13 @@ func Test_Update(t *testing.T) {
 		{
 			desc: "Case:1-Success",
 			resp: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Daily-Use",
 			},
 			calls: []*gomock.Call{
 				mockProductService.EXPECT().Update(gomock.Any(), gomock.Any(), 1).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Daily-Use",
 				}, nil),
@@ -302,14 +300,14 @@ func Test_Update(t *testing.T) {
 		{
 			desc:   "Case:2-Failure, Internal Server Error",
 			resp:   nil,
-			expErr: errors.New("Internal Server Error"),
+			expErr: errors.New("internal server error"),
 			id:     "1",
 			body: models.Product{
 
 				Type: "Daily-Use",
 			},
 			calls: []*gomock.Call{
-				mockProductService.EXPECT().Update(gomock.Any(), gomock.Any(), 1).Return(nil, errors.New("Internal Server Error")),
+				mockProductService.EXPECT().Update(gomock.Any(), gomock.Any(), 1).Return(nil, errors.New("internal server error")),
 			},
 		},
 		{
@@ -348,30 +346,28 @@ func Test_Update(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
+		b, _ := json.Marshal(tc.body)
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, "http://dummy", bytes.NewReader(b))
 
-			b, _ := json.Marshal(tc.body)
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, "http://dummy", bytes.NewReader(b))
+		req := request.NewHTTPRequest(r)
+		res := responder.NewContextualResponder(w, r)
 
-			req := request.NewHTTPRequest(r)
-			res := responder.NewContextualResponder(w, r)
+		ctx := gofr.NewContext(res, req, app)
+		ctx.SetPathParams(map[string]string{
+			"id": tc.id,
+		})
 
-			ctx := gofr.NewContext(res, req, app)
-			ctx.SetPathParams(map[string]string{
-				"id": tc.id,
-			})
+		resp, err := handler.UpdateHandler(ctx)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
 
-			//id, err := strconv.Atoi(tc.input)
-
-			resp, err := handler.UpdateHandler(ctx)
-			if !reflect.DeepEqual(err, tc.expErr) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
-			}
-			if tc.expErr == nil && !reflect.DeepEqual(resp, tc.resp) {
+		if tc.expErr == nil {
+			if !reflect.DeepEqual(resp, tc.resp) {
 				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.resp, resp)
 			}
-		})
+		}
 	}
 }
 
@@ -399,10 +395,10 @@ func Test_Delete(t *testing.T) {
 		},
 		{
 			desc:   "Case:2-Failure, Internal Server Error",
-			expErr: errors.New("Internal Server Error"),
+			expErr: errors.New("internal server error"),
 			id:     "1",
 			calls: []*gomock.Call{
-				mockProductService.EXPECT().Delete(gomock.Any(), 1).Return(errors.New("Internal Server Error")),
+				mockProductService.EXPECT().Delete(gomock.Any(), 1).Return(errors.New("internal server error")),
 			},
 			expResp: nil,
 		},
@@ -421,30 +417,26 @@ func Test_Delete(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, "http://dummy", nil)
 
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, "http://dummy", nil)
+		req := request.NewHTTPRequest(r)
+		res := responder.NewContextualResponder(w, r)
 
-			req := request.NewHTTPRequest(r)
-			res := responder.NewContextualResponder(w, r)
+		ctx := gofr.NewContext(res, req, app)
+		ctx.SetPathParams(map[string]string{
+			"id": tc.id,
+		})
 
-			ctx := gofr.NewContext(res, req, app)
-			ctx.SetPathParams(map[string]string{
-				"id": tc.id,
-			})
+		resp, err := handler.DeleteHandler(ctx)
+		if !reflect.DeepEqual(err, tc.expErr) {
+			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+		}
 
-			//id, err := strconv.Atoi(tc.input)
-
-			resp, err := handler.DeleteHandler(ctx)
-			if !reflect.DeepEqual(err, tc.expErr) {
-				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
-			}
-
-			if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expResp) {
+		if tc.expErr == nil {
+			if !reflect.DeepEqual(resp, tc.expResp) {
 				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expResp, resp)
 			}
-
-		})
+		}
 	}
 }

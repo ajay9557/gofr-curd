@@ -17,6 +17,7 @@ import (
 func Test_ReadByID(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockProductStore := stores.NewMockProduct(ctrl)
@@ -36,14 +37,14 @@ func Test_ReadByID(t *testing.T) {
 			desc:  "Case:1",
 			input: 1,
 			expOut: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery",
 			},
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mockProductStore.EXPECT().ReadByID(ctx, 1).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}, nil),
@@ -52,7 +53,7 @@ func Test_ReadByID(t *testing.T) {
 		{
 			desc:   "Case:2",
 			input:  -10,
-			expErr: errors.New("Invalid Id"),
+			expErr: errors.New("invalid id"),
 		},
 		{
 			desc:  "Case:3",
@@ -78,16 +79,19 @@ func Test_ReadByID(t *testing.T) {
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
-		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expOut) {
-			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
-		}
 
+		if tc.expErr == nil {
+			if !reflect.DeepEqual(resp, tc.expOut) {
+				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
+			}
+		}
 	}
 }
 
 func Test_Read(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockProductStore := stores.NewMockProduct(ctrl)
@@ -105,14 +109,14 @@ func Test_Read(t *testing.T) {
 		{
 			desc: "Case:1-Success",
 			expOut: []models.Product{{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery"},
 			},
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mockProductStore.EXPECT().Read(ctx).Return([]models.Product{{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery"},
 				}, nil),
@@ -121,15 +125,14 @@ func Test_Read(t *testing.T) {
 		{
 			desc:   "Case:2-Failure",
 			expOut: nil,
-			expErr: errors.New("Internal Server error: Empty Database"),
+			expErr: errors.New("internal server error: empty database"),
 			mockCall: []*gomock.Call{
-				mockProductStore.EXPECT().Read(ctx).Return(nil, errors.New("Internal Server error: Empty Database")),
+				mockProductStore.EXPECT().Read(ctx).Return(nil, errors.New("internal server error: empty database")),
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-
 		ctx := gofr.NewContext(nil, nil, app)
 		ctx.Context = context.Background()
 
@@ -137,16 +140,19 @@ func Test_Read(t *testing.T) {
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
-		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expOut) {
-			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
-		}
 
+		if tc.expErr == nil {
+			if !reflect.DeepEqual(resp, tc.expOut) {
+				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
+			}
+		}
 	}
 }
 
 func Test_Create(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockProductStore := stores.NewMockProduct(ctrl)
@@ -164,21 +170,21 @@ func Test_Create(t *testing.T) {
 	}{
 
 		{
-			desc: "Case:1-Sucess",
+			desc: "Case:1-Success",
 			input: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery",
 			},
 			expOut: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery",
 			},
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mockProductStore.EXPECT().Create(ctx, gomock.Any()).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}, nil),
@@ -188,32 +194,32 @@ func Test_Create(t *testing.T) {
 		{
 			desc: "Case:2-Failure, Invalid Entity Name",
 			input: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "",
 				Type: "Grocery",
 			},
 			expOut: nil,
-			expErr: errors.New("Invalid name or Type"),
+			expErr: errors.New("invalid name or type"),
 		},
 
 		{
 			desc:   "Case:3-Failure, Invalid Entity",
 			input:  nil,
 			expOut: nil,
-			expErr: errors.New("Invalid Entity"),
+			expErr: errors.New("invalid entity"),
 		},
 
 		{
 			desc: "Case:4-Failure, Invalid Query",
 			input: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Biscuit",
 				Type: "Grocery",
 			},
 			expOut: nil,
-			expErr: errors.New("Invalid Query"),
+			expErr: errors.New("invalid query"),
 			mockCall: []*gomock.Call{
-				mockProductStore.EXPECT().Create(ctx, gomock.Any()).Return(nil, errors.New("Invalid Query")),
+				mockProductStore.EXPECT().Create(ctx, gomock.Any()).Return(nil, errors.New("invalid query")),
 			},
 		},
 	}
@@ -225,16 +231,19 @@ func Test_Create(t *testing.T) {
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
-		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expOut) {
-			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
-		}
 
+		if tc.expErr == nil {
+			if !reflect.DeepEqual(resp, tc.expOut) {
+				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
+			}
+		}
 	}
 }
 
 func Test_Update(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockProductStore := stores.NewMockProduct(ctrl)
@@ -253,21 +262,21 @@ func Test_Update(t *testing.T) {
 	}{
 
 		{
-			desc: "Case:1-Sucess",
+			desc: "Case:1-Success",
 			input: &models.Product{
 
 				Name: "Rice",
 			},
 			id: 1,
 			expOut: &models.Product{
-				Id:   1,
+				ID:   1,
 				Name: "Rice",
 				Type: "Grocery",
 			},
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mockProductStore.EXPECT().ReadByID(ctx, 1).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}, nil),
@@ -276,7 +285,7 @@ func Test_Update(t *testing.T) {
 
 					Name: "Rice",
 				}, 1).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Rice",
 					Type: "Grocery",
 				}, nil),
@@ -290,16 +299,16 @@ func Test_Update(t *testing.T) {
 			},
 			id:     10,
 			expOut: nil,
-			expErr: errors.New("Invalid Id"),
+			expErr: errors.New("invalid id"),
 			mockCall: []*gomock.Call{
-				mockProductStore.EXPECT().ReadByID(ctx, 10).Return(nil, errors.New("Invalid Id")),
+				mockProductStore.EXPECT().ReadByID(ctx, 10).Return(nil, errors.New("invalid id")),
 			},
 		},
 		{
 			desc:   "Case:3-Failure, Invalid Entity",
 			input:  nil,
 			expOut: nil,
-			expErr: errors.New("Invalid Entity"),
+			expErr: errors.New("invalid entity"),
 		},
 
 		{
@@ -310,7 +319,7 @@ func Test_Update(t *testing.T) {
 			},
 			id:     -1,
 			expOut: nil,
-			expErr: errors.New("Invalid Id"),
+			expErr: errors.New("invalid id"),
 		},
 
 		{
@@ -321,10 +330,10 @@ func Test_Update(t *testing.T) {
 			},
 			id:     1,
 			expOut: nil,
-			expErr: errors.New("Invalid Query"),
+			expErr: errors.New("invalid query"),
 			mockCall: []*gomock.Call{
 				mockProductStore.EXPECT().ReadByID(ctx, 1).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}, nil),
@@ -332,7 +341,7 @@ func Test_Update(t *testing.T) {
 				mockProductStore.EXPECT().Update(ctx, &models.Product{
 
 					Name: "Rice",
-				}, 1).Return(nil, errors.New("Invalid Query")),
+				}, 1).Return(nil, errors.New("invalid query")),
 			},
 		},
 	}
@@ -344,16 +353,19 @@ func Test_Update(t *testing.T) {
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
-		if tc.expErr == nil && !reflect.DeepEqual(resp, tc.expOut) {
-			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
-		}
 
+		if tc.expErr == nil {
+			if !reflect.DeepEqual(resp, tc.expOut) {
+				t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, resp)
+			}
+		}
 	}
 }
 
 func Test_Delete(t *testing.T) {
 	app := gofr.New()
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockProductStore := stores.NewMockProduct(ctrl)
@@ -370,12 +382,12 @@ func Test_Delete(t *testing.T) {
 	}{
 
 		{
-			desc:   "Case:1-Sucess",
+			desc:   "Case:1-Success",
 			id:     1,
 			expErr: nil,
 			mockCall: []*gomock.Call{
 				mockProductStore.EXPECT().ReadByID(ctx, 1).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}, nil),
@@ -386,30 +398,30 @@ func Test_Delete(t *testing.T) {
 		{
 			desc:   "Case:2-Failure Invalid Id",
 			id:     10,
-			expErr: errors.New("Invalid Id"),
+			expErr: errors.New("invalid id"),
 			mockCall: []*gomock.Call{
-				mockProductStore.EXPECT().ReadByID(ctx, 10).Return(nil, errors.New("Invalid Id")),
+				mockProductStore.EXPECT().ReadByID(ctx, 10).Return(nil, errors.New("invalid id")),
 			},
 		},
 
 		{
 			desc:   "Case:3-Failure, Invalid Id",
 			id:     -1,
-			expErr: errors.New("Invalid Id"),
+			expErr: errors.New("invalid id"),
 		},
 
 		{
 			desc:   "Case:4-Failure Invalid Query",
 			id:     1,
-			expErr: errors.New("Invalid Query"),
+			expErr: errors.New("invalid query"),
 			mockCall: []*gomock.Call{
 				mockProductStore.EXPECT().ReadByID(ctx, 1).Return(&models.Product{
-					Id:   1,
+					ID:   1,
 					Name: "Biscuit",
 					Type: "Grocery",
 				}, nil),
 
-				mockProductStore.EXPECT().Delete(ctx, 1).Return(errors.New("Invalid Query")),
+				mockProductStore.EXPECT().Delete(ctx, 1).Return(errors.New("invalid query")),
 			},
 		},
 	}
@@ -421,6 +433,5 @@ func Test_Delete(t *testing.T) {
 		if !reflect.DeepEqual(err, tc.expErr) {
 			t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 		}
-
 	}
 }
