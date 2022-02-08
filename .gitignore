@@ -1,0 +1,4 @@
+coverage.out
+dockerfile
+.golangci.yaml
+.env
