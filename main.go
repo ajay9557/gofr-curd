@@ -12,9 +12,9 @@ func main() {
 	app := gofr.New()
 	app.Server.ValidateHeaders = false
 
-	s := productStore.New()
-	l := productService.New(s)
-	h := productHandler.New(l)
+	store := productStore.New()
+	service := productService.New(store)
+	h := productHandler.New(service)
 
 	app.GET("/products/{id}", h.GetByID)
 	app.GET("/products", h.Get)

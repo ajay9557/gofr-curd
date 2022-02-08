@@ -138,7 +138,7 @@ func TestGet(t *testing.T) {
 	testCases := []struct {
 		desc     string
 		mockCall []*gomock.Call
-		expResp  []*models.Product
+		expResp  *models.Response
 		expErr   error
 	}{
 		{
@@ -158,17 +158,21 @@ func TestGet(t *testing.T) {
 						},
 					}, nil),
 			},
-			expResp: []*models.Product{
-				{
-					ID:   1,
-					Name: "test",
-					Type: "example",
+			expResp: &models.Response{
+				Data: []*models.Product{
+					{
+						ID:   1,
+						Name: "test",
+						Type: "example",
+					},
+					{
+						ID:   2,
+						Name: "this",
+						Type: "that",
+					},
 				},
-				{
-					ID:   2,
-					Name: "this",
-					Type: "that",
-				},
+				Message:    "data retrieved",
+				StatusCode: http.StatusOK,
 			},
 			expErr: nil,
 		},

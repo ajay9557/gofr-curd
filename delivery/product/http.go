@@ -21,13 +21,13 @@ func New(s service.Services) Handler {
 }
 
 func (h *Handler) GetByID(ctx *gofr.Context) (interface{}, error) {
-	i := ctx.PathParam("id")
+	iD := ctx.PathParam("id")
 
-	if i == "" {
+	if iD == "" {
 		return nil, errors.MissingParam{Param: []string{"id"}}
 	}
 
-	id, err := strconv.Atoi(i)
+	id, err := strconv.Atoi(iD)
 	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
@@ -46,7 +46,12 @@ func (h *Handler) GetByID(ctx *gofr.Context) (interface{}, error) {
 
 func (h *Handler) Get(ctx *gofr.Context) (interface{}, error) {
 	resp, err := h.service.Get(ctx)
-	return resp, err
+
+	return &models.Response{
+		Data:       resp,
+		Message:    "data retrieved",
+		StatusCode: http.StatusOK,
+	}, err
 }
 
 func (h *Handler) Create(ctx *gofr.Context) (interface{}, error) {
@@ -61,17 +66,21 @@ func (h *Handler) Create(ctx *gofr.Context) (interface{}, error) {
 		return nil, errors.EntityAlreadyExists{}
 	}
 
-	return resp, err
+	return &models.Response{
+		Data:       resp,
+		Message:    "data inserted",
+		StatusCode: http.StatusCreated,
+	}, err
 }
 
 func (h *Handler) Update(ctx *gofr.Context) (interface{}, error) {
-	i := ctx.PathParam("id")
+	iD := ctx.PathParam("id")
 
-	if i == "" {
+	if iD == "" {
 		return nil, errors.MissingParam{Param: []string{"id"}}
 	}
 
-	id, err := strconv.Atoi(i)
+	id, err := strconv.Atoi(iD)
 	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
@@ -89,17 +98,21 @@ func (h *Handler) Update(ctx *gofr.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	return resp, nil
+	return &models.Response{
+		Data:       resp,
+		Message:    "data updated",
+		StatusCode: http.StatusOK,
+	}, nil
 }
 
 func (h *Handler) Delete(ctx *gofr.Context) (interface{}, error) {
-	i := ctx.PathParam("id")
+	iD := ctx.PathParam("id")
 
-	if i == "" {
+	if iD == "" {
 		return nil, errors.MissingParam{Param: []string{"id"}}
 	}
 
-	id, err := strconv.Atoi(i)
+	id, err := strconv.Atoi(iD)
 	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
