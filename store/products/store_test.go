@@ -100,7 +100,9 @@ func TestGetProducts(t *testing.T) {
 			desc:            "Error while fetching products",
 			expectedProduct: nil,
 			err:             errors.DB{Err: errors.Error("Error while fetching products")},
-			mockQuery:       mock.ExpectQuery("SELECT * FROM products").WillReturnError(errors.DB{Err: errors.Error("Error while fetching products")}),
+			mockQuery: mock.ExpectQuery("SELECT * FROM products").WillReturnError(
+				errors.DB{Err: errors.Error("Error while fetching products")},
+			),
 		},
 		{
 			desc:            "No record found",
