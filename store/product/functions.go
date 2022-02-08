@@ -10,14 +10,14 @@ func buildQuery(product *models.Product) (string, []interface{}) {
 	var values []interface{}
 
 	if product.Name != "" {
-		feilds += "name = ?,"
+		feilds += "name = ?, "
 		values = append(values, product.Name)
 	}
 	if product.Type != "" {
-		feilds += " type = ?,"
+		feilds += "type = ?, "
 		values = append(values, product.Type)
 	}
-	feilds = strings.TrimRight(feilds, ",")
+	feilds = strings.TrimRight(feilds, ", ")
 	values = append(values, product.ID)
 	return feilds, values
 }

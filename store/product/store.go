@@ -26,13 +26,12 @@ func (ps ProductStore) Update(ctx *gofr.Context, product *models.Product) error 
 	_, err := ctx.DB().ExecContext(ctx, "update product set "+feilds+" where id = ?", values...)
 	return err
 }
+
 func (ps ProductStore) Delete(ctx *gofr.Context, id int) error {
 	_, err := ctx.DB().ExecContext(ctx, "DELETE FROM product where id = ?", id)
-	if err != nil {
-		return errors.DB{Err: err}
-	}
-	return nil
+	return err
 }
+
 func (ps ProductStore) Create(ctx *gofr.Context, product *models.Product) (*models.Product, error) {
 
 	res, err := ctx.DB().ExecContext(ctx, "insert into product (name, type) values(?,?)", product.Name, product.Type)
@@ -44,6 +43,7 @@ func (ps ProductStore) Create(ctx *gofr.Context, product *models.Product) (*mode
 	product.ID = int(id)
 	return product, nil
 }
+
 func (ps ProductStore) GetAll(ctx *gofr.Context) ([]*models.Product, error) {
 	var resp []*models.Product
 	rows, err := ctx.DB().QueryContext(ctx, "select id, name, type from product")

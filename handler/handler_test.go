@@ -11,7 +11,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/himanshu-kumar-zs/gofr-curd/models"
 	"github.com/himanshu-kumar-zs/gofr-curd/services"
-	"github.com/zopsmart/gofr/pkg/gofr/types"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -269,8 +268,8 @@ func TestHandler_Delete(t *testing.T) {
 		if !reflect.DeepEqual(err, tcs.expErr) {
 			t.Errorf("%v, expected err %v, got %v", tcs.desc, tcs.expErr, err)
 		}
-		if err == nil && !reflect.DeepEqual(resp, types.Response{Data: "successfully deleted"}) {
-			t.Errorf("%v, expected %v, got %v", tcs.desc, "successfully deleted", resp)
+		if err == nil && !reflect.DeepEqual(resp, "successfully deleted") {
+			t.Errorf("%v, expected %v, got %v", tcs.desc, "successfully deleted", resp.(string))
 		}
 	}
 }
