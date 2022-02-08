@@ -1,7 +1,6 @@
 package product
 
 import (
-	"fmt"
 	"strconv"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
@@ -37,55 +36,77 @@ func (h Handler) GetProductByID(ctx *gofr.Context) (interface{}, error) {
 			ID:     i,
 		}
 	}
+	var resp models.Response
+	resp = models.Response{
+		Product:    res,
+		Message:    "product data fetching successful",
+		StatusCode: 200,
+	}
 
-	fmt.Println(res)
-
-	return res, nil
+	return resp, nil
 }
 
 func (h Handler) GetAllProducts(ctx *gofr.Context) (interface{}, error) {
 	resp, err := h.service1.GetAllProducts(ctx)
 
 	if err != nil {
-		return nil, errors.Error("internal error")
+		return nil, errors.Error("internal database error")
 	}
 
-	return resp, nil
+	var res models.Response
+	res = models.Response{
+		Product:    resp,
+		Message:    "product data fetching successful",
+		StatusCode: 200,
+	}
+
+	return res, nil
 }
 
 func (h Handler) UpdateProduct(ctx *gofr.Context) (interface{}, error) {
 	var prod models.Product
 
-	err := ctx.Bind(&prod)
-
-	if err != nil {
+	err1 := ctx.Bind(&prod)
+	if err1 != nil {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
 
-	_, err = h.service1.UpdateProduct(ctx, prod)
+	_, err1 = h.service1.UpdateProduct(ctx, prod)
 
-	if err != nil {
+	if err1 != nil {
 		return nil, errors.Error("internal error")
 	}
+	var resp models.Response
+	resp = models.Response{
+		Product:    prod,
+		Message:    "successfully updated product data",
+		StatusCode: 200,
+	}
 
-	return prod, nil
+	return resp, nil
 }
 
 func (h Handler) CreateProduct(ctx *gofr.Context) (interface{}, error) {
-	var prod models.Product
+	var product models.Product
 
-	err := ctx.Bind(&prod)
+	err := ctx.Bind(&product)
 	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
 
-	_, err = h.service1.CreateProduct(ctx, prod)
+	_, err = h.service1.CreateProduct(ctx, product)
 
 	if err != nil {
 		return nil, errors.Error("internal errror")
 	}
+	var resp models.Response
+	resp = models.Response{
+		Product:    product,
+		Message:    "product creation successful",
+		StatusCode: 200,
+	}
 
-	return prod, nil
+	return resp, nil
 }
 
 func (h Handler) DeleteProduct(ctx *gofr.Context) (interface{}, error) {
@@ -104,6 +125,12 @@ func (h Handler) DeleteProduct(ctx *gofr.Context) (interface{}, error) {
 	if err := h.service1.DeleteProduct(ctx, id); err != nil {
 		return nil, err
 	}
+	var res models.Response
+	res = models.Response{
+		Product:    nil,
+		Message:    "deleted product data successfully",
+		StatusCode: 200,
+	}
 
-	return "product deleted successfully.", nil
+	return res, nil
 }
