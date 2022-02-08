@@ -18,7 +18,6 @@ func New() store.Store {
 
 func (p *product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 	var res []*models.Product
-
 	rows, err := ctx.DB().QueryContext(ctx, "select id,name,type from products")
 	if err != nil {
 		return nil, errors.EntityNotFound{Entity: "products", ID: "all"}
