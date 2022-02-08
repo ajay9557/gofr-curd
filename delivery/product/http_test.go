@@ -1,6 +1,7 @@
 package product
 
 import (
+	"bytes"
 	"gofr-curd/models"
 	"gofr-curd/service"
 	"net/http"
@@ -24,9 +25,9 @@ func setMock(t *testing.T) (*gofr.Gofr, Handler, *service.MockServices) {
 	return app, h, mock
 }
 
-func setMockHTTP(app *gofr.Gofr) *gofr.Context {
+func setMockHTTP(app *gofr.Gofr, method string, body []byte) *gofr.Context {
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
+	r := httptest.NewRequest(method, "http://dummy", bytes.NewReader(body))
 
 	req := request.NewHTTPRequest(r)
 	res := responder.NewContextualResponder(w, r)
@@ -115,7 +116,7 @@ func TestGetByID(t *testing.T) {
 	for _, test := range testCases {
 		tc := test
 		t.Run(tc.desc, func(t *testing.T) {
-			ctx := setMockHTTP(app)
+			ctx := setMockHTTP(app, http.MethodGet, nil)
 			ctx.SetPathParams(map[string]string{
 				"id": tc.input,
 			})
@@ -183,7 +184,7 @@ func TestGet(t *testing.T) {
 
 	for _, test := range testCases {
 		tc := test
-		ctx := setMockHTTP(app)
+		ctx := setMockHTTP(app, http.MethodGet, nil)
 		resp, err := h.Get(ctx)
 
 		if !reflect.DeepEqual(err, tc.expErr) {
@@ -222,7 +223,7 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			desc:     "error binding",
-			input:    []byte(`{mock error invalid body}`),
+			input:    []byte(``),
 			mockCall: nil,
 			expErr:   errors.InvalidParam{Param: []string{"body"}},
 		},
@@ -237,8 +238,9 @@ func TestCreate(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		ctx := setMockHTTP(app)
+	for _, test := range testCases {
+		tc := test
+		ctx := setMockHTTP(app, http.MethodPost, tc.input)
 
 		_, err := h.Create(ctx)
 		if !reflect.DeepEqual(err, tc.expErr) {
@@ -310,8 +312,9 @@ func TestUpdate(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		ctx := setMockHTTP(app)
+	for _, test := range testCases {
+		tc := test
+		ctx := setMockHTTP(app, http.MethodPut, tc.input)
 		ctx.SetPathParams(map[string]string{
 			"id": tc.id,
 		})
@@ -365,7 +368,7 @@ func TestDelete(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		ctx := setMockHTTP(app)
+		ctx := setMockHTTP(app, http.MethodDelete, nil)
 		ctx.SetPathParams(map[string]string{
 			"id": tc.id,
 		})

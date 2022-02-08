@@ -58,7 +58,7 @@ func (h *Handler) Create(ctx *gofr.Context) (interface{}, error) {
 
 	resp, err := h.service.Create(ctx, p)
 	if err != nil {
-		return nil, err
+		return nil, errors.EntityAlreadyExists{}
 	}
 
 	return resp, err
