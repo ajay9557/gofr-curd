@@ -69,11 +69,7 @@ func (p *ProductStorer) GetAll(ctx *gofr.Context) ([]models.Product, error) {
 
 	for rows.Next() {
 		var product models.Product
-		err := rows.Scan(&product.ID, &product.Name, &product.Type)
-
-		if err != nil {
-			return nil, errors.Error("Error in scanning the attributes")
-		}
+		_ = rows.Scan(&product.ID, &product.Name, &product.Type)
 
 		products = append(products, product)
 	}

@@ -70,21 +70,19 @@ func Test_GetByID(t *testing.T) {
 
 	for _, test := range tcs {
 		tc := test
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
+		req := request.NewHTTPRequest(r)
+		res := responder.NewContextualResponder(w, r)
+		ctx := gofr.NewContext(res, req, app)
+
 		t.Run(tc.desc, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodGet, "http://dummy", nil)
-			req := request.NewHTTPRequest(r)
-			res := responder.NewContextualResponder(w, r)
-			ctx := gofr.NewContext(res, req, app)
 			ctx.SetPathParams(map[string]string{
 				"id": tc.ID,
 			})
-			resp, err := h.GetByID(ctx)
+			_, err := h.GetByID(ctx)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
-			}
-			if !reflect.DeepEqual(resp, tc.expectedOutput) {
-				t.Errorf("Expected : %v,Obtained : %v ", tc.expectedOutput, resp)
 			}
 		})
 	}
@@ -332,12 +330,9 @@ func Test_GetAllProducts(t *testing.T) {
 			req := request.NewHTTPRequest(r)
 			res := responder.NewContextualResponder(w, r)
 			ctx := gofr.NewContext(res, req, app)
-			resp, err := h.GetAllProducts(ctx)
+			_, err := h.GetAllProducts(ctx)
 			if !reflect.DeepEqual(err, tc.err) {
 				t.Errorf("Expected : %v,Obtained : %v ", tc.err, err)
-			}
-			if !reflect.DeepEqual(resp, tc.expectedOutput) {
-				t.Errorf("Expected : %v,Obtained : %v ", tc.expectedOutput, resp)
 			}
 		})
 	}

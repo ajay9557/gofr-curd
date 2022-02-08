@@ -213,6 +213,14 @@ func testProductDeleteByID(t *testing.T, app *gofr.Gofr) {
 				mock.ExpectExec(`Delete from Product where id=?`).WithArgs(6).WillReturnResult(sqlmock.NewResult(1, 1)),
 			},
 		},
+		{
+			desc: "Failure",
+			ID:   6,
+			err:  errors.Error("Internal DB error"),
+			Mock: []interface{}{
+				mock.ExpectExec(`Delete from Product where id=?`).WillReturnError(errors.Error("Internal DB error")),
+			},
+		},
 	}
 
 	for _, test := range tcs {
@@ -269,17 +277,8 @@ func testAllProducts(t *testing.T, app *gofr.Gofr) {
 				mock.ExpectQuery(query).WillReturnError(errors.Error("Internal DB error")),
 			},
 		},
-		// {
-		// 	desc:           "Failure-1",
-		// 	expectedOutput: nil,
-		// 	err:           errors.Error("Error in scanning the attributes"),
-		// 	Mock: []interface{}{
-		// 		mock.ExpectQuery(query).WillReturnError(errors.Error("Error in scanning the attributes")),
-		// 	},
-		// },
 	}
 
-	//
 	for _, test := range tcs {
 		tc := test
 		ctx := gofr.NewContext(nil, nil, app)
