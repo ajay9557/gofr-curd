@@ -187,6 +187,7 @@ func TestCreate(t *testing.T) {
 			expected:      &input1,
 			expectedError: nil,
 			mockCall: []*gomock.Call{
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, errors.EntityNotFound{Entity: "products", ID: "1"}),
 				mockStore.EXPECT().Create(ctx, input1).Return(nil),
 				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, nil),
 			},
@@ -204,7 +205,17 @@ func TestCreate(t *testing.T) {
 			expected:      nil,
 			expectedError: errors.Error("Connection lost"),
 			mockCall: []*gomock.Call{
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, errors.EntityNotFound{Entity: "products", ID: "1"}),
 				mockStore.EXPECT().Create(ctx, input1).Return(errors.Error("Connection lost")),
+			},
+		},
+		{
+			desc:          "Product already exist",
+			input:         input1,
+			expected:      nil,
+			expectedError: errors.EntityAlreadyExists{},
+			mockCall: []*gomock.Call{
+				mockStore.EXPECT().GetByID(ctx, 1).Return(&input1, nil),
 			},
 		},
 	}

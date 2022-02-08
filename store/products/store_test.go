@@ -2,37 +2,35 @@ package products
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/ridhdhish-desai-zs/product-gofr/models"
 	"github.com/stretchr/testify/assert"
 
-	"developer.zopsmart.com/go/gofr/pkg/datastore"
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
-func TestCoreLayer(t *testing.T) {
+func getTestData() (*gofr.Gofr, sqlmock.Sqlmock, *sql.DB) {
 	app := gofr.New()
+	db, mock, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 
-	// Seeder will populate actual database with default data defined in .csv file.
-	seeder := datastore.NewSeeder(&app.DataStore, "../../db")
-	seeder.RefreshTables(t, "products")
-
-	testGetProductByID(t, app)
-	testGetProducts(t, app)
-	testCreate(t, app)
-	testUpdateByID(t, app)
-	testDeleteByID(t, app)
-	seeder.RefreshTables(t, "products")
+	return app, mock, db
 }
 
-func testGetProductByID(t *testing.T, app *gofr.Gofr) {
+func TestGetProductByID(t *testing.T) {
+	app, mock, db := getTestData()
+
+	rows := sqlmock.NewRows([]string{"id", "name", "category"}).AddRow(1, "mouse", "electronics")
+
 	tests := []struct {
 		desc            string
 		id              int
 		expectedProduct *models.Product
 		expectedError   error
+		mockQuery       *sqlmock.ExpectedQuery
 	}{
 		{
 			desc: "Get existent id",
@@ -43,12 +41,16 @@ func testGetProductByID(t *testing.T, app *gofr.Gofr) {
 				Category: "electronics",
 			},
 			expectedError: nil,
+			mockQuery:     mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(1).WillReturnRows(rows),
 		},
 		{
 			desc:            "Get non existent id",
 			id:              100,
 			expectedProduct: nil,
-			expectedError:   errors.EntityNotFound{Entity: "products", ID: "100"},
+			expectedError:   sql.ErrNoRows,
+			mockQuery: mock.ExpectQuery("SELECT * FROM products WHERE id = ?").WithArgs(100).WillReturnError(
+				sql.ErrNoRows,
+			),
 		},
 	}
 
@@ -59,6 +61,7 @@ func testGetProductByID(t *testing.T, app *gofr.Gofr) {
 		t.Run(tc.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
+			ctx.DB().DB = db
 
 			store := New()
 
@@ -69,11 +72,17 @@ func testGetProductByID(t *testing.T, app *gofr.Gofr) {
 	}
 }
 
-func testGetProducts(t *testing.T, app *gofr.Gofr) {
+func TestGetProducts(t *testing.T) {
+	app, mock, db := getTestData()
+
+	rows := sqlmock.NewRows([]string{"id", "name", "category"}).AddRow(1, "mouse", "electronics")
+	row2 := sqlmock.NewRows([]string{"name", "category"}).AddRow("mouse", "electronics")
+
 	tests := []struct {
 		desc            string
 		expectedProduct []*models.Product
 		err             error
+		mockQuery       *sqlmock.ExpectedQuery
 	}{
 		{
 			desc: "Get All Products",
@@ -84,7 +93,26 @@ func testGetProducts(t *testing.T, app *gofr.Gofr) {
 					Category: "electronics",
 				},
 			},
-			err: nil,
+			err:       nil,
+			mockQuery: mock.ExpectQuery("SELECT * FROM products").WillReturnRows(rows),
+		},
+		{
+			desc:            "Connection error",
+			expectedProduct: nil,
+			err:             errors.DB{Err: errors.Error("Connection lost")},
+			mockQuery:       mock.ExpectQuery("SELECT * FROM products").WillReturnError(errors.DB{Err: errors.Error("Connection lost")}),
+		},
+		{
+			desc:            "No record found",
+			expectedProduct: nil,
+			err:             errors.EntityNotFound{Entity: "product"},
+			mockQuery:       mock.ExpectQuery("SELECT * FROM products").WillReturnRows(sqlmock.NewRows([]string{"id", "name", "category"})),
+		},
+		{
+			desc:            "No record found",
+			expectedProduct: nil,
+			err:             errors.EntityNotFound{Entity: "product"},
+			mockQuery:       mock.ExpectQuery("SELECT * FROM products").WillReturnRows(row2),
 		},
 	}
 
@@ -95,6 +123,7 @@ func testGetProducts(t *testing.T, app *gofr.Gofr) {
 		t.Run(tc.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
+			ctx.DB().DB = db
 
 			store := New()
 
@@ -105,14 +134,36 @@ func testGetProducts(t *testing.T, app *gofr.Gofr) {
 	}
 }
 
-func testCreate(t *testing.T, app *gofr.Gofr) {
+func TestCreate(t *testing.T) {
+	app, mock, db := getTestData()
+
+	pr := models.Product{
+		ID:       1,
+		Name:     "mouse",
+		Category: "electronics",
+	}
+
 	tests := []struct {
 		desc          string
+		input         models.Product
 		expectedError error
+		mockQuery     *sqlmock.ExpectedExec
 	}{
 		{
 			desc:          "Success Case",
+			input:         pr,
 			expectedError: nil,
+			mockQuery: mock.ExpectExec("INSERT INTO products(id, name, category) values(?, ?, ?)").WithArgs(
+				pr.ID, pr.Name, pr.Category,
+			).WillReturnResult(sqlmock.NewResult(1, 1)),
+		},
+		{
+			desc:          "Connection lost",
+			input:         pr,
+			expectedError: errors.Error("Connection lost"),
+			mockQuery: mock.ExpectExec("INSERT INTO products(id, name, category) values(?, ?, ?)").WithArgs(
+				pr.ID, pr.Name, pr.Category,
+			).WillReturnError(errors.Error("Connection lost")),
 		},
 	}
 
@@ -125,30 +176,47 @@ func testCreate(t *testing.T, app *gofr.Gofr) {
 		t.Run(tc.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
+			ctx.DB().DB = db
 
-			err := store.Create(ctx, models.Product{ID: 2, Name: "volleyball", Category: "sports"})
+			err := store.Create(ctx, tc.input)
 
 			assert.Equal(t, tc.expectedError, err, "TEST[%d], failed.\n%s", i, tc.desc)
 		})
 	}
 }
 
-func testUpdateByID(t *testing.T, app *gofr.Gofr) {
+func TestUpdateByID(t *testing.T) {
+	app, mock, db := getTestData()
+
+	pr := models.Product{
+		Name:     "mouse",
+		Category: "electronics",
+	}
+
 	tests := []struct {
 		desc          string
 		id            int
 		input         models.Product
 		expectedError error
+		mockQuery     *sqlmock.ExpectedExec
 	}{
 		{
-			desc: "Success Case",
-			id:   1,
-			input: models.Product{
-				ID:       1,
-				Name:     "mouse",
-				Category: "gaming",
-			},
+			desc:          "Success Case",
+			id:            1,
+			input:         pr,
 			expectedError: nil,
+			mockQuery: mock.ExpectExec("UPDATE products SET name = ?, category = ? WHERE id = ?").WithArgs(
+				pr.Name, pr.Category, 1,
+			).WillReturnResult(sqlmock.NewResult(1, 1)),
+		},
+		{
+			desc:          "Connection lost",
+			id:            1,
+			input:         pr,
+			expectedError: errors.Error("Connection lost"),
+			mockQuery: mock.ExpectExec("UPDATE products SET name = ?, category = ? WHERE id = ?").WithArgs(
+				pr.Name, pr.Category, 1,
+			).WillReturnError(errors.Error("Connection lost")),
 		},
 	}
 
@@ -161,6 +229,7 @@ func testUpdateByID(t *testing.T, app *gofr.Gofr) {
 		t.Run(tc.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
+			ctx.DB().DB = db
 
 			err := store.UpdateByID(ctx, tc.id, tc.input)
 
@@ -169,16 +238,32 @@ func testUpdateByID(t *testing.T, app *gofr.Gofr) {
 	}
 }
 
-func testDeleteByID(t *testing.T, app *gofr.Gofr) {
+func TestDeleteByID(t *testing.T) {
+	app, mock, db := getTestData()
+
 	tests := []struct {
 		desc          string
 		id            int
 		expectedError error
+		mockQuery     *sqlmock.ExpectedExec
 	}{
 		{
 			desc:          "Success Case",
 			id:            1,
 			expectedError: nil,
+			mockQuery:     mock.ExpectExec("DELETE FROM products WHERE id = ?").WithArgs(1).WillReturnResult(sqlmock.NewResult(1, 1)),
+		},
+		{
+			desc:          "Invalid Id",
+			id:            100,
+			expectedError: errors.EntityNotFound{Entity: "products", ID: "100"},
+			mockQuery:     mock.ExpectExec("DELETE FROM products WHERE id = ?").WithArgs(100).WillReturnResult(sqlmock.NewResult(0, 0)),
+		},
+		{
+			desc:          "Connection lost",
+			id:            1,
+			expectedError: sql.ErrConnDone,
+			mockQuery:     mock.ExpectExec("DELETE FROM products WHERE id = ?").WithArgs(1).WillReturnError(sql.ErrConnDone),
 		},
 	}
 
@@ -191,6 +276,7 @@ func testDeleteByID(t *testing.T, app *gofr.Gofr) {
 		t.Run(tc.desc, func(t *testing.T) {
 			ctx := gofr.NewContext(nil, nil, app)
 			ctx.Context = context.Background()
+			ctx.DB().DB = db
 
 			err := store.DeleteByID(ctx, tc.id)
 

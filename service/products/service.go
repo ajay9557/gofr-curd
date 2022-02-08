@@ -56,7 +56,7 @@ func (srv *Service) Create(ctx *gofr.Context, pr models.Product) (*models.Produc
 
 	_, err := srv.store.GetByID(ctx, pr.ID)
 	if err == nil {
-		return nil, errors.InvalidParam{Param: []string{"id"}}
+		return nil, errors.EntityAlreadyExists{}
 	}
 
 	err = srv.store.Create(ctx, pr)

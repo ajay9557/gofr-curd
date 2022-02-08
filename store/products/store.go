@@ -17,11 +17,13 @@ func New() store.Product {
 }
 
 func (p product) GetByID(ctx *gofr.Context, id int) (*models.Product, error) {
-	var product models.Product
+	row := ctx.DB().QueryRowContext(ctx, "SELECT * FROM products WHERE id = ?", id)
 
-	err := ctx.DB().QueryRowContext(ctx, "SELECT * FROM products WHERE id = ?", id).Scan(&product.ID, &product.Name, &product.Category)
-	if err == sql.ErrNoRows {
-		return nil, errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(id)}
+	var product models.Product
+	err := row.Scan(&product.ID, &product.Name, &product.Category)
+
+	if err != nil || err == sql.ErrNoRows {
+		return nil, sql.ErrNoRows
 	}
 
 	return &product, nil
@@ -30,7 +32,10 @@ func (p product) GetByID(ctx *gofr.Context, id int) (*models.Product, error) {
 func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 	var products []*models.Product
 
-	rows, _ := ctx.DB().QueryContext(ctx, "SELECT * FROM products")
+	rows, err := ctx.DB().QueryContext(ctx, "SELECT * FROM products")
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		var pr models.Product
@@ -41,6 +46,10 @@ func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 		}
 
 		products = append(products, &pr)
+	}
+
+	if products == nil {
+		return nil, errors.EntityNotFound{Entity: "product"}
 	}
 
 	return products, nil
@@ -73,7 +82,10 @@ func (p product) UpdateByID(ctx *gofr.Context, id int, pr models.Product) error 
 }
 
 func (p product) DeleteByID(ctx *gofr.Context, id int) error {
-	result, _ := ctx.DB().ExecContext(ctx, "DELETE FROM products WHERE id = ?", id)
+	result, err := ctx.DB().ExecContext(ctx, "DELETE FROM products WHERE id = ?", id)
+	if err != nil {
+		return err
+	}
 
 	r, _ := result.RowsAffected()
 	if r == 0 {
