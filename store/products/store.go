@@ -58,7 +58,7 @@ func (p product) Get(ctx *gofr.Context) ([]*models.Product, error) {
 func (p product) Create(ctx *gofr.Context, pr models.Product) error {
 	_, err := ctx.DB().ExecContext(ctx, "INSERT INTO products(id, name, category) values(?, ?, ?)", pr.ID, pr.Name, pr.Category)
 	if err != nil {
-		return errors.Error("Connection lost")
+		return err
 	}
 
 	return nil
@@ -75,7 +75,7 @@ func (p product) UpdateByID(ctx *gofr.Context, id int, pr models.Product) error 
 
 	_, err := ctx.DB().ExecContext(ctx, query, args...)
 	if err != nil {
-		return errors.Error("Connection lost")
+		return err
 	}
 
 	return nil
@@ -87,8 +87,8 @@ func (p product) DeleteByID(ctx *gofr.Context, id int) error {
 		return err
 	}
 
-	r, _ := result.RowsAffected()
-	if r == 0 {
+	res, _ := result.RowsAffected()
+	if res == 0 {
 		return errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(id)}
 	}
 

@@ -97,10 +97,10 @@ func TestGetProducts(t *testing.T) {
 			mockQuery: mock.ExpectQuery("SELECT * FROM products").WillReturnRows(rows),
 		},
 		{
-			desc:            "Connection error",
+			desc:            "Error while fetching products",
 			expectedProduct: nil,
-			err:             errors.DB{Err: errors.Error("Connection lost")},
-			mockQuery:       mock.ExpectQuery("SELECT * FROM products").WillReturnError(errors.DB{Err: errors.Error("Connection lost")}),
+			err:             errors.DB{Err: errors.Error("Error while fetching products")},
+			mockQuery:       mock.ExpectQuery("SELECT * FROM products").WillReturnError(errors.DB{Err: errors.Error("Error while fetching products")}),
 		},
 		{
 			desc:            "No record found",
@@ -158,12 +158,12 @@ func TestCreate(t *testing.T) {
 			).WillReturnResult(sqlmock.NewResult(1, 1)),
 		},
 		{
-			desc:          "Connection lost",
+			desc:          "Error while creating product",
 			input:         pr,
-			expectedError: errors.Error("Connection lost"),
+			expectedError: errors.Error("Error while creating product"),
 			mockQuery: mock.ExpectExec("INSERT INTO products(id, name, category) values(?, ?, ?)").WithArgs(
 				pr.ID, pr.Name, pr.Category,
-			).WillReturnError(errors.Error("Connection lost")),
+			).WillReturnError(errors.Error("Error while creating product")),
 		},
 	}
 
@@ -210,13 +210,13 @@ func TestUpdateByID(t *testing.T) {
 			).WillReturnResult(sqlmock.NewResult(1, 1)),
 		},
 		{
-			desc:          "Connection lost",
+			desc:          "Error while updating product",
 			id:            1,
 			input:         pr,
-			expectedError: errors.Error("Connection lost"),
+			expectedError: errors.Error("Error while updating product"),
 			mockQuery: mock.ExpectExec("UPDATE products SET name = ?, category = ? WHERE id = ?").WithArgs(
 				pr.Name, pr.Category, 1,
-			).WillReturnError(errors.Error("Connection lost")),
+			).WillReturnError(errors.Error("Error while updating product")),
 		},
 	}
 
@@ -260,7 +260,7 @@ func TestDeleteByID(t *testing.T) {
 			mockQuery:     mock.ExpectExec("DELETE FROM products WHERE id = ?").WithArgs(100).WillReturnResult(sqlmock.NewResult(0, 0)),
 		},
 		{
-			desc:          "Connection lost",
+			desc:          "Error while deleting product",
 			id:            1,
 			expectedError: sql.ErrConnDone,
 			mockQuery:     mock.ExpectExec("DELETE FROM products WHERE id = ?").WithArgs(1).WillReturnError(sql.ErrConnDone),

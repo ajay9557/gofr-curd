@@ -30,9 +30,13 @@ func (h Handler) GetByIDHandler(ctx *gofr.Context) (interface{}, error) {
 	}
 
 	resData := &struct {
-		Product *models.Product `json:"product"`
+		Product    *models.Product `json:"product"`
+		StatusCode int             `json:"statusCode"`
+		Message    string          `json:"message"`
 	}{
-		Product: p,
+		Product:    p,
+		StatusCode: http.StatusOK,
+		Message:    "Successful operation",
 	}
 
 	return resData, nil
@@ -45,9 +49,13 @@ func (h Handler) GetHandler(ctx *gofr.Context) (interface{}, error) {
 	}
 
 	resData := &struct {
-		Products []*models.Product `json:"products"`
+		Products   []*models.Product `json:"products"`
+		StatusCode int               `json:"statusCode"`
+		Message    string            `json:"message"`
 	}{
-		Products: products,
+		Products:   products,
+		StatusCode: http.StatusOK,
+		Message:    "Successful operation",
 	}
 
 	return resData, nil
@@ -71,9 +79,11 @@ func (h Handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
 	resData := &struct {
 		Product    *models.Product `json:"product"`
 		StatusCode int             `json:"statusCode"`
+		Message    string          `json:"message"`
 	}{
 		Product:    pr,
 		StatusCode: http.StatusCreated,
+		Message:    "Successful operation",
 	}
 
 	return resData, nil
@@ -97,9 +107,13 @@ func (h Handler) UpdateProductHandler(ctx *gofr.Context) (interface{}, error) {
 	}
 
 	resData := &struct {
-		Product *models.Product `json:"product"`
+		Product    *models.Product `json:"product"`
+		StatusCode int             `json:"statusCode"`
+		Message    string          `json:"message"`
 	}{
-		Product: pr,
+		Product:    pr,
+		StatusCode: http.StatusOK,
+		Message:    "Successful operation",
 	}
 
 	return resData, nil
@@ -113,13 +127,5 @@ func (h Handler) DeleteProductHandler(ctx *gofr.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	resData := &struct {
-		Message    string `json:"message"`
-		StatusCode int    `json:"statusCode"`
-	}{
-		Message:    "Product deleted successfully",
-		StatusCode: http.StatusCreated,
-	}
-
-	return resData, nil
+	return nil, nil
 }

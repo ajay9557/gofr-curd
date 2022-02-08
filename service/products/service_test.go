@@ -8,6 +8,7 @@ import (
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
+
 	"github.com/golang/mock/gomock"
 	"github.com/ridhdhish-desai-zs/product-gofr/models"
 	"github.com/ridhdhish-desai-zs/product-gofr/store"
@@ -72,9 +73,6 @@ func TestGetById(t *testing.T) {
 		tc := test
 
 		t.Run(tc.desc, func(t *testing.T) {
-			ctx := gofr.NewContext(nil, nil, app)
-			ctx.Context = context.Background()
-
 			p, err := productService.GetByID(ctx, tc.id)
 
 			if tc.expectedError != err {
