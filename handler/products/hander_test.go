@@ -265,7 +265,7 @@ func Test_AddProduct(t *testing.T) {
 			mock:           nil,
 		},
 	}
-
+	
 	for _, test := range tcs {
 		tc := test
 

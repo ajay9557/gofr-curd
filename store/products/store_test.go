@@ -2,14 +2,15 @@ package products
 
 import (
 	"context"
+	"reflect"
 	"testing"
 	"zopsmart/gofr-curd/model"
 
-	//	"developer.zopsmart.com/go/gofr/pkg/datastore"
+	e "errors"
+
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
-
-	"github.com/stretchr/testify/assert"
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestCoreLayer(t *testing.T) {
@@ -17,139 +18,276 @@ func TestCoreLayer(t *testing.T) {
 
 	testAddProduct(t, app)
 	testGetProductByID(t, app)
-	testAddProductWithError(t, app)
 	testUpdateProduct(t, app)
 	testGetProducts(t, app)
 	testDeleteProduct(t, app)
-	testErrors(t, app)
-}
-
-var id int
-
-func testAddProduct(t *testing.T, app *gofr.Gofr) {
-	tests := []struct {
-		desc    string
-		product model.Product
-		err     error
-	}{
-		{"create succuss test #1", model.Product{Name: "Test123", Type: "Test"}, nil},
-	}
-
-	for i, test := range tests {
-		tc := test
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
-
-		store := New()
-		resp, err := store.AddProduct(ctx, tc.product)
-		id = resp
-		app.Logger.Log(resp)
-
-		assert.Equal(t, tc.err, err, "TEST[%d], failed.\n%s", i, tc.desc)
-	}
-}
-
-func testAddProductWithError(t *testing.T, app *gofr.Gofr) {
-	customer := model.Product{
-		Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkj",
-	}
-
-	ctx := gofr.NewContext(nil, nil, app)
-	ctx.Context = context.Background()
-
-	store := New()
-
-	_, err := store.AddProduct(ctx, customer)
-	if _, ok := err.(errors.DB); err != nil && ok == false {
-		t.Errorf("Error Testcase FAILED")
-	}
 }
 
 func testGetProductByID(t *testing.T, app *gofr.Gofr) {
-	tests := []struct {
-		desc string
-		id   int
-		err  error
-	}{
-		{"Get existent id", id, nil},
-		{"Get non existent id", 1223, errors.EntityNotFound{Entity: "product", ID: "1223"}},
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected while opening a stub database connection", err)
 	}
-	for i, tc := range tests {
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
 
+	defer db.Close()
+
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	ctx.DB().DB = db
+
+	rows := sqlmock.NewRows([]string{"Id", "Name", "Type"}).
+		AddRow(1, "Sarah Vaughan", "Sarah")
+
+	tests := []struct {
+		desc   string
+		id     int
+		output model.Product
+		err    error
+		mock   []interface{}
+	}{
+		{
+			desc:   "case-1",
+			id:     1,
+			output: model.Product{ID: 1, Name: "Sarah Vaughan", Type: "Sarah"},
+			err:    nil,
+			mock: []interface{}{
+				mock.ExpectQuery("Select * from Products where id=?").WithArgs(1).WillReturnRows(rows),
+			},
+		},
+		{
+			desc:   "case-2",
+			id:     1223,
+			output: model.Product{},
+			err:    errors.EntityNotFound{Entity: "product", ID: "1223"},
+			mock: []interface{}{
+				mock.ExpectQuery("Select * from Products where id=?").WithArgs(1223).
+					WillReturnError(errors.EntityNotFound{Entity: "product", ID: "1223"}),
+			},
+		},
+	}
+
+	for _, tests := range tests {
+		tc := tests
 		store := New()
 
-		_, err := store.GetProductByID(ctx, tc.id)
-		assert.Equal(t, tc.err, err, "TEST[%d], failed.\n%s", i, tc.desc)
+		output, err := store.GetProductByID(ctx, tc.id)
+		if !reflect.DeepEqual(err, tc.err) {
+			t.Errorf("expected error: %s, got error: %s", tc.err, err)
+		}
+
+		if !reflect.DeepEqual(tc.output, output) {
+			t.Errorf("expected %v, got :  %v", tc.output, output)
+		}
 	}
 }
 
-func testUpdateProduct(t *testing.T, app *gofr.Gofr) {
-	tests := []struct {
-		desc     string
-		customer model.Product
-		err      error
-	}{
-		{"update succuss", model.Product{ID: id, Name: "Test1234"}, nil},
-		{"update fail", model.Product{ID: 1, Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkj"}, errors.DB{}},
+func testAddProduct(t *testing.T, app *gofr.Gofr) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected while opening a stub database connection", err)
 	}
 
-	for i, tc := range tests {
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
+	defer db.Close()
 
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	ctx.DB().DB = db
+
+	tests := []struct {
+		desc   string
+		input  model.Product
+		output int
+		err    error
+		mock   []interface{}
+	}{
+		{
+			desc:   "case-1",
+			input:  model.Product{Name: "Sarah Vaughan", Type: "Sarah"},
+			output: 1,
+			err:    nil,
+			mock: []interface{}{
+				mock.ExpectExec("INSERT INTO Products(Id,Name,Type) VALUES(?,?,?)").WithArgs(0, "Sarah Vaughan", "Sarah").
+					WillReturnResult(sqlmock.NewResult(1, 1)),
+			},
+		},
+		{
+			desc:   "case-2",
+			input:  model.Product{Name: "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkjthuijnhvbjiommjgfbnu", Type: "er"},
+			output: -1,
+			err:    e.New("error"),
+			mock: []interface{}{
+				mock.ExpectExec("INSERT INTO Products(Id,Name,Type) VALUES(?,?,?)").
+					WithArgs(0, "very-long-mock-name-lasdjflsdjfljasdlfjsdlfjsdfljlkjthuijnhvbjiommjgfbnu", "er").WillReturnError(e.New("error")),
+			},
+		},
+	}
+
+	for _, tests := range tests {
+		tc := tests
 		store := New()
 
-		_, err := store.UpdateByID(ctx, tc.customer)
-		if _, ok := err.(errors.DB); err != nil && ok == false {
-			t.Errorf("TEST[%v] Failed.\tExpected %v\tGot %v\n%s", i, tc.err, err, tc.desc)
+		output, err := store.AddProduct(ctx, tc.input)
+		if !reflect.DeepEqual(err, tc.err) {
+			t.Errorf("expected error: %v, got error: %v", tc.err, err)
+		}
+
+		if !reflect.DeepEqual(tc.output, output) {
+			t.Errorf("expected %v, got :  %v", tc.output, output)
 		}
 	}
 }
 
 func testGetProducts(t *testing.T, app *gofr.Gofr) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected while opening a stub database connection", err)
+	}
+
+	defer db.Close()
+
 	ctx := gofr.NewContext(nil, nil, app)
 	ctx.Context = context.Background()
+	ctx.DB().DB = db
 
-	store := New()
+	rows := sqlmock.NewRows([]string{"Id", "Name", "Type"}).
+		AddRow(1, "Sarah Vaughan", "Sarah")
 
-	_, err := store.GetProducts(ctx)
+	tests := []struct {
+		desc   string
+		output []model.Product
+		err    error
+		mock   []interface{}
+	}{
+		{
+			desc: "case-1",
+
+			output: []model.Product{{ID: 1, Name: "Sarah Vaughan", Type: "Sarah"}},
+			err:    nil,
+			mock: []interface{}{
+				mock.ExpectQuery("Select * from Products").WillReturnRows(rows),
+			},
+		},
+		{
+			desc:   "case-2",
+			output: nil,
+			err:    errors.Error("error"),
+			mock: []interface{}{
+				mock.ExpectQuery("Select * from Products").WillReturnError(errors.Error("error")),
+			},
+		},
+	}
+
+	for _, tests := range tests {
+		tc := tests
+		store := New()
+
+		output, err := store.GetProducts(ctx)
+		if !reflect.DeepEqual(err, tc.err) {
+			t.Errorf("expected error: %v, got error: %v", tc.err, err)
+		}
+
+		if !reflect.DeepEqual(tc.output, output) {
+			t.Errorf("expected %v, got :  %v", tc.output, output)
+		}
+	}
+}
+
+func testUpdateProduct(t *testing.T, app *gofr.Gofr) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
-		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
+		t.Fatalf("an error '%s' was not expected while opening a stub database connection", err)
+	}
+
+	defer db.Close()
+
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	ctx.DB().DB = db
+
+	tests := []struct {
+		desc   string
+		output model.Product
+		err    error
+		mock   []interface{}
+	}{
+		{
+			desc:   "case-1",
+			output: model.Product{ID: 1, Name: "Sarah Vaughan", Type: "Sarah"},
+			err:    nil,
+			mock: []interface{}{
+				mock.ExpectExec("Update Products set Name=?,Type=? where Id=?").WithArgs("Sarah Vaughan", "Sarah", 1).
+					WillReturnResult(sqlmock.NewResult(1, 1)),
+			},
+		},
+		{
+			desc:   "case-2",
+			output: model.Product{},
+			err:    errors.Error("error"),
+			mock: []interface{}{
+				mock.ExpectExec("Update Products set Name=?,Type=? where Id=?").WithArgs("Sarah Vaughan", "Sarah", 0).
+					WillReturnError(errors.Error("errpr")),
+			},
+		},
+	}
+
+	for _, tests := range tests {
+		tc := tests
+		store := New()
+
+		output, err := store.UpdateByID(ctx, tc.output)
+		if !reflect.DeepEqual(err, tc.err) {
+			t.Errorf("expected error: %v, got error: %v", tc.err, err)
+		}
+
+		if !reflect.DeepEqual(tc.output, output) {
+			t.Errorf("expected %v, got :  %v", tc.output, output)
+		}
 	}
 }
 
 func testDeleteProduct(t *testing.T, app *gofr.Gofr) {
-	ctx := gofr.NewContext(nil, nil, app)
-	ctx.Context = context.Background()
-
-	store := New()
-
-	err := store.DeleteByID(ctx, id)
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
-		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
+		t.Fatalf("an error '%s' was not expected while opening a stub database connection", err)
 	}
-}
 
-func testErrors(t *testing.T, app *gofr.Gofr) {
+	defer db.Close()
+
 	ctx := gofr.NewContext(nil, nil, app)
 	ctx.Context = context.Background()
-	_ = ctx.DB().Close() // close the connection to generate errors
+	ctx.DB().DB = db
 
-	store := New()
-
-	err := store.DeleteByID(ctx, 64)
-	if err == nil {
-		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
+	tests := []struct {
+		desc   string
+		id     int
+		output model.Product
+		err    error
+		mock   []interface{}
+	}{
+		{
+			desc: "case-1",
+			id:   1,
+			err:  nil,
+			mock: []interface{}{
+				mock.ExpectExec("Delete from Products where id=?").WithArgs(1).WillReturnResult(sqlmock.NewResult(1, 1)),
+			},
+		},
+		{
+			desc: "case-2",
+			id:   0,
+			err:  errors.Error("error"),
+			mock: []interface{}{
+				mock.ExpectExec("Update Products set Name=?,Type=? where Id=?").WithArgs(0).WillReturnError(errors.Error("error")),
+			},
+		},
 	}
+	for _, tests := range tests {
+		tc := tests
+		store := New()
 
-	_, err = store.GetProducts(ctx)
-	if err == nil {
-		t.Errorf("FAILED, Expected: %v, Got: %v", nil, err)
+		err := store.DeleteByID(ctx, tc.id)
+		if !reflect.DeepEqual(err, tc.err) {
+			t.Errorf("expected error: %v, got error: %v", tc.err, err)
+		}
 	}
-}
-
-func TestNew(t *testing.T) {
-	_ = New()
 }

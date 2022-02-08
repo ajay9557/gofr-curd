@@ -1,9 +1,10 @@
 package products
 
 import (
-	"database/sql"
 	"fmt"
 	"zopsmart/gofr-curd/model"
+
+	er "errors"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
@@ -20,7 +21,7 @@ func (s *DBStore) GetProductByID(ctx *gofr.Context, id int) (model.Product, erro
 	var resp model.Product
 
 	err := ctx.DB().QueryRowContext(ctx, "Select * from Products where id=?", id).Scan(&resp.ID, &resp.Name, &resp.Type)
-	if err == sql.ErrNoRows {
+	if err != nil {
 		return model.Product{}, errors.EntityNotFound{Entity: "product", ID: fmt.Sprint(id)}
 	}
 
@@ -30,7 +31,7 @@ func (s *DBStore) GetProductByID(ctx *gofr.Context, id int) (model.Product, erro
 func (s *DBStore) DeleteByID(ctx *gofr.Context, id int) error {
 	_, err := ctx.DB().ExecContext(ctx, "Delete from Products where id=?", id)
 	if err != nil {
-		return errors.DB{Err: err}
+		return errors.Error("error")
 	}
 
 	return nil
@@ -39,7 +40,7 @@ func (s *DBStore) DeleteByID(ctx *gofr.Context, id int) error {
 func (s *DBStore) GetProducts(ctx *gofr.Context) ([]model.Product, error) {
 	rows, err := ctx.DB().QueryContext(ctx, "Select * from Products")
 	if err != nil {
-		return nil, errors.DB{Err: err}
+		return nil, errors.Error("error")
 	}
 	defer rows.Close()
 
@@ -62,7 +63,7 @@ func (s *DBStore) GetProducts(ctx *gofr.Context) ([]model.Product, error) {
 func (s *DBStore) AddProduct(ctx *gofr.Context, prod model.Product) (int, error) {
 	res, err := ctx.DB().ExecContext(ctx, "INSERT INTO Products(Id,Name,Type) VALUES(?,?,?)", prod.ID, prod.Name, prod.Type)
 	if err != nil {
-		return -1, errors.DB{Err: err}
+		return -1, er.New("error")
 	}
 
 	lastID, _ := res.LastInsertId()
@@ -73,7 +74,7 @@ func (s *DBStore) AddProduct(ctx *gofr.Context, prod model.Product) (int, error)
 func (s *DBStore) UpdateByID(ctx *gofr.Context, prod model.Product) (model.Product, error) {
 	_, err := ctx.DB().ExecContext(ctx, "Update Products set Name=?,Type=? where Id=?", prod.Name, prod.Type, prod.ID)
 	if err != nil {
-		return model.Product{}, errors.DB{Err: err}
+		return model.Product{}, errors.Error("error")
 	}
 
 	return prod, nil
