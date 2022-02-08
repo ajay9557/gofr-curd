@@ -1,7 +1,6 @@
 package product
 
 import (
-	"database/sql"
 	"fmt"
 	"gofr-curd/models"
 	"gofr-curd/store"
@@ -26,7 +25,7 @@ func (p productStorer) GetByID(id int, ctx *gofr.Context) (models.Product, error
 
 	err := ctx.DB().QueryRowContext(ctx, ReadQ, id).Scan(&product.ID, &product.Name, &product.Type)
 
-	if err == sql.ErrNoRows {
+	if err != nil {
 		return models.Product{}, errors.EntityNotFound{Entity: "product", ID: fmt.Sprint(id)}
 	}
 
@@ -43,7 +42,7 @@ func (p productStorer) GetAllProducts(ctx *gofr.Context) ([]models.Product, erro
 	rows, err := ctx.DB().QueryContext(ctx, ReadQ)
 
 	if err != nil {
-		return nil, errors.DB{Err: err}
+		return nil, errors.Error("internal db error")
 	}
 
 	defer rows.Close()
@@ -104,7 +103,7 @@ func (p productStorer) DeleteByID(id int, ctx *gofr.Context) error {
 	_, err := ctx.DB().ExecContext(ctx, deleteQ, id)
 
 	if err != nil {
-		return errors.DB{Err: err}
+		return errors.Error("internal db error")
 	}
 
 	return nil
