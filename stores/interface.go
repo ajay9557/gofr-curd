@@ -7,10 +7,10 @@ import (
 )
 
 type Istore interface {
-	GetProductById(ctx *gofr.Context, id int) (*models.Product, error)
+	GetProductByID(ctx *gofr.Context, id int) (*models.Product, error)
 	GetAllProducts(ctx *gofr.Context) ([]*models.Product, error)
 	// CreateProduct(ctx *gofr.Context, prd models.Product) (int, error)
 	CreateProduct(ctx *gofr.Context, prd models.Product) (int, error)
-	DeleteById(ctx *gofr.Context, id int) error
-	UpdateById(ctx *gofr.Context, id int, prd models.Product) (int, error)
+	DeleteByID(ctx *gofr.Context, id int) error
+	UpdateByID(ctx *gofr.Context, id int, prd models.Product) (int, error)
 }

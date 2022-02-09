@@ -36,6 +36,7 @@ func TestMain(m *testing.M) {
 	   type varchar (50))
 	`
 	}
+
 	if _, err := db.Exec(query); err != nil {
 		app.Logger.Errorf("got error sourcing the schema: ", err)
 	}

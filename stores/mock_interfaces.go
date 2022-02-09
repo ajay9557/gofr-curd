@@ -50,18 +50,18 @@ func (mr *MockIstoreMockRecorder) CreateProduct(arg0, arg1 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProduct", reflect.TypeOf((*MockIstore)(nil).CreateProduct), arg0, arg1)
 }
 
-// DeleteById mocks base method.
-func (m *MockIstore) DeleteById(arg0 *gofr.Context, arg1 int) error {
+// DeleteByID mocks base method.
+func (m *MockIstore) DeleteByID(arg0 *gofr.Context, arg1 int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteById", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteByID", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteById indicates an expected call of DeleteById.
-func (mr *MockIstoreMockRecorder) DeleteById(arg0, arg1 interface{}) *gomock.Call {
+// DeleteByID indicates an expected call of DeleteByID.
+func (mr *MockIstoreMockRecorder) DeleteByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteById", reflect.TypeOf((*MockIstore)(nil).DeleteById), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockIstore)(nil).DeleteByID), arg0, arg1)
 }
 
 // GetAllProducts mocks base method.
@@ -79,32 +79,32 @@ func (mr *MockIstoreMockRecorder) GetAllProducts(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllProducts", reflect.TypeOf((*MockIstore)(nil).GetAllProducts), arg0)
 }
 
-// GetProductById mocks base method.
-func (m *MockIstore) GetProductById(arg0 *gofr.Context, arg1 int) (*models.Product, error) {
+// GetProductByID mocks base method.
+func (m *MockIstore) GetProductByID(arg0 *gofr.Context, arg1 int) (*models.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProductById", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetProductByID", arg0, arg1)
 	ret0, _ := ret[0].(*models.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetProductById indicates an expected call of GetProductById.
-func (mr *MockIstoreMockRecorder) GetProductById(arg0, arg1 interface{}) *gomock.Call {
+// GetProductByID indicates an expected call of GetProductByID.
+func (mr *MockIstoreMockRecorder) GetProductByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductById", reflect.TypeOf((*MockIstore)(nil).GetProductById), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductByID", reflect.TypeOf((*MockIstore)(nil).GetProductByID), arg0, arg1)
 }
 
-// UpdateById mocks base method.
-func (m *MockIstore) UpdateById(arg0 *gofr.Context, arg1 int, arg2 models.Product) (int, error) {
+// UpdateByID mocks base method.
+func (m *MockIstore) UpdateByID(arg0 *gofr.Context, arg1 int, arg2 models.Product) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateById", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdateByID", arg0, arg1, arg2)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// UpdateById indicates an expected call of UpdateById.
-func (mr *MockIstoreMockRecorder) UpdateById(arg0, arg1, arg2 interface{}) *gomock.Call {
+// UpdateByID indicates an expected call of UpdateByID.
+func (mr *MockIstoreMockRecorder) UpdateByID(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateById", reflect.TypeOf((*MockIstore)(nil).UpdateById), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateByID", reflect.TypeOf((*MockIstore)(nil).UpdateByID), arg0, arg1, arg2)
 }

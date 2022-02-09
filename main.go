@@ -15,13 +15,14 @@ func main() {
 	serv := servProd.New(store)
 	hndlr := httpProd.Handler{Service: serv}
 
-	application.GET("/products/{id}", hndlr.GetProductByIdHandler)
+	application.GET("/products/{id}", hndlr.GetProductByIDHandler)
 	application.GET("/products", hndlr.GetAllProductsHandler)
 	application.POST("/products", hndlr.CreateProductHandler)
-	application.DELETE("/products/{id}", hndlr.DeleteByIdHandler)
-	application.PUT("/products/{id}", hndlr.UpdateByIdHandler)
+	application.DELETE("/products/{id}", hndlr.DeleteByIDHandler)
+	application.PUT("/products/{id}", hndlr.UpdateByIDHandler)
 	application.Server.HTTP.Port = 5000
 	application.Server.ValidateHeaders = false
+
 	fmt.Println("Listening to Port 5000")
 	application.Start()
 }

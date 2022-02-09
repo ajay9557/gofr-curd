@@ -21,11 +21,13 @@ import (
 func formUpdateQuery(p models.Product) (fields string, args []interface{}) {
 	if p.Name != "" {
 		fields += " name = ?,"
+
 		args = append(args, p.Name)
 	}
 
 	if p.Type != "" {
-		fields += " type= ?,"
+		fields += " type = ?,"
+
 		args = append(args, p.Type)
 	}
 
