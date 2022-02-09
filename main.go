@@ -12,7 +12,7 @@ func main() {
 	application := gofr.New()
 
 	store := storeProd.New()
-	serv := servProd.New(&store)
+	serv := servProd.New(store)
 	handler := httpProd.HttpService{Service: serv}
 
 	application.Server.ValidateHeaders = false

@@ -3,6 +3,7 @@ package product
 import (
 	goError "errors"
 	"product/models"
+	"product/stores"
 
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
@@ -10,8 +11,8 @@ import (
 type Store struct {
 }
 
-func New() Store {
-	return Store{}
+func New() stores.Store {
+	return &Store{}
 }
 
 func (store *Store) GetProductById(ctx *gofr.Context, id int) (models.Product, error) {
