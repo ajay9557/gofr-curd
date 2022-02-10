@@ -1,11 +1,9 @@
 package main
 
 import (
-	// "database/sql"
+	
 	"fmt"
-
-	//	"developer.zopsmart.com/go/gofr/examples/sample-api/handler"
-	ProductHandler "zopsmart/productgofr/handler/product"
+	ProductHandler "zopsmart/productgofr/http/product"
 	ProductService "zopsmart/productgofr/services/product"
 	ProductStore "zopsmart/productgofr/stores/product"
 
@@ -13,22 +11,20 @@ import (
 )
 
 func main() {
-/*	db, err := sql.Open("mysql", "root:yes@tcp(localhost:3306)/user")
+	app:= gofr.New()
 
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println("Connection establishment error")
-	}
-*/
 	ProStore := ProductStore.New()
 	ProService := ProductService.New(ProStore)
 	handler := ProductHandler.New(ProService)
 
-	app := gofr.New()
 	app.Server.ValidateHeaders = false
 	app.Server.HTTP.Port = 8000
 	app.EnableSwaggerUI()
 	app.GET("/product/{id}", handler.GetProdByIdHandler)
+	app.GET("/product", handler.GetAllProductHandler)
+	app.POST("/product", handler.CreateProductHandler)
+	app.PUT("/product/{id}", handler.UpdateProductHandler)
+	app.DELETE("product/{id}", handler.DeleteProductHandler)
 	fmt.Println("Listening to port : 8000")
 	app.Start()
 }

@@ -2,363 +2,208 @@ package product
 
 import (
 	"context"
-	"fmt"
+	models "zopsmart/productgofr/models"
+//	stores "zopsmart/productgofr/stores"
+ //   gofrErr "errors"
 	"reflect"
 	"testing"
-	models "zopsmart/productgofr/models"
-
-	//	"developer.zopsmart.com/go/gofr/pkg/datastore"
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
-	"github.com/DATA-DOG/go-sqlmock"
-//	"golang.org/x/tools/go/expect"
-
-	//	"github.com/modern-go/reflect2"
-
-	//	"gorm.io/driver/mysql"
-	//	"gorm.io/gorm"
-	"github.com/jinzhu/gorm"
 )
 
-func TestGetProdById(t *testing.T) {
+
+
+func TestGetAll(t *testing.T) {
 	app := gofr.New()
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Error(err)
-	}
-	database, err := gorm.Open("mysql",db)
-	if err != nil {
-		t.Error(err)
-	}
-
-	app.ORM = database
-
-	testCases := []struct {
-		desc        string
-		id          int
-		expectedErr error
-		Mock        []interface{}
-		expectedRes *models.Product
-	}{
-		{
-			desc: "Success case",
-			id:   1,
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(1).
-					WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"}).
-						AddRow(1, "shirt", "fashion")),
-			},
-			expectedErr: nil,
-			expectedRes: &models.Product{
+testCases := []struct {
+	desc   string
+	expErr error
+	expOut []models.Product
+}{
+	{
+		desc:   "success case",
+		expErr: nil,
+		expOut: []models.Product{
+			{
 				Id:   1,
 				Name: "shirt",
 				Type: "fashion",
 			},
-		},
-		{
-			desc: "Failure case",
-			id:   0,
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(1).
-					WillReturnError(errors.EntityNotFound{Entity: "product", ID: "0"}),
+			{
+				Id:   2,
+				Name: "mobile",
+				Type: "electronics",
 			},
-			expectedErr: errors.EntityNotFound{Entity: "product", ID: "0"},
-			expectedRes: &models.Product{},
 		},
-
-		{
-			desc: "Failure case",
-			id:   0,
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(1).
-					WillReturnError(errors.EntityNotFound{Entity: "product", ID: "0"}),
-			},
-			expectedErr: errors.EntityNotFound{Entity: "product", ID: "0"},
-			expectedRes: &models.Product{},
-		},
+	},
 	}
 
-	for _, ts := range testCases {
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
-		store := New()
-		t.Run(ts.desc, func(t *testing.T) {
-			res, err := store.GetProdByID(ctx, ts.id)
-			if err != nil && ts.expectedErr != err {
-				fmt.Print("expected ", ts.expectedErr, "obtained", err)
-			}
-			if !reflect.DeepEqual(ts.expectedRes, res) {
-				fmt.Print("expected ", ts.expectedRes, "obtained", res)
-			}
+for _, tc := range testCases {
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
 
-		})
+	s := New()
+	res, err := s.GetAllProduct(ctx)
+
+	if !reflect.DeepEqual(err, tc.expErr) {
+		t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 	}
+
+	if tc.expErr == nil && !reflect.DeepEqual(res, tc.expOut) {
+		t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, res)
+	}
+}
+}
+
+func TestGetByID(t *testing.T) {
+	app := gofr.New()
+testCases := []struct {
+	desc   string
+	input  int
+	expErr error
+	expOut models.Product
+}{
+	{
+		desc:   "Success Case",
+		input:  1,
+		expErr: nil,
+		expOut: models.Product{
+			Id:   1,
+			Name: "shirt",
+			Type: "fashion",
+		},
+	},
+	{
+		desc:  "Failure case 1",
+		input: 10,
+		expErr: errors.EntityNotFound{
+			Entity: "product",
+			ID:     "10",
+		},
+	},
+	{
+		desc:  "Failure case 2",
+		input: -1,
+		expErr: errors.EntityNotFound{
+			Entity: "product",
+			ID:     "-1",
+		},
+	},
+}
+
+for _, tc := range testCases {
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+
+	s := New()
+
+	out, err := s.GetProdByID(ctx, tc.input)
+	if !reflect.DeepEqual(err, tc.expErr) {
+		t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+	}
+
+	if tc.expErr == nil && !reflect.DeepEqual(out, tc.expOut) {
+		t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expOut, out)
+	}
+}
 }
 
 
-func TestCreateProduct(t *testing.T) {
+
+func TestCreate(t *testing.T) {
 	app := gofr.New()
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Error(err)
-	}
-	database, err := gorm.Open("mysql",db)
-	if err != nil {
-		t.Error(err)
-	}
-
-	app.ORM = database
-
-
-	testCases := []struct {
-		desc        string
-		input *models.Product
-		expectedErr error
-		Mock        []interface{}
-		expectedRes *models.Product
+tesCases := []struct {
+	desc   string
+	input  models.Product
+	expErr error
+	expRed models.Product
 	}{
-		{
-			desc: "Success case",
-			input:   &models.Product{
-				Id: 1,
-				Name:  "shirt",
-				Type:  "fashion",
-			},
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(models.Product{
-					Id :1,
-					Name: "shirt",
-					Type: "fashion",
-				}).
-					WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"}).
-						AddRow(1, "shirt", "fashion")),
-			},
-			expectedErr: nil,
-			expectedRes: &models.Product{
-				Id:   1,
-				Name: "shirt",
-				Type: "fashion",
-			},
+	{
+		desc: "success case",
+		input: models.Product{
+			Id:   3,
+			Name: "harry potter",
+			Type: "books",
 		},
-		{
-			desc: "Failure case 1",
-			input:  &models.Product{} ,
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(models.Product{}).
-					WillReturnError(errors.DB{Err:err}),
-			},
-			expectedErr: errors.DB{Err:err},
-			expectedRes: &models.Product{},
-		},
-		{
-			desc: "Failure case 2",
-			input:  &models.Product{} ,
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(models.Product{
-				Id:  0,
-				Name: "shirt",
-				Type: "fashion",		
-				}).
-					WillReturnError(errors.DB{Err:err}),
-			},
-			expectedErr: errors.DB{Err:err},
-			expectedRes: &models.Product{
-				Id:  0,
-				Name: "shirt",
-				Type: "fashion",
-			},
-		},
-	}
+		expErr: nil,
+	},
+	// {
+	// 	desc: "Failure case",
+	// 	input: models.Product{
+	// 		Name: "",
+	// 		Type: "",
+	// 	},
+	// 	expErr: errors.EntityNotFound{
+	// 		Entity: "product",
+	// 	},
+	// },
+}
 
-	for _, ts := range testCases {
-		t.Run(ts.desc, func(t *testing.T) {
-			ctx := gofr.NewContext(nil, nil, app)
-			ctx.Context = context.Background()
-			store := New()
-			res, err := store.CreateProduct(ctx, ts.input)
-			if err != nil && ts.expectedErr != err {
-				fmt.Print("expected ", ts.expectedErr, "obtained", err)
-			}
-			if !reflect.DeepEqual(ts.expectedRes, res) {
-				fmt.Print("expected ", ts.expectedRes, "obtained", res)
-			}
-
-		})
-	}
+for _, tc := range tesCases {
 	
+	ctx := gofr.NewContext(nil, nil, app)
+    ctx.Context = context.Background()
+    s := New()
+	err := s.CreateProduct(ctx, tc.input)
 
-}
-
-func TestDeleteProduct(t *testing.T) {
-	app := gofr.New()
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Error(err)
-	}
-	database, err := gorm.Open("mysql",db)
-	if err != nil {
-		t.Error(err)
-	}
-
-	app.ORM = database
-	testCases := []struct {
-		desc        string
-		input int
-		expectedErr error
-		Mock        []interface{}
-	} {
-		{
-			desc: "Success Case",
-			input: 1,
-			expectedErr: nil,
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(1).
-					WillReturnError(nil)},
-		},
-		{
-			desc: "Failure Case",
-			input: 443,
-			expectedErr: errors.DB{Err: err},
-			Mock: []interface{}{
-				mock.ExpectQuery("Select Id,Name,Type from product").WithArgs(443).
-					WillReturnError(errors.DB{Err: err})},
-		},
-	}
-
-	for _,ts := range testCases {
-		t.Run(ts.desc, func(t *testing.T) {
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
-		store := New()
-		err := store.DeleteProduct(ctx,ts.input)
-
-		if !reflect.DeepEqual(ts.expectedErr,err) {
-			fmt.Print("expected ", ts.expectedErr, "obtained", err)
-		}
-
-		})
+	if !reflect.DeepEqual(err, tc.expErr) {
+		t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
 	}
 }
-
-func TestUpdateProduct(t *testing.T) {
-	app := gofr.New()
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Error(err)
-	}
-	database, err := gorm.Open("mysql",db)
-	if err != nil {
-		t.Error(err)
-	}
-
-	app.ORM = database
-
-	testcase := []struct {
-		desc string
-		input models.Product
-		expectedRes *models.Product
-		expectedErr error
-	}{
-		{
-			desc: "Success case",
-			input: models.Product{
-				Id:1,
-				Name: "fruits",
-				Type: "Daily needs",
-			},
-			expectedRes: &models.Product{
-				Id:1,
-				Name: "fruits",
-				Type: "Daily needs",
-			},
-			expectedErr: nil,
-
-		},
-		{
-			desc: "Failure Case",
-			input: models.Product{},
-			expectedRes: &models.Product{},
-			expectedErr: errors.DB{Err:err},
-
-		},
-	}
-
-	for _,ts := range testcase {
-		t.Run(ts.desc, func(t *testing.T) {
-			query := "UPDATE product SET"
-			fields,values := formQuery(ts.input)
-			query += fields + " WHERE id = ?"
-			mock.ExpectQuery(query).WithArgs(values[0], values[1],values[2]).WillReturnError(nil)
-			ctx := gofr.NewContext(nil, nil, app)
-			ctx.Context = context.Background()
-			store := New()
-			res,err := store.UpdateProduct(ctx,ts.input)
-			if !reflect.DeepEqual(err,ts.expectedErr) {
-				fmt.Print("expected ", ts.expectedErr, "obtained", err)
-			}
-
-			if !reflect.DeepEqual(res,ts.expectedRes) {
-				fmt.Print("expected ", ts.expectedRes, "obtained", res)
-			}
-
-		})
-	}
-
 }
 
-func TestGetAllProduct(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	app := gofr.New()
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Error(err)
-	}
-	database, err := gorm.Open("mysql",db)
-	if err != nil {
-		t.Error(err)
-	}
-
-	app.ORM = database
-
-
-	testCases := []struct {
-		expectedErr error
-		expectedOut []*models.Product
-		mockQuery *sqlmock.ExpectedQuery
-	} {
-		{
-			expectedErr: nil,
-			mockQuery: mock.ExpectQuery("SELECT Id,Name,Type from product").
-				WillReturnRows(sqlmock.NewRows([]string{"Id", "Name", "Type"}).
-					AddRow(1, "shirt","fashion").
-					AddRow(2, "mobile", "electronics")),
-			expectedOut: []*models.Product{
-				{
-					Id:    1,
-					Name:  "shirt",
-					Type: "fashion",
-				},
-				{
-					Id:    2,
-					Name:  "mobile",
-					Type: "electronics",
-				},
-			},
+tesCases := []struct{
+	 desc   string
+	 input  models.Product
+	 expErr error
+	 } {
+	{
+		desc: "success case",
+		input: models.Product{
+			Id:   3,
+			Name: "",
+			Type: "daily needs",
 		},
-	}
-    for _,tc := range testCases {
-		t.Run("testing",func(t *testing.T) {
-		ctx := gofr.NewContext(nil, nil, app)
-		ctx.Context = context.Background()
-		store := New()
-		res, err := store.GetAllProduct(ctx)
-		if !reflect.DeepEqual(res, tc.expectedOut) {
-			t.Errorf("Expected: \t%v\nGot: \t%v\n",tc.expectedOut, res)
-		}
-		if !reflect.DeepEqual(err,tc.expectedErr) {
-			t.Errorf("Expected: \t%v\nGot: \t%v\n",tc.expectedErr, err)
-		}
-	})
-			
-	}
+		expErr: nil,
+	},
+}
 
+for _, tc := range tesCases {
+	ctx := gofr.NewContext(nil, nil, app)
+    ctx.Context = context.Background()
+    s := New()
+	err := s.UpdateProduct(ctx, tc.input)
+
+	if !reflect.DeepEqual(err, tc.expErr) {
+		t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+	}
+}
+}
+
+func TestDelete(t *testing.T) {
+	app := gofr.New()
+tesCases := []struct {
+	desc   string
+	input  int
+	expErr error
+}{
+	{
+		desc:   "success case",
+		input:  3,
+		expErr: nil,
+	},
+}
+
+for _, tc := range tesCases {
+	ctx := gofr.NewContext(nil, nil, app)
+	ctx.Context = context.Background()
+	s := New()
+	err := s.DeleteProduct(ctx, tc.input)
+
+	if !reflect.DeepEqual(err, tc.expErr) {
+		t.Errorf("%s : expected %v, but got %v", tc.desc, tc.expErr, err)
+	}
+}
 }

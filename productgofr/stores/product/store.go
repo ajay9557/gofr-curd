@@ -2,91 +2,70 @@ package product
 
 import (
 	"database/sql"
-	"fmt"
+	"strconv"
 	models "zopsmart/productgofr/models"
+	stores "zopsmart/productgofr/stores"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
-	_ "github.com/aws/aws-sdk-go/private/protocol/query"
 )
 
-type DbStore struct {
-	db *sql.DB
+
+type DBstore struct {}
+
+func New() stores.Store {
+	return &DBstore{}
 }
 
-func New() *DbStore {
-	return &DbStore{
-	}
-}
+func (p *DBstore) GetProdByID(ctx *gofr.Context, id int) (models.Product, error) {
+	var product models.Product
 
-func (s *DbStore) GetProdByID(ctx *gofr.Context, id int) (*models.Product, error) {
-	var resp models.Product
-
-	err := ctx.DB().QueryRowContext(ctx, " SELECT * FROM product where id=?", id).Scan(&resp.Id, &resp.Name, &resp.Type)
-
-	if err != nil {
-		return &models.Product{}, errors.EntityNotFound{Entity: "Product", ID: fmt.Sprint(id)}
-	}
-
-	return &resp, nil
-
-}
-
-
-func (p *DbStore) GetAllProduct(ctx *gofr.Context) ([]*models.Product,error) {
-	var prods []*models.Product
-
-	rows, err := ctx.DB().QueryContext(ctx,"SELECT * FROM product;")
-
-	if err!=nil {
-		return []*models.Product{},errors.Error("error")
-	}
+	err := ctx.DB().QueryRowContext(ctx, "Select id,name,type from product where id =?", id).Scan(&product.Id, &product.Name, &product.Type)
 	
-	for rows.Next() {
-		var prod *models.Product
-
-		err := rows.Scan(&prod.Id, &prod.Name,&prod.Type)
-
-		if err!=nil {
-			return nil, err
-		}
-		prods = append(prods,prod)
+	if err == sql.ErrNoRows {
+		return product, errors.EntityNotFound{Entity: "product", ID: strconv.Itoa(id)}
 	}
-
-	return prods,nil
-
+	return product, nil
 }
 
-
-func (p *DbStore) UpdateProduct(ctx *gofr.Context,pro models.Product) (*models.Product,error) {
-	query := "UPDATE product SET"
-	fields, values := formQuery(pro)
-	query+= fields+ " WHERE id = ?"
-	_,err := ctx.DB().Exec(query,values...)
-
-	if err!=nil {
-		return &models.Product{},errors.DB{Err:err}
-	}
-
-	return &pro,err
-}
-
-
-func (p *DbStore) DeleteProduct(ctx *gofr.Context,id int) error {
-	_,err := ctx.DB().ExecContext(ctx,"DELETE FROM product where id = ?",id)
-	if err!=nil {
-		return errors.DB{Err: err}
+func (p *DBstore) DeleteProduct(ctx *gofr.Context, id int) error {
+	_, err := ctx.DB().ExecContext(ctx, "Delete from product where id=?", id)
+	if err != nil {
+		return errors.Error("internal DB error")
 	}
 	return nil
 }
 
+func (p *DBstore) UpdateProduct(ctx *gofr.Context, prod models.Product) error {
+	_, err := ctx.DB().ExecContext(ctx, "Update product set name=?,type=? where id=?", prod.Name, prod.Type, prod.Id)
+	if err != nil {
+		return errors.Error("internal DB error")
+	}
+	return nil
+}
 
-func (p *DbStore) CreateProduct(ctx *gofr.Context,prod *models.Product) (*models.Product,error) {
-	err := ctx.DB().QueryRowContext(ctx,"INSERT INTO product(Id, Name, Type) VALUES INTO(?,?,?)").Scan(&prod.Id,&prod.Name,&prod.Type)
+func (p *DBstore) CreateProduct(ctx *gofr.Context, product models.Product) error {
+	_, err := ctx.DB().ExecContext(ctx, "insert into product values(?,?,?)",product.Id, product.Name, product.Type)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-	if err!=nil {
-		return &models.Product{},errors.DB{Err:err}
+func (p *DBstore) GetAllProduct(ctx *gofr.Context) ([]models.Product, error) {
+	var products []models.Product
+	rows, err := ctx.DB().QueryContext(ctx, "Select id,name,type from product")
+	if err != nil {
+		return nil, errors.EntityNotFound{Entity: "products", ID: "all"}
 	}
 
-	return prod,nil
+	for rows.Next() {
+		var product models.Product
+		err := rows.Scan(&product.Id, &product.Name, &product.Type)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+	return products, nil
 }

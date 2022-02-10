@@ -36,12 +36,11 @@ func (m *MockServices) EXPECT() *MockServicesMockRecorder {
 }
 
 // CreateProduct mocks base method.
-func (m *MockServices) CreateProduct(ctx *gofr.Context, pro *product.Product) (*product.Product, error) {
+func (m *MockServices) CreateProduct(ctx *gofr.Context, pro product.Product) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateProduct", ctx, pro)
-	ret0, _ := ret[0].(*product.Product)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // CreateProduct indicates an expected call of CreateProduct.
@@ -65,10 +64,10 @@ func (mr *MockServicesMockRecorder) DeleteProduct(ctx, id interface{}) *gomock.C
 }
 
 // GetAllProd mocks base method.
-func (m *MockServices) GetAllProd(ctx *gofr.Context) ([]*product.Product, error) {
+func (m *MockServices) GetAllProd(ctx *gofr.Context) ([]product.Product, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllProd", ctx)
-	ret0, _ := ret[0].([]*product.Product)
+	ret0, _ := ret[0].([]product.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -80,10 +79,10 @@ func (mr *MockServicesMockRecorder) GetAllProd(ctx interface{}) *gomock.Call {
 }
 
 // GetProdByID mocks base method.
-func (m *MockServices) GetProdByID(ctx *gofr.Context, id int) (*product.Product, error) {
+func (m *MockServices) GetProdByID(ctx *gofr.Context, id int) (product.Product, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetProdByID", ctx, id)
-	ret0, _ := ret[0].(*product.Product)
+	ret0, _ := ret[0].(product.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -95,12 +94,11 @@ func (mr *MockServicesMockRecorder) GetProdByID(ctx, id interface{}) *gomock.Cal
 }
 
 // UpdateProduct mocks base method.
-func (m *MockServices) UpdateProduct(ctx *gofr.Context, pro product.Product) (*product.Product, error) {
+func (m *MockServices) UpdateProduct(ctx *gofr.Context, pro product.Product) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProduct", ctx, pro)
-	ret0, _ := ret[0].(*product.Product)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateProduct indicates an expected call of UpdateProduct.
