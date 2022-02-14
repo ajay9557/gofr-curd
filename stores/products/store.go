@@ -2,8 +2,9 @@ package products
 
 import (
 	"fmt"
-	"gofr-curd/models"
-	"gofr-curd/stores"
+
+	"github.com/Training/gofr-curd/models"
+	"github.com/Training/gofr-curd/stores"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"

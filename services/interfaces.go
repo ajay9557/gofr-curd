@@ -1,7 +1,7 @@
 package services
 
 import (
-	"gofr-curd/models"
+	"github.com/Training/gofr-curd/models"
 
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )

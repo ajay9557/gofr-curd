@@ -1,9 +1,8 @@
 package stores
 
 import (
-	"gofr-curd/models"
-
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
+	"github.com/Training/gofr-curd/models"
 )
 
 type Store interface {

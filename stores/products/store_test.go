@@ -2,9 +2,10 @@ package products
 
 import (
 	"context"
-	"gofr-curd/models"
 	"reflect"
 	"testing"
+
+	"github.com/Training/gofr-curd/models"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"

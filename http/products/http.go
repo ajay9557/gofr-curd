@@ -2,9 +2,10 @@ package products
 
 import (
 	"fmt"
-	"gofr-curd/models"
-	"gofr-curd/services"
 	"strconv"
+
+	"github.com/Training/gofr-curd/models"
+	"github.com/Training/gofr-curd/services"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"

@@ -2,12 +2,13 @@ package products
 
 import (
 	"bytes"
-	"gofr-curd/models"
-	"gofr-curd/services"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"github.com/Training/gofr-curd/models"
+	"github.com/Training/gofr-curd/services"
 
 	"developer.zopsmart.com/go/gofr/pkg/errors"
 	"developer.zopsmart.com/go/gofr/pkg/gofr"

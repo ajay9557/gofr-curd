@@ -5,10 +5,10 @@
 package services
 
 import (
-	models "gofr-curd/models"
 	reflect "reflect"
 
 	gofr "developer.zopsmart.com/go/gofr/pkg/gofr"
+	models "github.com/Training/gofr-curd/models"
 	gomock "github.com/golang/mock/gomock"
 )
 

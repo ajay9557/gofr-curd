@@ -1,0 +1,271 @@
+swagger: "2.0"
+info:
+  description: "Basic Crud operations for users"
+  version: "1.0.0"
+  title: "Users-Open-API"
+host: "localhost:8040"
+tags:
+- name: "user"
+  description: "CRUD Operations"
+schemes:
+- "http"
+- "https"
+paths:
+  /users:
+    post:
+      tags:
+      - "user"
+      summary: "Insert user"
+      description: "Insert the user details"
+      operationId: "InsertUser"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created User Object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "user created"
+          schema:
+            $ref: "#/definitions/Response"
+          examples:
+            application/json: 
+              "Data": 
+                {
+                  "Id": 1,
+                  "Name": "Sudheer",
+                  "Email": "sudheer01@gmail.com",
+                  "Phone": "9908123366",
+                  "Age": 22,
+                }
+              "Code": 200
+              "Message": User Created
+        "400":
+          description: "invalid body"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 400
+              "Message": Invalid Body Request
+        "500":
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 500
+              "Message": Internal Server Error
+    get:
+      tags:
+      - "user"
+      summary: "Get All Users from DB"
+      description: "Slices of User Object"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Users Retrieved Successfully"
+          schema:
+           $ref: "#/definitions/Response"
+          examples:
+            application/json: 
+              "Data": [
+                {
+                  "Id": 1,
+                  "Name": "Sudheer",
+                  "Email": "sudheer01@gmail.com",
+                  "Phone": "9908123366",
+                  "Age": 22,
+                }
+                ]
+              "Code": 200
+              "Message": Users Retrieved Successfully
+        "400":
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 500
+              "Message": Internal Server Error
+    put:
+      tags:
+      - "user"
+      summary: "Update User Details"
+      description: "Update Users in DB"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: " user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "User Updated Successfully"
+          schema:
+            $ref: "#/definitions/Response"
+          examples:
+            application/json: 
+              "Data": 
+                {
+                  "Id": 1,
+                  "Name": "Sudheer",
+                  "Email": "sudheer0108@gmail.com",
+                  "Phone": "9907123456",
+                  "Age": 21,
+                }
+              "Code": 200
+              "Message": User Updated Successfully
+        "400":
+          description: "Invalid Body"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 400
+              "Message": Invalid Body Request
+        "500":
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 500
+              "Message": Internal Server Error
+  /users/{id}:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by ID"
+      description: "A user object"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "id"
+        description: "Get User specific to id"
+        required: true
+        type: "integer"
+      responses:
+        "200":
+          description: "User Retrieved Successfully"
+          schema:
+           $ref: "#/definitions/Response"
+          examples:
+            application/json: 
+              "Data":
+                {
+                  "Id": 1,
+                  "Name": "Sudheer",
+                  "Email": "sudheer01@gmail.com",
+                  "Phone": "9908123366",
+                  "Age": 22,
+                }
+              "Code": 200
+              "Message": User Retrieved Successfully
+        "400":
+          description: "invalid parameter id"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 400
+              "Message": Invalid ID
+        "500":
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 500
+              "Message": Internal Server Error
+    delete:
+      tags:
+      - "user"
+      summary: "Delete User by ID"
+      description: "Delete User Object"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "id"
+        description: "Delete user specific to ID"
+        required: true
+        type: "integer"
+      responses:
+        "200":
+          description: "User Deleted Successfully"
+          schema:
+           $ref: "#/definitions/Response"
+          examples:
+            application/json: 
+              "Data": null
+              "Code": 200
+              "Message": User Deleted Successfully
+        "400":
+          description: "Invalid Parameter ID"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 400
+              "Message": Invalid Parameter ID
+        "500":
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          examples:
+            application/json: 
+              "Code": 500
+              "Message": Internal Server Error
+            
+definitions:
+  User:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      Name:
+        type: string
+      Email:
+        type: string
+      Phone:
+        type: string
+      Age:
+        type: integer
+        format: int64
+    xml:
+      name: User
+  Response:
+    type: object
+    properties:
+      Data:
+        type: array
+        items: 
+          $ref: "#/definitions/User"
+      Message:
+        type: string
+        example: string
+      StatusCode:
+        type: integer
+        format: int64
+        example: integer
+  ErrorResponse:
+    type: object
+    properties:
+      Code:
+        type: integer
+        format: int64
+        example: integer
+      Message:
+        type: string
+        example: string
