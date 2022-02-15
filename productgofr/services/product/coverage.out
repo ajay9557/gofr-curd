@@ -1,0 +1,26 @@
+mode: set
+zopsmart/productgofr/services/product/function.go:3.30,4.12 1 1
+zopsmart/productgofr/services/product/function.go:7.2,7.14 1 1
+zopsmart/productgofr/services/product/function.go:4.12,6.3 1 1
+zopsmart/productgofr/services/product/service.go:17.42,21.2 1 1
+zopsmart/productgofr/services/product/service.go:23.88,25.9 2 1
+zopsmart/productgofr/services/product/service.go:28.2,28.37 1 1
+zopsmart/productgofr/services/product/service.go:25.9,27.3 1 1
+zopsmart/productgofr/services/product/service.go:32.81,35.16 2 0
+zopsmart/productgofr/services/product/service.go:39.2,39.16 1 0
+zopsmart/productgofr/services/product/service.go:35.16,37.3 1 0
+zopsmart/productgofr/services/product/service.go:42.72,45.9 2 1
+zopsmart/productgofr/services/product/service.go:48.2,50.16 2 1
+zopsmart/productgofr/services/product/service.go:53.2,53.12 1 1
+zopsmart/productgofr/services/product/service.go:45.9,47.3 1 1
+zopsmart/productgofr/services/product/service.go:50.16,52.3 1 1
+zopsmart/productgofr/services/product/service.go:56.84,59.9 2 1
+zopsmart/productgofr/services/product/service.go:63.2,65.16 2 1
+zopsmart/productgofr/services/product/service.go:68.2,68.12 1 1
+zopsmart/productgofr/services/product/service.go:59.9,61.3 1 1
+zopsmart/productgofr/services/product/service.go:65.16,67.3 1 0
+zopsmart/productgofr/services/product/service.go:72.84,75.9 2 1
+zopsmart/productgofr/services/product/service.go:79.2,81.16 2 1
+zopsmart/productgofr/services/product/service.go:85.2,85.12 1 1
+zopsmart/productgofr/services/product/service.go:75.9,77.3 1 1
+zopsmart/productgofr/services/product/service.go:81.16,83.3 1 1
