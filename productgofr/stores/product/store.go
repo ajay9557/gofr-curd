@@ -1,7 +1,7 @@
 package product
 
 import (
-	"database/sql"
+	//	"database/sql"
 	"strconv"
 	models "zopsmart/productgofr/models"
 	stores "zopsmart/productgofr/stores"
@@ -10,8 +10,7 @@ import (
 	"developer.zopsmart.com/go/gofr/pkg/gofr"
 )
 
-
-type DBstore struct {}
+type DBstore struct{}
 
 func New() stores.Store {
 	return &DBstore{}
@@ -21,8 +20,8 @@ func (p *DBstore) GetProdByID(ctx *gofr.Context, id int) (models.Product, error)
 	var product models.Product
 
 	err := ctx.DB().QueryRowContext(ctx, "Select id,name,type from product where id =?", id).Scan(&product.Id, &product.Name, &product.Type)
-	
-	if err == sql.ErrNoRows {
+
+	if err != nil {
 		return product, errors.EntityNotFound{Entity: "product", ID: strconv.Itoa(id)}
 	}
 	return product, nil
@@ -31,7 +30,7 @@ func (p *DBstore) GetProdByID(ctx *gofr.Context, id int) (models.Product, error)
 func (p *DBstore) DeleteProduct(ctx *gofr.Context, id int) error {
 	_, err := ctx.DB().ExecContext(ctx, "Delete from product where id=?", id)
 	if err != nil {
-		return errors.Error("internal DB error")
+		return errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(id)}
 	}
 	return nil
 }
@@ -39,15 +38,18 @@ func (p *DBstore) DeleteProduct(ctx *gofr.Context, id int) error {
 func (p *DBstore) UpdateProduct(ctx *gofr.Context, prod models.Product) error {
 	_, err := ctx.DB().ExecContext(ctx, "Update product set name=?,type=? where id=?", prod.Name, prod.Type, prod.Id)
 	if err != nil {
-		return errors.Error("internal DB error")
+		return errors.EntityNotFound{Entity: "products", ID: strconv.Itoa(prod.Id)}
 	}
 	return nil
 }
 
 func (p *DBstore) CreateProduct(ctx *gofr.Context, product models.Product) error {
-	_, err := ctx.DB().ExecContext(ctx, "insert into product values(?,?,?)",product.Id, product.Name, product.Type)
+	_, err := ctx.DB().ExecContext(ctx, "insert into product values(?,?,?)", product.Id, product.Name, product.Type)
 	if err != nil {
-		return err
+		return errors.EntityNotFound{
+			Entity: "product",
+			ID:     "id",
+		}
 	}
 	return nil
 }
@@ -63,7 +65,7 @@ func (p *DBstore) GetAllProduct(ctx *gofr.Context) ([]models.Product, error) {
 		var product models.Product
 		err := rows.Scan(&product.Id, &product.Name, &product.Type)
 		if err != nil {
-			return nil, err
+			return nil, errors.Error("internal DB error")
 		}
 		products = append(products, product)
 	}

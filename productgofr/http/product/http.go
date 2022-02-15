@@ -28,6 +28,7 @@ func (h *Handler) GetProdByIdHandler(ctx *gofr.Context) (interface{}, error) {
 	}
 
 	id, err := strconv.Atoi(i)
+
 	if err != nil {
 		return nil, errors.InvalidParam{Param: []string{"id"}}
 	}
@@ -46,7 +47,10 @@ func (h *Handler) GetProdByIdHandler(ctx *gofr.Context) (interface{}, error) {
 
 func (h *Handler) GetAllProductHandler(ctx *gofr.Context) (interface{}, error) {
 	resp, err := h.service.GetAllProd(ctx)
-	return resp, err
+	if err!= nil {
+		return nil,errors.EntityNotFound{Entity: "products", ID: "all"}
+	}
+	return resp, nil
 }
 
 func (h *Handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
@@ -58,7 +62,7 @@ func (h *Handler) CreateProductHandler(ctx *gofr.Context) (interface{}, error) {
 
 	err := h.service.CreateProduct(ctx, p)
 	if err != nil {
-		return nil, err
+		return nil, errors.EntityAlreadyExists{}
 	}
 
 	return "Successfully created", nil
@@ -86,7 +90,7 @@ func (h *Handler) UpdateProductHandler(ctx *gofr.Context) (interface{}, error) {
 
 	er := h.service.UpdateProduct(ctx, p)
 	if er != nil {
-		return nil, er
+		return nil, errors.Error("error updating record")
 	}
 
 	return "Successfully updated",nil
